@@ -64,10 +64,6 @@ export class AppLogin extends LitElement {
         scroll-snap-type: x mandatory;
       }
 
-      #intro-carousel::-webkit-scrollbar {
-        display: none;
-      }
-
       .scroll-item {
         scroll-snap-align: center;
         display: flex;
@@ -114,7 +110,7 @@ export class AppLogin extends LitElement {
         width: 80vw;
       }
 
-      @media (max-width: 700px) {
+      @media (max-width: 820px) {
         md-dialog::part(panel) {
           height: 100vh;
           width: 100vw;
@@ -246,7 +242,7 @@ export class AppLogin extends LitElement {
       ${this.loadIntro
         ? html`
             <md-dialog label="Intro To Mastodon">
-              <div id="intro-carousel">
+              <div id="intro-carousel" class="scrollbar-hidden">
                 <div class="scroll-item">
                   <h2>What is Coho?</h2>
                   <p>

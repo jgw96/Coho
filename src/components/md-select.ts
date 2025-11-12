@@ -213,24 +213,6 @@ export class MdSelect extends LitElement {
           0px 1px 2px rgba(0, 0, 0, 0.3);
       }
     }
-
-    /* Scrollbar styling */
-    .dropdown::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    .dropdown::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    .dropdown::-webkit-scrollbar-thumb {
-      background: var(--md-sys-color-outline, #79747e);
-      border-radius: 4px;
-    }
-
-    .dropdown::-webkit-scrollbar-thumb:hover {
-      background: var(--md-sys-color-on-surface-variant, #49454f);
-    }
   `;
 
   connectedCallback() {

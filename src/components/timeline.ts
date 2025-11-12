@@ -134,11 +134,6 @@ export class Timeline extends LitElement {
         overflow-x: hidden !important;
       }
 
-      ul::-webkit-scrollbar,
-      lit-virtualizer::-webkit-scrollbar {
-        display: none;
-      }
-
       sl-card {
         --padding: 10px;
       }
@@ -215,46 +210,9 @@ export class Timeline extends LitElement {
         overflow: hidden;
       }
 
-      @media (max-width: 768px) {
-        ul {
-          padding: 0 10px;
-        }
-
-        #timeline-header {
-          padding-left: 12px;
-          padding-right: 12px;
-        }
-
-        #timeline-header md-select {
-          max-width: none;
-        }
-
-        #analyze ul {
-          max-height: none;
-        }
-
-        #analyze::part(panel) {
-          height: 96vh;
-          --width: 96vw;
-          max-width: none;
-          max-height: none;
-        }
-
-        #analyze::part(body) {
-          display: initial;
-        }
-
-        #analyze timeline-item {
-          display: none;
-        }
-
-        #img-preview::part(panel) {
-          height: 100vh;
-          max-height: 100vh;
-          max-width: 100vw;
-          width: 100vw;
-        }
-      }
+            @media (max-width: 820px) {
+        .timeline-container {
+          padding: 0;
 
       @keyframes fadein {
         0% {
@@ -530,7 +488,7 @@ export class Timeline extends LitElement {
         </md-button>
       </div>
 
-      <ul id="mainList" part="list">
+      <ul id="mainList" part="list" class="scrollbar-hidden">
         <!-- ${guard([this.timeline.length, this.timelineType], () =>
           this.timeline.map(
             (tweet: Post) => html`

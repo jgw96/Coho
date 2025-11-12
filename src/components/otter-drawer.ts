@@ -166,7 +166,7 @@ export class OtterDrawer extends LitElement {
     }
 
     /* Responsive */
-    @media (max-width: 700px) {
+    @media (max-width: 820px) {
       :host {
         --drawer-width: 100vw;
         --drawer-height: 70vh;

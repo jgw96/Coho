@@ -23,10 +23,6 @@ export class AppMessages extends LitElement {
         overflow-y: scroll;
         overflow-x: hidden;
       }
-
-      ul::-webkit-scrollbar {
-        display: none;
-      }
     `,
   ];
 
@@ -53,7 +49,7 @@ export class AppMessages extends LitElement {
 
   render() {
     return html`
-      <ul>
+      <ul class="scrollbar-hidden">
         <h2>Coming soon...</h2>
       </ul>
     `;

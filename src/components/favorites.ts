@@ -30,15 +30,11 @@ export class Favorites extends LitElement {
         overflow-x: hidden;
       }
 
-      @media (max-width: 768px) {
+      @media (max-width: 820px) {
         ul {
           padding-left: 10px;
           padding-right: 10px;
         }
-      }
-
-      ul::-webkit-scrollbar {
-        display: none;
       }
     `,
   ];
@@ -71,7 +67,7 @@ export class Favorites extends LitElement {
 
   render() {
     return html`
-      <ul>
+      <ul class="scrollbar-hidden">
         ${this.isLoading
           ? html`<md-skeleton-card count="5"></md-skeleton-card>`
           : this.favorites.map((favorite: Post) => {

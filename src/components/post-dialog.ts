@@ -188,28 +188,9 @@ export class PostDialog extends LitElement {
         display: inline-flex;
       }
 
-      @media (max-width: 700px) {
-        md-dialog::part(dialog) {
-          height: 100vh;
-          max-height: 100vh;
-          max-width: 100vw;
-          width: 100vw;
-          border-radius: 0;
-        }
-
-        .dialog-footer-actions {
-          flex-wrap: wrap;
-          gap: 8px;
-        }
-
-        .mobile-icon-button {
-          display: inline-flex;
-        }
-
-        .desktop-button {
-          display: none;
-        }
-      }
+            @media (max-width: 820px) {
+        .dialog-container {
+          max-width: 100%;
 
       .img-preview {
         display: flex;

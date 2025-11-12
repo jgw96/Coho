@@ -73,19 +73,6 @@ export class MdDialog extends LitElement {
       max-height: calc(100vh - 200px);
     }
 
-    .dialog-body::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    .dialog-body::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    .dialog-body::-webkit-scrollbar-thumb {
-      background-color: var(--md-sys-color-outline, #79747e);
-      border-radius: 4px;
-    }
-
     .dialog-footer {
       display: flex;
       align-items: center;
@@ -150,7 +137,7 @@ export class MdDialog extends LitElement {
     }
 
     /* Mobile adjustments */
-    @media (max-width: 700px) {
+    @media (max-width: 820px) {
       dialog:not(.fullscreen) {
         max-width: calc(100vw - 32px);
         max-height: calc(100vh - 32px);

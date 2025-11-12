@@ -94,7 +94,7 @@ The component uses a CSS shimmer animation:
 
 ## Responsive Behavior
 
-### Mobile (`max-width: 700px`)
+### Mobile (`max-width: 820px`)
 - Reduced padding: `12px` instead of `16px`
 - Smaller border radius: `8px` instead of `12px`
 - Shorter media height: `180px` instead of `200px`
@@ -117,15 +117,15 @@ The component uses a CSS shimmer animation:
 ## Best Practices
 
 ### When to Use
-✅ Initial page load while fetching data  
-✅ Infinite scroll loading states  
-✅ Refreshing timeline/bookmarks/favorites  
-✅ Any async data fetch that matches timeline-item structure  
+✅ Initial page load while fetching data
+✅ Infinite scroll loading states
+✅ Refreshing timeline/bookmarks/favorites
+✅ Any async data fetch that matches timeline-item structure
 
 ### When NOT to Use
-❌ Button loading states (use disabled state + spinner)  
-❌ Non-list layouts (create specific skeleton for that layout)  
-❌ After data is already loaded (use actual components)  
+❌ Button loading states (use disabled state + spinner)
+❌ Non-list layouts (create specific skeleton for that layout)
+❌ After data is already loaded (use actual components)
 
 ### Performance Tips
 1. **Limit count**: Don't render 100+ skeleton cards, 5-10 is typically enough

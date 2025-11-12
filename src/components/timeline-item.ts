@@ -274,11 +274,9 @@ export class TimelineItem extends LitElement {
         gap: 8px;
       }
 
-      @media (max-width: 700px) {
-        .actions {
-          justify-content: space-between;
-        }
-      }
+            @media (max-width: 820px) {
+        .timeline-item {
+          border-radius: 0;
 
       @media (prefers-color-scheme: light) {
         #reply-to {

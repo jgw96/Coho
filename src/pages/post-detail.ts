@@ -51,10 +51,6 @@ export class PostDetail extends LitElement {
         border: none;
       }
 
-      :host::-webkit-scrollbar {
-        display: none;
-      }
-
       #main-block {
         display: flex;
         flex-direction: column;
@@ -120,7 +116,7 @@ export class PostDetail extends LitElement {
         }
       }
 
-      @media (max-width: 768px) {
+      @media (max-width: 820px) {
         main {
           flex-direction: column;
           display: flex;

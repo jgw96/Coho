@@ -17,10 +17,6 @@ export class AppFollowers extends LitElement {
         height: 100vh;
       }
 
-      :host::-webkit-scrollbar {
-        display: none;
-      }
-
       main {
         padding-top: 60px;
       }
@@ -41,17 +37,9 @@ export class AppFollowers extends LitElement {
         padding-right: 6em;
       }
 
-      ul::-webkit-scrollbar {
-        display: none;
-      }
-
       h2 {
         padding-left: 4em;
         animation: slideInFromLeft 0.3s ease-in-out;
-      }
-
-      ul::-webkit-scrollbar {
-        display: none;
       }
 
       ul li {
@@ -118,7 +106,7 @@ export class AppFollowers extends LitElement {
 
       <main>
         <h2>Your Followers</h2>
-        <ul>
+        <ul class="scrollbar-hidden">
           ${this.followers.map((follower: any) => {
             return html`
               ${follower && follower.id

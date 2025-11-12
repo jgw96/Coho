@@ -173,21 +173,9 @@ export class Notifications extends LitElement {
         font-weight: normal;
       }
 
-      @media (max-width: 700px) {
-        sl-tab-group {
-          padding-left: 10px;
-          padding-right: 10px;
-        }
-
-        md-dialog#open-tweet-dialog {
-          --md-dialog-max-width: 100vw;
-          --md-dialog-max-height: 100vh;
-        }
-
-        md-dialog#open-tweet-dialog dialog {
+            @media (max-width: 820px) {
+        .notification-item {
           border-radius: 0;
-        }
-      }
     `,
   ];
 

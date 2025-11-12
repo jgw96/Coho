@@ -37,10 +37,6 @@ export class MammothBot extends LitElement {
         overflow-y: clip;
       }
 
-      ul::-webkit-scrollbar {
-        display: none;
-      }
-
       .wrapper {
         display: flex;
         justify-content: space-between;
@@ -106,18 +102,9 @@ export class MammothBot extends LitElement {
         border: none;
       }
 
-      @media (max-width: 800px) {
-        md-text-area::part(textarea) {
-          display: flex;
-          position: unset;
-
-          width: 100%;
-        }
-
-        ul {
-          width: 92%;
-        }
-      }
+            @media (max-width: 820px) {
+        .chat-container {
+          max-width: 100%;
 
       @media (prefers-color-scheme: dark) {
         md-text-area::part(textarea),

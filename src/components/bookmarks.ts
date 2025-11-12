@@ -31,16 +31,9 @@ export class Bookmarks extends LitElement {
         overflow-x: hidden;
       }
 
-      @media (max-width: 768px) {
-        ul {
-          padding-left: 10px;
-          padding-right: 10px;
-        }
-      }
-
-      ul::-webkit-scrollbar {
-        display: none;
-      }
+            @media (max-width: 820px) {
+        .bookmarks-container {
+          padding: 0;
     `,
   ];
 
@@ -74,7 +67,7 @@ export class Bookmarks extends LitElement {
 
   render() {
     return html`
-      <ul>
+      <ul class="scrollbar-hidden">
         ${this.isLoading
           ? html`<md-skeleton-card count="5"></md-skeleton-card>`
           : this.bookmarks.map((bookmark: Post) => {

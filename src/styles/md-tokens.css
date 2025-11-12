@@ -232,3 +232,59 @@
   --md-sys-motion-duration-long3: 550ms;
   --md-sys-motion-duration-long4: 600ms;
 }
+
+/* Scrollbar Tokens (MD3) - Subtle scrollbars for light mode */
+:root {
+  --md-sys-scrollbar-width: 8px;
+  --md-sys-scrollbar-height: 8px;
+  --md-sys-scrollbar-track-color: transparent;
+  --md-sys-scrollbar-thumb-color: rgba(0, 0, 0, 0.15);
+  --md-sys-scrollbar-thumb-hover-color: rgba(0, 0, 0, 0.25);
+  --md-sys-scrollbar-thumb-radius: 4px;
+}
+
+/* Dark mode scrollbar overrides - Subtle scrollbars for dark mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --md-sys-scrollbar-thumb-color: rgba(255, 255, 255, 0.15);
+    --md-sys-scrollbar-thumb-hover-color: rgba(255, 255, 255, 0.25);
+  }
+}
+
+/* Global Scrollbar Styles - Applied to all elements */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--md-sys-scrollbar-thumb-color)
+    var(--md-sys-scrollbar-track-color);
+}
+
+/* WebKit scrollbar styles */
+*::-webkit-scrollbar {
+  width: var(--md-sys-scrollbar-width);
+  height: var(--md-sys-scrollbar-height);
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--md-sys-scrollbar-track-color);
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--md-sys-scrollbar-thumb-color);
+  border-radius: var(--md-sys-scrollbar-thumb-radius);
+  transition: background-color var(--md-sys-motion-duration-short3)
+    var(--md-sys-motion-easing-standard);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--md-sys-scrollbar-thumb-hover-color);
+}
+
+/* Hidden scrollbar utility class */
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}

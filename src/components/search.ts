@@ -29,11 +29,9 @@ export class Search extends LitElement {
         gap: 8px;
       }
 
-      @media (max-width: 768px) {
-        md-text-field {
-          width: 100%;
-        }
-      }
+            @media (max-width: 820px) {
+        .search-container {
+          padding: 0;
 
       @media (prefers-color-scheme: dark) {
         .account {

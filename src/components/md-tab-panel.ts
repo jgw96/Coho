@@ -92,11 +92,9 @@ export class MdTabPanel extends LitElement {
     }
 
     /* Mobile: reduce padding */
-    @media (max-width: 700px) {
-      .panel-content {
+        @media (max-width: 820px) {
+      .panel {
         padding: 12px;
-      }
-    }
 
     /* Allow custom padding override */
     :host([no-padding]) .panel-content {

@@ -212,8 +212,33 @@ private handleTabChange(e: CustomEvent) {
 4. Update this guide under the MD3 component suite table.
 5. Replace legacy usages across pages progressively.
 
+#### Scrollbar Styling
+All scrollbars across the app use centralized MD3-compliant styles defined in `src/styles/md-tokens.css`:
+
+**Design Tokens:**
+```css
+--md-sys-scrollbar-width: 8px;
+--md-sys-scrollbar-thumb-color: rgba(0, 0, 0, 0.15);  /* Light mode */
+--md-sys-scrollbar-thumb-hover-color: rgba(0, 0, 0, 0.25);
+```
+
+**Key Features:**
+- Subtle, semi-transparent thumbs (15% opacity) that adapt to light/dark mode
+- 8px width for both vertical and horizontal scrollbars
+- Transparent track background
+- Smooth transitions on hover
+- Auto-applies to all scrollable elements via global `*` selector
+
+**Usage:**
+No need to add scrollbar styles to individual components - they're applied globally. To hide scrollbars on specific elements:
+
+```html
+<div class="scrollbar-hidden">Content</div>
+```
+
+**DO NOT** add custom scrollbar styles to individual components unless there's a specific design reason. Use the centralized system.
+
 #### Future Enhancements
-- Centralize MD3 design tokens (create `src/styles/md-tokens.css`).
 - Add focus trap utility for `md-dialog` and keyboard navigation for `md-menu`.
 - Provide ripple effect utility for consistent press states.
 - Improve accessibility audits (role attributes, aria-expanded for menus, inert background while dialog open).
@@ -257,7 +282,7 @@ export const functionName = onRequest(async (request, response) => {
     response.status(204).send("");
     return;
   }
-  
+
   response.set(corsHeaders);
   // Logic here
   response.json(data);
@@ -361,7 +386,7 @@ interface Settings {
 - Shared styles in `src/styles/shared-styles.ts`
 - Shoelace CSS custom properties for theming (`--sl-color-primary-600`)
 - Theme colors stored in `light.css`, `dark.css`, `global.css` (copied to dist by Vite)
-- Responsive breakpoint: `@media(max-width: 700px)`
+- Responsive breakpoint: `@media(max-width: 820px)`
 
 ### State Management
 - Component-level `@state()` for private reactive state
@@ -554,7 +579,7 @@ User's custom primary color overrides both light and dark defaults via inline st
 ### Responsive Styling
 All components use consistent breakpoint:
 ```css
-@media(max-width: 700px) {
+@media(max-width: 820px) {
   /* Mobile styles */
 }
 ```

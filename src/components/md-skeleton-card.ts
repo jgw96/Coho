@@ -76,9 +76,9 @@ export class MdSkeletonCard extends LitElement {
       }
     }
 
-    @media (max-width: 700px) {
+    @media (max-width: 820px) {
       .skeleton-card {
-        border-radius: 8px;
+        border-radius: 0;
         height: 250px;
       }
     }

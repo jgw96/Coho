@@ -203,10 +203,6 @@ export class AppProfile extends LitElement {
         border-radius: 6px;
       }
 
-      ul::-webkit-scrollbar {
-        display: none;
-      }
-
       #profile {
         padding-top: 0;
         border-radius: 6px;
@@ -311,7 +307,7 @@ export class AppProfile extends LitElement {
         font-size: 12px;
       }
 
-      @media (max-width: 700px) {
+      @media (max-width: 820px) {
         main {
           display: flex;
           flex-direction: column;
@@ -600,7 +596,7 @@ export class AppProfile extends LitElement {
             `
           : null}
 
-        <ul>
+        <ul class="scrollbar-hidden">
           ${this.posts.map(
             (post) => html`
               <li>

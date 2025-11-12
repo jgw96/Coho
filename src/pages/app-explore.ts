@@ -21,10 +21,6 @@ export class AppExplore extends LitElement {
         height: 100vh;
       }
 
-      :host::-webkit-scrollbar {
-        display: none;
-      }
-
       p {
         color: rgb(169, 169, 169);
       }
@@ -63,7 +59,7 @@ export class AppExplore extends LitElement {
         margin-top: 6px;
       }
 
-      @media (max-width: 768px) {
+      @media (max-width: 820px) {
         main {
           grid-template-columns: 1fr;
           display: flex;

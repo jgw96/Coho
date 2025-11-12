@@ -312,10 +312,6 @@ export class AppHome extends LitElement {
           padding-right: 10vw;
         }
 
-        #settings-drawer::part(body)::-webkit-scrollbar {
-          display: none;
-        }
-
         #settings-drawer label {
           display: flex;
           align-items: center;
@@ -466,7 +462,7 @@ export class AppHome extends LitElement {
           }
         }
 
-        @media (max-width: 700px) {
+        @media (max-width: 820px) {
           #profile {
             display: none;
           }
@@ -614,7 +610,7 @@ export class AppHome extends LitElement {
       { timeout: 3000 }
     );
 
-    window.matchMedia(' (max-width: 700px)').addEventListener('change', (e) => {
+    window.matchMedia('(max-width: 820px)').addEventListener('change', (e) => {
       if (e.matches) {
         const tabGroup = this.shadowRoot?.querySelector('md-tabs');
         tabGroup?.setAttribute('placement', 'bottom');
@@ -1193,10 +1189,10 @@ export class AppHome extends LitElement {
         <md-tabs
           @tab-change="${(e: CustomEvent) => this.handleTabChange(e)}"
           .active="${this.activeTab}"
-          orientation="${window.matchMedia('(max-width: 700px)').matches
+          orientation="${window.matchMedia('(max-width: 820px)').matches
             ? 'horizontal'
             : 'vertical'}"
-          .placement="${window.matchMedia('(max-width: 700px)').matches
+          .placement="${window.matchMedia('(max-width: 820px)').matches
             ? 'bottom'
             : 'start'}"
         >

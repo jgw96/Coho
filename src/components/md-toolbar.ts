@@ -70,12 +70,9 @@ export class MdToolbar extends LitElement {
     }
 
     /* Mobile adjustments */
-    @media (max-width: 700px) {
+        @media (max-width: 820px) {
       .toolbar {
-        min-height: 56px;
-        padding: 4px 8px;
-      }
-    }
+        padding: 8px 12px;
   `;
 
   render() {

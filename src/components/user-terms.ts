@@ -23,10 +23,6 @@ export class UserTerms extends LitElement {
         height: 200px;
         overflow-y: auto;
       }
-
-      ul::-webkit-scrollbar {
-        width: 8px;
-      }
     `,
   ];
 

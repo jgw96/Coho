@@ -95,10 +95,6 @@ export class SearchPage extends LitElement {
       #newsList li {
       }
 
-      ul::-webkit-scrollbar {
-        display: none;
-      }
-
       #searchResults {
         display: flex;
         column-gap: 8px;

@@ -39,12 +39,9 @@ export class ImagePreview extends LitElement {
         text-align: center;
       }
 
-      @media (max-width: 640px) {
-        img {
-          width: 90%;
-          height: 70vh;
-        }
-      }
+            @media (max-width: 820px) {
+        .image-container {
+          padding: 8px;
     `,
   ];
 

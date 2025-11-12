@@ -17,10 +17,6 @@ export class Appfollowing extends LitElement {
         height: 100vh;
       }
 
-      :host::-webkit-scrollbar {
-        display: none;
-      }
-
       main {
         padding-top: 60px;
       }
@@ -41,16 +37,8 @@ export class Appfollowing extends LitElement {
         padding-right: 6em;
       }
 
-      ul::-webkit-scrollbar {
-        display: none;
-      }
-
       h2 {
         padding-left: 4em;
-      }
-
-      ul::-webkit-scrollbar {
-        display: none;
       }
 
       ul li {
@@ -93,7 +81,7 @@ export class Appfollowing extends LitElement {
 
       <main>
         <h2>You are Following</h2>
-        <ul>
+        <ul class="scrollbar-hidden">
           ${this.following.map((follower: any) => {
             return html`
               ${follower && follower.id

@@ -54,11 +54,6 @@ export class MediaTimeline extends LitElement {
         overflow-x: hidden !important;
       }
 
-      ul::-webkit-scrollbar,
-      lit-virtualizer::-webkit-scrollbar {
-        display: none;
-      }
-
       sl-card {
         --padding: 10px;
       }

@@ -68,7 +68,7 @@ export class EditAccount extends LitElement {
         margin-top: 10px;
       }
 
-      @media (max-width: 800px) {
+      @media (max-width: 820px) {
         form {
           width: 90vw;
         }
