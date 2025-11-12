@@ -45,3 +45,35 @@
 - [PWA (cross-platform, works on Android, Windows, macOS, iOS, ipadOS, Linux and any other operating system with a modern browser)](https://wonderful-glacier-07b022d1e.2.azurestaticapps.net/home)
 - [Google Play](https://play.google.com/store/apps/details?id=com.mammoth.pwa)
 - [Microsoft Store](https://www.microsoft.com/store/apps/9NRFT6SLGBMK)
+
+## Development
+
+### Quick Start
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production (includes automatic image optimization)
+npm run build
+```
+
+### Image Optimization
+
+All images are automatically optimized during the build process using our custom optimization script. This reduces bundle size by ~70% on average.
+
+```bash
+# Manually optimize images
+npm run optimize-images
+
+# Preview optimizations (dry-run)
+npm run optimize-images:check
+
+# Verbose output showing each file
+npm run optimize-images:verbose
+```
+
+See [scripts/README.md](scripts/README.md) for more details on the build tools.
