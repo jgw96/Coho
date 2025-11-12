@@ -3,10 +3,12 @@ import { customElement, state } from 'lit/decorators.js';
 import { Post } from '../interfaces/Post';
 
 import './timeline-item';
+import './md-skeleton-card';
 
 @customElement('app-bookmarks')
 export class Bookmarks extends LitElement {
   @state() bookmarks = [];
+  @state() isLoading = true;
 
   static styles = [
     css`
@@ -54,11 +56,13 @@ export class Bookmarks extends LitElement {
     const observer = new IntersectionObserver((entries, observer) => {
       entries.forEach(async (entry) => {
         if (entry.isIntersecting) {
+          this.isLoading = true;
           const { getBookmarks } = await import('../services/bookmarks');
           const bookmarksData = await getBookmarks();
           console.log(bookmarksData);
 
           this.bookmarks = bookmarksData;
+          this.isLoading = false;
 
           observer.disconnect();
         }
@@ -71,9 +75,11 @@ export class Bookmarks extends LitElement {
   render() {
     return html`
       <ul>
-        ${this.bookmarks.map((bookmark: Post) => {
-          return html` <timeline-item .tweet=${bookmark}></timeline-item> `;
-        })}
+        ${this.isLoading
+          ? html`<md-skeleton-card count="5"></md-skeleton-card>`
+          : this.bookmarks.map((bookmark: Post) => {
+              return html` <timeline-item .tweet=${bookmark}></timeline-item> `;
+            })}
       </ul>
     `;
   }

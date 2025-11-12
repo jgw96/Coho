@@ -13,6 +13,7 @@ import TimelineWorker from '../utils/timeline-worker?worker';
 import '../components/md-dialog';
 import '../components/md-button';
 import '../components/md-icon';
+import '../components/md-skeleton-card';
 
 import '@lit-labs/virtualizer';
 
@@ -556,40 +557,45 @@ export class Timeline extends LitElement {
           )
         )} -->
 
-        <lit-virtualizer
-          .items=${this.timeline}
-          .renderItem=${(tweet: Post) =>
-            html`<li class="timeline-list-item">
-              <timeline-item
-                @open="${($event: CustomEvent) =>
-                  this.handleOpen($event.detail.tweet)}"
-                @summarize="${($event: any) => this.handleSummary($event)}"
-                tweetID="${tweet.id}"
-                @delete="${() => this.refreshTimeline()}"
-                @analyze="${($event: any) =>
-                  this.showAnalyze(
-                    $event.detail.data,
-                    $event.detail.imageData,
-                    $event.detail.tweet
-                  )}"
-                @openimage="${($event: any) =>
-                  this.showImage($event.detail.imageURL)}"
-                ?show="${true}"
-                @replies="${($event: any) =>
-                  this.handleReplies($event.detail.data)}"
-                .tweet="${tweet}"
-              ></timeline-item>
-            </li>`}
-        >
-        </lit-virtualizer>
+        ${this.loadingData && this.timeline.length === 0
+          ? html`<md-skeleton-card count="5"></md-skeleton-card>`
+          : html`
+              <lit-virtualizer
+                .items=${this.timeline}
+                .renderItem=${(tweet: Post) =>
+                  html`<li class="timeline-list-item">
+                    <timeline-item
+                      @open="${($event: CustomEvent) =>
+                        this.handleOpen($event.detail.tweet)}"
+                      @summarize="${($event: any) =>
+                        this.handleSummary($event)}"
+                      tweetID="${tweet.id}"
+                      @delete="${() => this.refreshTimeline()}"
+                      @analyze="${($event: any) =>
+                        this.showAnalyze(
+                          $event.detail.data,
+                          $event.detail.imageData,
+                          $event.detail.tweet
+                        )}"
+                      @openimage="${($event: any) =>
+                        this.showImage($event.detail.imageURL)}"
+                      ?show="${true}"
+                      @replies="${($event: any) =>
+                        this.handleReplies($event.detail.data)}"
+                      .tweet="${tweet}"
+                    ></timeline-item>
+                  </li>`}
+              >
+              </lit-virtualizer>
 
-        <md-button
-          variant="text"
-          ?disabled="${this.loadingData}"
-          id="load-more"
-        >
-          Load More
-        </md-button>
+              <md-button
+                variant="text"
+                ?disabled="${this.loadingData}"
+                id="load-more"
+              >
+                ${this.loadingData ? 'Loading...' : 'Load More'}
+              </md-button>
+            `}
       </ul>
     `;
   }

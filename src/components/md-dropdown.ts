@@ -41,12 +41,13 @@ export class MdDropdown extends LitElement {
       transition:
         opacity 0.15s cubic-bezier(0.2, 0, 0, 1),
         transform 0.15s cubic-bezier(0.2, 0, 0, 1);
-      pointer-events: auto;
+      pointer-events: none;
     }
 
     :host([open]) .popup {
       opacity: 1;
       transform: scale(1);
+      pointer-events: auto;
     }
 
     .backdrop {

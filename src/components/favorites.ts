@@ -2,9 +2,12 @@ import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { Post } from '../interfaces/Post';
 
+import './md-skeleton-card';
+
 @customElement('app-favorites')
 export class Favorites extends LitElement {
   @state() favorites = [];
+  @state() isLoading = true;
 
   static styles = [
     css`
@@ -50,11 +53,13 @@ export class Favorites extends LitElement {
     const observer = new IntersectionObserver((entries, observer) => {
       entries.forEach(async (entry) => {
         if (entry.isIntersecting) {
+          this.isLoading = true;
           const { getFavorites } = await import('../services/favorites');
           const favoritesData = await getFavorites();
           console.log(favoritesData);
 
           this.favorites = favoritesData;
+          this.isLoading = false;
 
           observer.disconnect();
         }
@@ -67,9 +72,11 @@ export class Favorites extends LitElement {
   render() {
     return html`
       <ul>
-        ${this.favorites.map((favorite: Post) => {
-          return html` <timeline-item .tweet=${favorite}></timeline-item> `;
-        })}
+        ${this.isLoading
+          ? html`<md-skeleton-card count="5"></md-skeleton-card>`
+          : this.favorites.map((favorite: Post) => {
+              return html` <timeline-item .tweet=${favorite}></timeline-item> `;
+            })}
       </ul>
     `;
   }
