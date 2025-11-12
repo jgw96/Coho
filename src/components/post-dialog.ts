@@ -521,7 +521,11 @@ export class PostDialog extends LitElement {
 
   render() {
     return html`
-      <md-dialog id="notify-dialog" label="New Post" ?fullscreen=${this.isMobile}>
+      <md-dialog
+        id="notify-dialog"
+        label="New Post"
+        ?fullscreen=${this.isMobile}
+      >
         <md-text-area
           @change="${($event: any) => this.handleStatus($event)}"
           autofocus

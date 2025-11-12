@@ -4,9 +4,10 @@ import { property, customElement, state } from 'lit/decorators.js';
 import '../components/timeline';
 import '../components/timeline-item';
 
-import '../components/app-theme';
-import '../components/right-click';
-import '../components/user-terms';
+// Lazy loaded components (loaded on demand):
+// - app-theme (loaded when theming drawer opens)
+// - right-click (loaded on first right-click)
+// - user-terms (loaded when settings drawer opens)
 
 import '../components/otter-drawer';
 import '../components/md-button';
@@ -59,6 +60,11 @@ export class AppHome extends LitElement {
   @state() favoritesLoaded: boolean = false;
   @state() notificationsLoaded: boolean = false;
   @state() searchLoaded: boolean = false;
+
+  // Lazy loading states for drawer components
+  @state() appThemeLoaded: boolean = false;
+  @state() userTermsLoaded: boolean = false;
+  @state() rightClickLoaded: boolean = false;
 
   @state() activeTab: string = 'general';
 
@@ -652,6 +658,11 @@ export class AppHome extends LitElement {
       }
     });
 
+    // Lazy load right-click component when idle
+    window.requestIdleCallback(async () => {
+      await this.loadRightClick();
+    });
+
     window.requestIdleCallback(() => {
       if (this.shadowRoot) {
         const newPost = urlParams.get('newPost');
@@ -749,6 +760,7 @@ export class AppHome extends LitElement {
   }
 
   async openSettingsDrawer() {
+    await this.loadUserTerms();
     const drawer = this.shadowRoot?.getElementById('settings-drawer') as any;
     await drawer.show();
 
@@ -779,6 +791,7 @@ export class AppHome extends LitElement {
   }
 
   async openThemingDrawer() {
+    await this.loadAppTheme();
     const drawer = this.shadowRoot?.getElementById('theming-drawer') as any;
     await drawer.show();
   }
@@ -942,6 +955,28 @@ export class AppHome extends LitElement {
     }
   }
 
+  // Lazy loading methods for drawer components
+  async loadAppTheme() {
+    if (!this.appThemeLoaded) {
+      await import('../components/app-theme');
+      this.appThemeLoaded = true;
+    }
+  }
+
+  async loadUserTerms() {
+    if (!this.userTermsLoaded) {
+      await import('../components/user-terms');
+      this.userTermsLoaded = true;
+    }
+  }
+
+  async loadRightClick() {
+    if (!this.rightClickLoaded) {
+      await import('../components/right-click');
+      this.rightClickLoaded = true;
+    }
+  }
+
   async handleTabChange(event: CustomEvent) {
     const panel = event.detail.panel;
     this.activeTab = panel;
@@ -965,38 +1000,59 @@ export class AppHome extends LitElement {
 
   render() {
     return html`
-      <right-click>
-        <md-menu>
-          <md-menu-item @menu-item-click=${() => router.navigate('/new-post')}>
-            <md-icon slot="prefix" src="/assets/add-outline.svg"></md-icon>
-            New Post
-          </md-menu-item>
+      ${this.rightClickLoaded
+        ? html`
+            <right-click>
+              <md-menu>
+                <md-menu-item
+                  @menu-item-click=${() => router.navigate('/new-post')}
+                >
+                  <md-icon
+                    slot="prefix"
+                    src="/assets/add-outline.svg"
+                  ></md-icon>
+                  New Post
+                </md-menu-item>
 
-          <md-menu-item @click="${() => this.openATab('search')}">
-            <md-icon slot="prefix" src="/assets/search-outline.svg"></md-icon>
-            Explore
-          </md-menu-item>
-          <md-menu-item @click="${() => this.openATab('notifications')}">
-            <md-icon
-              slot="prefix"
-              src="/assets/notifications-outline.svg"
-            ></md-icon>
-            Notifications
-          </md-menu-item>
-          <md-menu-item @click="${() => this.openATab('messages')}">
-            <md-icon slot="prefix" src="/assets/chatbox-outline.svg"></md-icon>
-            Messages
-          </md-menu-item>
-          <md-menu-item @click="${() => this.openATab('bookmarks')}">
-            <md-icon slot="prefix" src="/assets/bookmark-outline.svg"></md-icon>
-            Bookmarks
-          </md-menu-item>
-          <md-menu-item @click="${() => this.openATab('faves')}">
-            <md-icon slot="prefix" src="/assets/heart-outline.svg"></md-icon>
-            Favorites
-          </md-menu-item>
-        </md-menu>
-      </right-click>
+                <md-menu-item @click="${() => this.openATab('search')}">
+                  <md-icon
+                    slot="prefix"
+                    src="/assets/search-outline.svg"
+                  ></md-icon>
+                  Explore
+                </md-menu-item>
+                <md-menu-item @click="${() => this.openATab('notifications')}">
+                  <md-icon
+                    slot="prefix"
+                    src="/assets/notifications-outline.svg"
+                  ></md-icon>
+                  Notifications
+                </md-menu-item>
+                <md-menu-item @click="${() => this.openATab('messages')}">
+                  <md-icon
+                    slot="prefix"
+                    src="/assets/chatbox-outline.svg"
+                  ></md-icon>
+                  Messages
+                </md-menu-item>
+                <md-menu-item @click="${() => this.openATab('bookmarks')}">
+                  <md-icon
+                    slot="prefix"
+                    src="/assets/bookmark-outline.svg"
+                  ></md-icon>
+                  Bookmarks
+                </md-menu-item>
+                <md-menu-item @click="${() => this.openATab('faves')}">
+                  <md-icon
+                    slot="prefix"
+                    src="/assets/heart-outline.svg"
+                  ></md-icon>
+                  Favorites
+                </md-menu-item>
+              </md-menu>
+            </right-click>
+          `
+        : null}
 
       <app-header
         @open-bot-drawer="${() => this.openBotDrawer()}"
@@ -1011,10 +1067,14 @@ export class AppHome extends LitElement {
       </fluent-button> -->
 
       <otter-drawer label="Theming" id="theming-drawer">
-        <app-theme
-          @color-chosen="${($event: any) =>
-            this.handlePrimaryColor($event.detail.color)}"
-        ></app-theme>
+        ${this.appThemeLoaded
+          ? html`
+              <app-theme
+                @color-chosen="${($event: any) =>
+                  this.handlePrimaryColor($event.detail.color)}"
+              ></app-theme>
+            `
+          : html`<p>Loading theme options...</p>`}
       </otter-drawer>
 
       <md-dialog id="summary-dialog" label=""> ${this.summary} </md-dialog>
@@ -1086,7 +1146,9 @@ export class AppHome extends LitElement {
         </div>
 
         <div class="setting">
-          <user-terms></user-terms>
+          ${this.userTermsLoaded
+            ? html`<user-terms></user-terms>`
+            : html`<p>Loading terms...</p>`}
         </div>
 
         <div class="setting">
