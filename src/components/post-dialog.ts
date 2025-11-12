@@ -40,6 +40,7 @@ export class PostDialog extends LitElement {
 
   @state() hasStatus: boolean = false;
   @state() sensitive: boolean = false;
+  @state() isMobile: boolean = false;
 
   aiBlob: Blob | undefined;
 
@@ -188,10 +189,6 @@ export class PostDialog extends LitElement {
         display: inline-flex;
       }
 
-            @media (max-width: 820px) {
-        .dialog-container {
-          max-width: 100%;
-
       .img-preview {
         display: flex;
         flex-direction: column;
@@ -219,6 +216,21 @@ export class PostDialog extends LitElement {
         --sl-border-radius-default: 4px;
       }
 
+      @media (max-width: 820px) {
+        md-dialog::part(dialog) {
+          min-width: 100vw;
+          min-height: 100vh;
+        }
+
+        .mobile-icon-button {
+          display: inline-flex;
+        }
+
+        .desktop-button {
+          display: none;
+        }
+      }
+
       @keyframes fadein {
         from {
           opacity: 0;
@@ -231,6 +243,14 @@ export class PostDialog extends LitElement {
   ];
 
   protected async firstUpdated() {
+    // Detect mobile based on screen width
+    this.isMobile = window.matchMedia('(max-width: 820px)').matches;
+
+    // Listen for resize events to update mobile state
+    window.matchMedia('(max-width: 820px)').addEventListener('change', (e) => {
+      this.isMobile = e.matches;
+    });
+
     setTimeout(() => {
       const dialog: any = this.shadowRoot?.querySelector('md-dialog');
       console.log('dialog', dialog.dialog);
@@ -501,7 +521,7 @@ export class PostDialog extends LitElement {
 
   render() {
     return html`
-      <md-dialog id="notify-dialog" label="New Post">
+      <md-dialog id="notify-dialog" label="New Post" ?fullscreen=${this.isMobile}>
         <md-text-area
           @change="${($event: any) => this.handleStatus($event)}"
           autofocus
