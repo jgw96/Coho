@@ -107,18 +107,18 @@ async function optimizeRaster(filePath, dryRun, verbose) {
   const before = (await fs.stat(filePath)).size;
   const input = await fs.readFile(filePath);
   let outBuffer = null;
-  
+
   if (ext === '.jpg' || ext === '.jpeg') {
-    outBuffer = await imagemin.buffer(input, { 
-      plugins: [mozjpeg({ quality: 77, progressive: true })] 
+    outBuffer = await imagemin.buffer(input, {
+      plugins: [mozjpeg({ quality: 77, progressive: true })]
     });
   } else if (ext === '.png') {
-    outBuffer = await imagemin.buffer(input, { 
-      plugins: [pngquant({ quality: [0.65, 0.8], strip: true, speed: 3 })] 
+    outBuffer = await imagemin.buffer(input, {
+      plugins: [pngquant({ quality: [0.65, 0.8], strip: true, speed: 3 })]
     });
   } else if (ext === '.webp' && webpPlugin) {
-    outBuffer = await imagemin.buffer(input, { 
-      plugins: [webpPlugin({ quality: 77, method: 4 })] 
+    outBuffer = await imagemin.buffer(input, {
+      plugins: [webpPlugin({ quality: 77, method: 4 })]
     });
   } else if (ext === '.avif') {
     // Skipping AVIF for now to avoid heavy deps; return unchanged
@@ -140,14 +140,14 @@ async function optimizeRaster(filePath, dryRun, verbose) {
 
 async function main() {
   const { dryRun, verbose } = parseArgs();
-  
+
   console.log('🖼️  Image Optimization Tool');
   console.log('==========================\n');
-  
+
   if (dryRun) {
     console.log('🔍 Running in dry-run mode (no files will be modified)\n');
   }
-  
+
   await ensureDeps();
 
   const dirs = DEFAULT_DIRS;
