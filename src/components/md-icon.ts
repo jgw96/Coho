@@ -104,41 +104,47 @@ export class MdIcon extends LitElement {
       this.svgContent = text;
       this.loadError = false;
 
-      this.dispatchEvent(new CustomEvent('md-icon-load', {
-        bubbles: true,
-        composed: true,
-        detail: { src: this.src }
-      }));
+      this.dispatchEvent(
+        new CustomEvent('md-icon-load', {
+          bubbles: true,
+          composed: true,
+          detail: { src: this.src },
+        })
+      );
     } catch (error) {
       console.error('Error loading icon:', error);
       this.loadError = true;
       this.svgContent = '';
 
-      this.dispatchEvent(new CustomEvent('md-icon-error', {
-        bubbles: true,
-        composed: true,
-        detail: { src: this.src, error }
-      }));
+      this.dispatchEvent(
+        new CustomEvent('md-icon-error', {
+          bubbles: true,
+          composed: true,
+          detail: { src: this.src, error },
+        })
+      );
     }
   }
 
   render() {
     const classes = {
-      icon: true,
-      'icon--error': this.loadError
+      'icon': true,
+      'icon--error': this.loadError,
     };
 
     return html`
       <div
         part="base"
-        class="${Object.entries(classes).filter(([_, v]) => v).map(([k]) => k).join(' ')}"
+        class="${Object.entries(classes)
+          .filter(([_, v]) => v)
+          .map(([k]) => k)
+          .join(' ')}"
         role="img"
         aria-label="${this.label || 'icon'}"
       >
         ${this.svgContent
           ? html`<div part="svg">${unsafeSVG(this.svgContent)}</div>`
-          : html`<slot></slot>`
-        }
+          : html`<slot></slot>`}
       </div>
     `;
   }

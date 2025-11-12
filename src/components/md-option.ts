@@ -25,7 +25,11 @@ export class MdOption extends LitElement {
       padding: 0 16px;
       cursor: pointer;
       user-select: none;
-      font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+      font-family:
+        'Roboto',
+        system-ui,
+        -apple-system,
+        sans-serif;
       font-size: 16px;
       font-weight: 400;
       line-height: 24px;
@@ -38,15 +42,27 @@ export class MdOption extends LitElement {
 
     .option:hover:not(.disabled) {
       background-color: var(--md-sys-color-on-surface, #1d1b20);
-      background-color: color-mix(in srgb, var(--md-sys-color-on-surface, #1d1b20) 8%, transparent);
+      background-color: color-mix(
+        in srgb,
+        var(--md-sys-color-on-surface, #1d1b20) 8%,
+        transparent
+      );
     }
 
     .option:active:not(.disabled) {
-      background-color: color-mix(in srgb, var(--md-sys-color-on-surface, #1d1b20) 12%, transparent);
+      background-color: color-mix(
+        in srgb,
+        var(--md-sys-color-on-surface, #1d1b20) 12%,
+        transparent
+      );
     }
 
     .option.selected {
-      background-color: color-mix(in srgb, var(--md-sys-color-primary, #6750a4) 12%, transparent);
+      background-color: color-mix(
+        in srgb,
+        var(--md-sys-color-primary, #6750a4) 12%,
+        transparent
+      );
       font-weight: 500;
     }
 
@@ -86,7 +102,10 @@ export class MdOption extends LitElement {
       background-color: currentColor;
       opacity: 0;
       transform: translate(-50%, -50%);
-      transition: width 0.3s, height 0.3s, opacity 0.3s;
+      transition:
+        width 0.3s,
+        height 0.3s,
+        opacity 0.3s;
     }
 
     .option:active:not(.disabled)::before {
@@ -102,15 +121,27 @@ export class MdOption extends LitElement {
       }
 
       .option:hover:not(.disabled) {
-        background-color: color-mix(in srgb, var(--md-sys-color-on-surface, #e6e1e5) 8%, transparent);
+        background-color: color-mix(
+          in srgb,
+          var(--md-sys-color-on-surface, #e6e1e5) 8%,
+          transparent
+        );
       }
 
       .option:active:not(.disabled) {
-        background-color: color-mix(in srgb, var(--md-sys-color-on-surface, #e6e1e5) 12%, transparent);
+        background-color: color-mix(
+          in srgb,
+          var(--md-sys-color-on-surface, #e6e1e5) 12%,
+          transparent
+        );
       }
 
       .option.selected {
-        background-color: color-mix(in srgb, var(--md-sys-color-primary, #d0bcff) 12%, transparent);
+        background-color: color-mix(
+          in srgb,
+          var(--md-sys-color-primary, #d0bcff) 12%,
+          transparent
+        );
       }
 
       .checkmark {
@@ -125,11 +156,19 @@ export class MdOption extends LitElement {
       }
 
       .option:hover:not(.disabled) {
-        background-color: color-mix(in srgb, var(--md-sys-color-on-surface-light, #1d1b20) 8%, transparent);
+        background-color: color-mix(
+          in srgb,
+          var(--md-sys-color-on-surface-light, #1d1b20) 8%,
+          transparent
+        );
       }
 
       .option:active:not(.disabled) {
-        background-color: color-mix(in srgb, var(--md-sys-color-on-surface-light, #1d1b20) 12%, transparent);
+        background-color: color-mix(
+          in srgb,
+          var(--md-sys-color-on-surface-light, #1d1b20) 12%,
+          transparent
+        );
       }
     }
   `;
@@ -137,7 +176,9 @@ export class MdOption extends LitElement {
   render() {
     return html`
       <div
-        class="option ${this.selected ? 'selected' : ''} ${this.disabled ? 'disabled' : ''}"
+        class="option ${this.selected ? 'selected' : ''} ${this.disabled
+          ? 'disabled'
+          : ''}"
         role="option"
         aria-selected="${this.selected}"
         aria-disabled="${this.disabled}"
@@ -145,8 +186,16 @@ export class MdOption extends LitElement {
         <div class="content">
           <slot></slot>
         </div>
-        <svg class="checkmark" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor"/>
+        <svg
+          class="checkmark"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"
+            fill="currentColor"
+          />
         </svg>
       </div>
     `;

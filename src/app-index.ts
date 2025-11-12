@@ -17,7 +17,7 @@ export class AppIndex extends LitElement {
         padding-bottom: 16px;
       }
 
-      @media(max-width: 700px) {
+      @media (max-width: 700px) {
         main {
           padding-left: 8px;
           padding-right: 8px;
@@ -54,16 +54,17 @@ export class AppIndex extends LitElement {
     super.connectedCallback();
 
     const settings = await getSettings();
-    console.log("settings", settings)
+    console.log('settings', settings);
 
     const potentialColor = settings.primary_color;
 
     if (potentialColor) {
       this.applyThemeColor(potentialColor);
-    }
-    else {
+    } else {
       // get css variable color
-      const color = getComputedStyle(document.body).getPropertyValue('--sl-color-primary-600');
+      const color = getComputedStyle(document.body).getPropertyValue(
+        '--sl-color-primary-600'
+      );
       this.applyThemeColor(color);
     }
   }
@@ -100,7 +101,7 @@ export class AppIndex extends LitElement {
    */
   private adjustColorBrightness(col: string, amt: number): string {
     let usePound = false;
-    if (col[0] === "#") {
+    if (col[0] === '#') {
       col = col.slice(1);
       usePound = true;
     }
@@ -111,30 +112,28 @@ export class AppIndex extends LitElement {
     if (r > 255) r = 255;
     else if (r < 0) r = 0;
 
-    let b = ((num >> 8) & 0x00FF) + amt;
+    let b = ((num >> 8) & 0x00ff) + amt;
     if (b > 255) b = 255;
     else if (b < 0) b = 0;
 
-    let g = (num & 0x0000FF) + amt;
+    let g = (num & 0x0000ff) + amt;
     if (g > 255) g = 255;
     else if (g < 0) g = 0;
 
-    return (usePound ? "#" : "") + (g | (b << 8) | (r << 16)).toString(16);
+    return (usePound ? '#' : '') + (g | (b << 8) | (r << 16)).toString(16);
   }
 
   firstUpdated() {
     router.addEventListener('route-changed', () => {
-      if ("startViewTransition" in document) {
+      if ('startViewTransition' in document) {
         return (document as any).startViewTransition(() => {
           this.requestUpdate();
         });
-      }
-      else {
+      } else {
         this.requestUpdate();
       }
     });
   }
-
 
   render() {
     return router.render();

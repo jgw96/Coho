@@ -23,7 +23,11 @@ export class MdBadge extends LitElement {
       justify-content: center;
       padding: 8px 16px;
       border-radius: 8px;
-      font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+      font-family:
+        'Roboto',
+        system-ui,
+        -apple-system,
+        sans-serif;
       font-size: 14px;
       font-weight: 500;
       line-height: 20px;
@@ -33,14 +37,18 @@ export class MdBadge extends LitElement {
     }
 
     .badge.filled {
-      background-color: var(--md-sys-color-secondary-container, var(--sl-color-primary-100, #e8def8));
-      color: var(--md-sys-color-on-secondary-container, var(--sl-color-primary-900, #1d192b));
+      background-color: var(
+        --md-sys-color-primary,
+        var(--sl-color-primary-600, #6750a4)
+      );
+      color: var(--md-sys-color-on-primary, #ffffff);
     }
 
     .badge.outlined {
       background-color: transparent;
-      color: var(--md-sys-color-on-surface, var(--sl-color-neutral-900, #1d1b20));
-      border: 1px solid var(--md-sys-color-outline, var(--sl-color-primary-600, #79747e));
+      color: var(--md-sys-color-primary, var(--sl-color-primary-600, #6750a4));
+      border: 1px solid
+        var(--md-sys-color-primary, var(--sl-color-primary-600, #6750a4));
     }
 
     .badge.clickable {
@@ -48,16 +56,25 @@ export class MdBadge extends LitElement {
     }
 
     .badge.clickable:hover {
-      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3),
-                  0 1px 3px 1px rgba(0, 0, 0, 0.15);
+      box-shadow:
+        0 1px 2px 0 rgba(0, 0, 0, 0.3),
+        0 1px 3px 1px rgba(0, 0, 0, 0.15);
     }
 
     .badge.clickable.filled:hover {
-      background-color: var(--md-sys-color-secondary-container-hover, var(--sl-color-primary-200, #ddd0f0));
+      background-color: color-mix(
+        in srgb,
+        var(--md-sys-color-primary, var(--sl-color-primary-600, #6750a4)) 92%,
+        white
+      );
     }
 
     .badge.clickable.outlined:hover {
-      background-color: var(--md-sys-color-surface-variant, var(--sl-color-neutral-100, #e7e0ec));
+      background-color: color-mix(
+        in srgb,
+        var(--md-sys-color-primary, var(--sl-color-primary-600, #6750a4)) 8%,
+        transparent
+      );
     }
 
     .badge.clickable:active {
@@ -67,21 +84,38 @@ export class MdBadge extends LitElement {
     /* Dark mode support */
     @media (prefers-color-scheme: dark) {
       .badge.filled {
-        background-color: var(--md-sys-color-secondary-container, var(--sl-color-primary-800, #4a4458));
-        color: var(--md-sys-color-on-secondary-container, var(--sl-color-primary-100, #e8def8));
+        background-color: var(
+          --md-sys-color-primary,
+          var(--sl-color-primary-600, #d0bcff)
+        );
+        color: var(--md-sys-color-on-primary, #381e72);
       }
 
       .badge.outlined {
-        color: var(--md-sys-color-on-surface, var(--sl-color-neutral-100, #e6e1e5));
-        border-color: var(--md-sys-color-outline, var(--sl-color-primary-600, #938f99));
+        color: var(
+          --md-sys-color-primary,
+          var(--sl-color-primary-600, #d0bcff)
+        );
+        border-color: var(
+          --md-sys-color-primary,
+          var(--sl-color-primary-600, #d0bcff)
+        );
       }
 
       .badge.clickable.filled:hover {
-        background-color: var(--md-sys-color-secondary-container-hover, var(--sl-color-primary-700, #544a5e));
+        background-color: color-mix(
+          in srgb,
+          var(--md-sys-color-primary, var(--sl-color-primary-600, #d0bcff)) 92%,
+          black
+        );
       }
 
       .badge.clickable.outlined:hover {
-        background-color: var(--md-sys-color-surface-variant, var(--sl-color-neutral-800, #49454f));
+        background-color: color-mix(
+          in srgb,
+          var(--md-sys-color-primary, var(--sl-color-primary-600, #d0bcff)) 12%,
+          transparent
+        );
       }
     }
   `;
@@ -99,11 +133,13 @@ export class MdBadge extends LitElement {
 
   private _handleClick(e: Event) {
     if (this.clickable) {
-      this.dispatchEvent(new CustomEvent('badge-click', {
-        bubbles: true,
-        composed: true,
-        detail: { originalEvent: e }
-      }));
+      this.dispatchEvent(
+        new CustomEvent('badge-click', {
+          bubbles: true,
+          composed: true,
+          detail: { originalEvent: e },
+        })
+      );
     }
   }
 }

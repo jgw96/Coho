@@ -58,13 +58,20 @@ export class MdTab extends LitElement {
       box-sizing: border-box;
 
       /* Typography - Label Large */
-      font-family: Roboto, system-ui, -apple-system, sans-serif;
+      font-family:
+        Roboto,
+        system-ui,
+        -apple-system,
+        sans-serif;
       font-size: 14px;
       font-weight: 500;
       line-height: 20px;
       letter-spacing: 0.1px;
 
-      color: var(--md-sys-color-on-surface-variant, var(--sl-color-neutral-600));
+      color: var(
+        --md-sys-color-on-surface-variant,
+        var(--sl-color-neutral-600)
+      );
       background: transparent;
       transition: color 0.2s cubic-bezier(0.2, 0, 0, 1);
       white-space: nowrap;
@@ -73,14 +80,14 @@ export class MdTab extends LitElement {
     }
 
     /* Vertical orientation (side nav) - align left with more padding */
-    :host-context(md-tabs[orientation="vertical"]) button {
+    :host-context(md-tabs[orientation='vertical']) button {
       justify-content: flex-start;
       padding: 16px 24px;
       width: 100%;
     }
 
     /* Icon slot */
-    ::slotted([slot="icon"]) {
+    ::slotted([slot='icon']) {
       width: 24px;
       height: 24px;
       font-size: 24px;
@@ -137,7 +144,7 @@ export class MdTab extends LitElement {
     }
 
     /* Horizontal indicator (bottom) */
-    :host-context(md-tabs[orientation="horizontal"]) .indicator {
+    :host-context(md-tabs[orientation='horizontal']) .indicator {
       bottom: 0;
       left: 0;
       right: 0;
@@ -146,14 +153,15 @@ export class MdTab extends LitElement {
     }
 
     /* Horizontal bottom placement indicator (top) */
-    :host-context(md-tabs[orientation="horizontal"][placement="bottom"]) .indicator {
+    :host-context(md-tabs[orientation='horizontal'][placement='bottom'])
+      .indicator {
       bottom: auto;
       top: 0;
       border-radius: 0 0 3px 3px;
     }
 
     /* Vertical indicator (left or right) */
-    :host-context(md-tabs[orientation="vertical"]) .indicator {
+    :host-context(md-tabs[orientation='vertical']) .indicator {
       top: 0;
       bottom: 0;
       left: 0;
@@ -161,7 +169,7 @@ export class MdTab extends LitElement {
       border-radius: 0 3px 3px 0;
     }
 
-    :host-context(md-tabs[orientation="vertical"][placement="end"]) .indicator {
+    :host-context(md-tabs[orientation='vertical'][placement='end']) .indicator {
       left: auto;
       right: 0;
       border-radius: 3px 0 0 3px;
@@ -174,7 +182,10 @@ export class MdTab extends LitElement {
     /* Dark mode */
     @media (prefers-color-scheme: dark) {
       button {
-        color: var(--md-sys-color-on-surface-variant, var(--sl-color-neutral-400));
+        color: var(
+          --md-sys-color-on-surface-variant,
+          var(--sl-color-neutral-400)
+        );
       }
 
       :host([active]) button {
@@ -224,11 +235,13 @@ export class MdTab extends LitElement {
     setTimeout(() => ripple.remove(), 600);
 
     // Emit tab selected event
-    this.dispatchEvent(new CustomEvent('tab-selected', {
-      detail: { panel: this.panel },
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('tab-selected', {
+        detail: { panel: this.panel },
+        bubbles: true,
+        composed: true,
+      })
+    );
   }
 
   private _handleKeyDown(e: KeyboardEvent) {

@@ -33,7 +33,9 @@ export class OtterDrawer extends LitElement {
       background: var(--overlay-bg);
       opacity: 0;
       visibility: hidden;
-      transition: opacity var(--transition-speed) ease, visibility 0s var(--transition-speed);
+      transition:
+        opacity var(--transition-speed) ease,
+        visibility 0s var(--transition-speed);
       z-index: 9998;
     }
 
@@ -205,8 +207,18 @@ export class OtterDrawer extends LitElement {
             aria-label="Close drawer"
             part="close-button"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
@@ -229,10 +241,12 @@ export class OtterDrawer extends LitElement {
     this.open = true;
 
     // Emit event for potential listeners
-    this.dispatchEvent(new CustomEvent('otter-show', {
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('otter-show', {
+        bubbles: true,
+        composed: true,
+      })
+    );
 
     // Lock body scroll when drawer is open
     document.body.style.overflow = 'hidden';
@@ -247,10 +261,12 @@ export class OtterDrawer extends LitElement {
     this.open = false;
 
     // Emit event for potential listeners
-    this.dispatchEvent(new CustomEvent('otter-hide', {
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('otter-hide', {
+        bubbles: true,
+        composed: true,
+      })
+    );
 
     // Restore body scroll
     document.body.style.overflow = '';

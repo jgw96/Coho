@@ -61,7 +61,7 @@ export class MdTabPanel extends LitElement {
     }
 
     /* Vertical tabs - slide from left/right */
-    :host-context(md-tabs[orientation="vertical"]) {
+    :host-context(md-tabs[orientation='vertical']) {
       animation: slideFromLeft 0.3s cubic-bezier(0.2, 0, 0, 1);
     }
 
@@ -76,7 +76,7 @@ export class MdTabPanel extends LitElement {
       }
     }
 
-    :host-context(md-tabs[orientation="vertical"][placement="end"]) {
+    :host-context(md-tabs[orientation='vertical'][placement='end']) {
       animation: slideFromRight 0.3s cubic-bezier(0.2, 0, 0, 1);
     }
 

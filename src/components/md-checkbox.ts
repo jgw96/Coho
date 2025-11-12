@@ -38,8 +38,14 @@ export class MdCheckbox extends LitElement {
     }
 
     :host([checked]) .control {
-      background-color: var(--md-sys-color-primary, var(--sl-color-primary-600, #6750a4));
-      border-color: var(--md-sys-color-primary, var(--sl-color-primary-600, #6750a4));
+      background-color: var(
+        --md-sys-color-primary,
+        var(--sl-color-primary-600, #6750a4)
+      );
+      border-color: var(
+        --md-sys-color-primary,
+        var(--sl-color-primary-600, #6750a4)
+      );
     }
 
     .checkmark {
@@ -83,7 +89,8 @@ export class MdCheckbox extends LitElement {
     }
 
     .control:focus-visible {
-      outline: 2px solid var(--md-sys-color-primary, var(--sl-color-primary-600, #6750a4));
+      outline: 2px solid
+        var(--md-sys-color-primary, var(--sl-color-primary-600, #6750a4));
       outline-offset: 2px;
       border-radius: 2px;
     }
@@ -91,16 +98,29 @@ export class MdCheckbox extends LitElement {
     /* Hover state */
     @media (hover: hover) {
       :host(:not([disabled])) .control:hover {
-        background-color: color-mix(in srgb, var(--md-sys-color-primary, #6750a4) 8%, transparent);
+        background-color: color-mix(
+          in srgb,
+          var(--md-sys-color-primary, #6750a4) 8%,
+          transparent
+        );
       }
 
       :host([checked]:not([disabled])) .control:hover {
-        background-color: color-mix(in srgb, var(--md-sys-color-primary, #6750a4) 92%, black);
+        background-color: color-mix(
+          in srgb,
+          var(--md-sys-color-primary, #6750a4) 92%,
+          black
+        );
       }
     }
 
     .label {
-      font: 400 14px/20px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      font:
+        400 14px/20px system-ui,
+        -apple-system,
+        'Segoe UI',
+        Roboto,
+        sans-serif;
       color: var(--md-sys-color-on-surface, #1d1b20);
     }
 
@@ -132,7 +152,9 @@ export class MdCheckbox extends LitElement {
 
   private _emitChange(originalEvent: Event) {
     const detail = { checked: this.checked, value: this.value, originalEvent };
-    this.dispatchEvent(new CustomEvent('change', { bubbles: true, composed: true, detail }));
+    this.dispatchEvent(
+      new CustomEvent('change', { bubbles: true, composed: true, detail })
+    );
   }
 
   render() {

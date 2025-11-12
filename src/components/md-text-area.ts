@@ -36,16 +36,21 @@ export class MdTextArea extends LitElement {
       border: none;
       border-radius: 4px 4px 0 0;
       background-color: var(--md-sys-color-surface-container-highest, #e6e0e9);
-      font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+      font-family:
+        'Roboto',
+        system-ui,
+        -apple-system,
+        sans-serif;
       font-size: 16px;
       font-weight: 400;
       line-height: 24px;
       letter-spacing: 0.5px;
       color: var(--md-sys-color-on-surface, #1d1b20);
       border-bottom: 1px solid var(--md-sys-color-on-surface-variant, #49454f);
-      transition: background-color 0.2s cubic-bezier(0.2, 0, 0, 1),
-                  border-bottom-color 0.2s cubic-bezier(0.2, 0, 0, 1),
-                  border-bottom-width 0.2s cubic-bezier(0.2, 0, 0, 1);
+      transition:
+        background-color 0.2s cubic-bezier(0.2, 0, 0, 1),
+        border-bottom-color 0.2s cubic-bezier(0.2, 0, 0, 1),
+        border-bottom-width 0.2s cubic-bezier(0.2, 0, 0, 1);
       resize: vertical;
       box-sizing: border-box;
     }
@@ -103,7 +108,10 @@ export class MdTextArea extends LitElement {
     /* Dark mode support */
     @media (prefers-color-scheme: dark) {
       textarea {
-        background-color: var(--md-sys-color-surface-container-highest, #49454f);
+        background-color: var(
+          --md-sys-color-surface-container-highest,
+          #49454f
+        );
         color: var(--md-sys-color-on-surface, #e6e0e9);
         border-bottom-color: var(--md-sys-color-outline, #938f99);
       }
@@ -130,7 +138,10 @@ export class MdTextArea extends LitElement {
       }
 
       textarea:disabled {
-        background-color: var(--md-sys-color-surface-container-highest, #49454f);
+        background-color: var(
+          --md-sys-color-surface-container-highest,
+          #49454f
+        );
       }
 
       textarea.outlined {
@@ -176,21 +187,25 @@ export class MdTextArea extends LitElement {
   private _handleInput(e: Event) {
     const textarea = e.target as HTMLTextAreaElement;
     this.value = textarea.value;
-    this.dispatchEvent(new CustomEvent('input', {
-      detail: { value: this.value },
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('input', {
+        detail: { value: this.value },
+        bubbles: true,
+        composed: true,
+      })
+    );
   }
 
   private _handleChange(e: Event) {
     const textarea = e.target as HTMLTextAreaElement;
     this.value = textarea.value;
-    this.dispatchEvent(new CustomEvent('change', {
-      detail: { value: this.value },
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('change', {
+        detail: { value: this.value },
+        bubbles: true,
+        composed: true,
+      })
+    );
   }
 
   render() {
@@ -206,11 +221,13 @@ export class MdTextArea extends LitElement {
           @input="${this._handleInput}"
           @change="${this._handleChange}"
         ></textarea>
-        ${this.maxlength ? html`
-          <div class="char-counter">
-            ${this.value.length} / ${this.maxlength}
-          </div>
-        ` : ''}
+        ${this.maxlength
+          ? html`
+              <div class="char-counter">
+                ${this.value.length} / ${this.maxlength}
+              </div>
+            `
+          : ''}
       </div>
     `;
   }

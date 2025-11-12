@@ -8,12 +8,13 @@
     "dev-server": "vite --port 3000",
     "dev": "npm run dev-server",
     "dev-task": "vite",
-    "deploy": "npx @azure/static-web-apps-cli login --no-use-keychain && npx @azure/static-web-apps-cli deploy",
     "build": "tsc && vite build",
     "start": "npm run dev",
     "start-remote": "vite --host",
     "start-for-tests": "npm run build && npm run dev-server",
-    "test": "playwright test"
+    "test": "playwright test",
+    "format": "prettier --write \"src/**/*.{ts,js,css,html}\" \"*.{ts,js,css,html,json}\" \"functions/src/**/*.{ts,js}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,js,css,html}\" \"*.{ts,js,css,html,json}\" \"functions/src/**/*.{ts,js}\""
   },
   "author": "",
   "license": "ISC",
@@ -47,6 +48,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.32.1",
+    "prettier": "^3.6.2",
     "rollup-plugin-copy": "^3.4.0",
     "terser": "^5.44.0",
     "typescript": "^5.9.3",
@@ -54,15 +56,5 @@
     "vite-plugin-copy": "^0.1.6",
     "vite-plugin-pwa": "^1.1.0",
     "vite-plugin-wasm": "^3.2.1"
-  },
-  "prettier": {
-    "tabWidth": 2,
-    "useTabs": false,
-    "semi": true,
-    "singleQuote": true,
-    "quoteProps": "consistent",
-    "trailingComma": "es5",
-    "endOfLine": "crlf",
-    "bracketSpacing": true
   }
 }

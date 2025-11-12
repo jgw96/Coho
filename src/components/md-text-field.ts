@@ -13,7 +13,13 @@ export class MdTextField extends LitElement {
   @property({ type: Boolean }) disabled = false;
   @property({ type: Boolean }) autofocus = false;
   @property({ type: String }) variant: 'filled' | 'outlined' = 'filled';
-  @property({ type: String }) type: 'text' | 'email' | 'password' | 'search' | 'tel' | 'url' = 'text';
+  @property({ type: String }) type:
+    | 'text'
+    | 'email'
+    | 'password'
+    | 'search'
+    | 'tel'
+    | 'url' = 'text';
 
   @query('input') private _input!: HTMLInputElement;
 
@@ -35,16 +41,21 @@ export class MdTextField extends LitElement {
       border: none;
       border-radius: 4px 4px 0 0;
       background-color: var(--md-sys-color-surface-container-highest, #e6e0e9);
-      font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+      font-family:
+        'Roboto',
+        system-ui,
+        -apple-system,
+        sans-serif;
       font-size: 16px;
       font-weight: 400;
       line-height: 24px;
       letter-spacing: 0.5px;
       color: var(--md-sys-color-on-surface, #1d1b20);
       border-bottom: 1px solid var(--md-sys-color-on-surface-variant, #49454f);
-      transition: background-color 0.2s cubic-bezier(0.2, 0, 0, 1),
-                  border-bottom-color 0.2s cubic-bezier(0.2, 0, 0, 1),
-                  border-bottom-width 0.2s cubic-bezier(0.2, 0, 0, 1);
+      transition:
+        background-color 0.2s cubic-bezier(0.2, 0, 0, 1),
+        border-bottom-color 0.2s cubic-bezier(0.2, 0, 0, 1),
+        border-bottom-width 0.2s cubic-bezier(0.2, 0, 0, 1);
       box-sizing: border-box;
     }
 
@@ -100,7 +111,10 @@ export class MdTextField extends LitElement {
     /* Dark mode support */
     @media (prefers-color-scheme: dark) {
       input {
-        background-color: var(--md-sys-color-surface-container-highest, #49454f);
+        background-color: var(
+          --md-sys-color-surface-container-highest,
+          #49454f
+        );
         color: var(--md-sys-color-on-surface, #e6e0e9);
         border-bottom-color: var(--md-sys-color-outline, #938f99);
       }
@@ -127,7 +141,10 @@ export class MdTextField extends LitElement {
       }
 
       input:disabled {
-        background-color: var(--md-sys-color-surface-container-highest, #49454f);
+        background-color: var(
+          --md-sys-color-surface-container-highest,
+          #49454f
+        );
       }
 
       input.outlined {
@@ -158,21 +175,25 @@ export class MdTextField extends LitElement {
   private _handleInput(e: Event) {
     const input = e.target as HTMLInputElement;
     this.value = input.value;
-    this.dispatchEvent(new CustomEvent('input', {
-      detail: { value: this.value },
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('input', {
+        detail: { value: this.value },
+        bubbles: true,
+        composed: true,
+      })
+    );
   }
 
   private _handleChange(e: Event) {
     const input = e.target as HTMLInputElement;
     this.value = input.value;
-    this.dispatchEvent(new CustomEvent('change', {
-      detail: { value: this.value },
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('change', {
+        detail: { value: this.value },
+        bubbles: true,
+        composed: true,
+      })
+    );
   }
 
   render() {

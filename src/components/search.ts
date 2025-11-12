@@ -7,109 +7,110 @@ import { router } from '../utils/router';
 
 @customElement('app-search')
 export class Search extends LitElement {
-    @state() searchData: any | undefined;
-    static styles = [
-        css`
-            :host {
-                display: block;
+  @state() searchData: any | undefined;
+  static styles = [
+    css`
+      :host {
+        display: block;
 
-                contain: paint layout style;
-                content-visibility: auto;
-            }
+        contain: paint layout style;
+        content-visibility: auto;
+      }
 
-            .avatar {
-                width: 24px;
-                height: 24px;
-                border-radius: 50%;
-            }
+      .avatar {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+      }
 
-            .account {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
+      .account {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
 
-            @media(max-width: 768px) {
-                md-text-field {
-                    width: 100%;
-                }
-            }
-
-            @media(prefers-color-scheme: dark) {
-                .account {
-                    color: white;
-                }
-            }
-        `
-    ];
-
-    public async connectedCallback() {
-        super.connectedCallback();
-
-        const options = {
-            root: null,
-            rootMargin: '0px',
-            threshold: 0.1
-        };
-
-        const observer = new IntersectionObserver((entries, observer) => {
-
-            entries.forEach(async entry => {
-                if (entry.isIntersecting) {
-                    const { searchTimeline } = await import('../services/timeline');
-                    const searchData = await searchTimeline("Mastodon");
-                    console.log("searchData", searchData);
-
-                    this.searchData = searchData;
-
-                    // fire custom event
-                    const event = new CustomEvent('search', {
-                        detail: {
-                            searchData
-                        }
-                    });
-                    this.dispatchEvent(event);
-
-                    observer.disconnect();
-                }
-            });
+      @media (max-width: 768px) {
+        md-text-field {
+          width: 100%;
         }
-            , options);
+      }
 
-        observer.observe(this);
-    }
+      @media (prefers-color-scheme: dark) {
+        .account {
+          color: white;
+        }
+      }
+    `,
+  ];
 
-    async handleSearch(value: string) {
-        console.log(value);
+  public async connectedCallback() {
+    super.connectedCallback();
 
-        // const dropdown: any = this.shadowRoot?.querySelector('sl-dropdown');
-        const { searchTimeline } = await import('../services/timeline');
-        const searchData = await searchTimeline(value);
-        console.log("searchData", searchData);
+    const options = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1,
+    };
 
-        this.searchData = searchData;
+    const observer = new IntersectionObserver((entries, observer) => {
+      entries.forEach(async (entry) => {
+        if (entry.isIntersecting) {
+          const { searchTimeline } = await import('../services/timeline');
+          const searchData = await searchTimeline('Mastodon');
+          console.log('searchData', searchData);
 
-        // fire custom event
-        const event = new CustomEvent('search', {
+          this.searchData = searchData;
+
+          // fire custom event
+          const event = new CustomEvent('search', {
             detail: {
-                searchData
-            }
-        });
-        this.dispatchEvent(event);
+              searchData,
+            },
+          });
+          this.dispatchEvent(event);
 
-        // await dropdown?.show();
-    }
+          observer.disconnect();
+        }
+      });
+    }, options);
 
-    openAccount(id: string) {
-        router.navigate(`/account?id=${id}`);
-    }
+    observer.observe(this);
+  }
 
-    render() {
-        return html`
+  async handleSearch(value: string) {
+    console.log(value);
 
-            <md-text-field @change="${($event: any) => this.handleSearch($event.target.value)}" placeholder="Search" type="search" .value=${this.searchData?.query || ''}>
-    </md-text-field>
+    // const dropdown: any = this.shadowRoot?.querySelector('sl-dropdown');
+    const { searchTimeline } = await import('../services/timeline');
+    const searchData = await searchTimeline(value);
+    console.log('searchData', searchData);
 
-        `;
-    }
+    this.searchData = searchData;
+
+    // fire custom event
+    const event = new CustomEvent('search', {
+      detail: {
+        searchData,
+      },
+    });
+    this.dispatchEvent(event);
+
+    // await dropdown?.show();
+  }
+
+  openAccount(id: string) {
+    router.navigate(`/account?id=${id}`);
+  }
+
+  render() {
+    return html`
+      <md-text-field
+        @change="${($event: any) => this.handleSearch($event.target.value)}"
+        placeholder="Search"
+        type="search"
+        .value=${this.searchData?.query || ''}
+      >
+      </md-text-field>
+    `;
+  }
 }

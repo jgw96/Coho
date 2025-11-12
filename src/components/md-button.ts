@@ -3,11 +3,17 @@ import { customElement, property } from 'lit/decorators.js';
 
 /**
  * Material Design 3 Button Component
- * Supports filled, outlined, text, elevated, and tonal variants
+ * Supports filled, outlined, text, elevated, tonal, and fab variants
  */
 @customElement('md-button')
 export class MdButton extends LitElement {
-  @property({ type: String }) variant: 'filled' | 'outlined' | 'text' | 'elevated' | 'tonal' = 'filled';
+  @property({ type: String }) variant:
+    | 'filled'
+    | 'outlined'
+    | 'text'
+    | 'elevated'
+    | 'tonal'
+    | 'fab' = 'filled';
   @property({ type: String }) size: 'small' | 'medium' | 'large' = 'medium';
   @property({ type: Boolean }) disabled = false;
   @property({ type: Boolean }) pill = false;
@@ -16,6 +22,7 @@ export class MdButton extends LitElement {
   static styles = css`
     :host {
       display: inline-block;
+      background: transparent;
     }
 
     :host([disabled]) {
@@ -30,7 +37,12 @@ export class MdButton extends LitElement {
       gap: 8px;
       border: none;
       cursor: pointer;
-      font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-family:
+        'Roboto',
+        -apple-system,
+        BlinkMacSystemFont,
+        'Segoe UI',
+        sans-serif;
       font-weight: 500;
       letter-spacing: 0.1px;
       transition: all 200ms cubic-bezier(0.2, 0, 0, 1);
@@ -54,7 +66,7 @@ export class MdButton extends LitElement {
     }
 
     button:focus-visible {
-      outline: 2px solid var(--md-sys-color-primary, #6750A4);
+      outline: 2px solid var(--md-sys-color-primary, #6750a4);
       outline-offset: 2px;
     }
 
@@ -96,13 +108,17 @@ export class MdButton extends LitElement {
 
     /* Filled variant (default) */
     button.filled {
-      background: var(--md-sys-color-primary, #6750A4);
-      color: var(--md-sys-color-on-primary, #FFFFFF);
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15);
+      background: var(--md-sys-color-primary, #6750a4);
+      color: var(--md-sys-color-on-primary, #ffffff);
+      box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.3),
+        0 1px 3px 1px rgba(0, 0, 0, 0.15);
     }
 
     button.filled:hover {
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 6px 2px rgba(0, 0, 0, 0.15);
+      box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.3),
+        0 2px 6px 2px rgba(0, 0, 0, 0.15);
     }
 
     button.filled:disabled {
@@ -114,8 +130,8 @@ export class MdButton extends LitElement {
     /* Outlined variant */
     button.outlined {
       background: transparent;
-      color: var(--md-sys-color-primary, #6750A4);
-      border: 1px solid var(--md-sys-color-outline, #79747E);
+      color: var(--md-sys-color-primary, #6750a4);
+      border: 1px solid var(--md-sys-color-outline, #79747e);
     }
 
     button.outlined:disabled {
@@ -126,7 +142,7 @@ export class MdButton extends LitElement {
     /* Text variant */
     button.text {
       background: transparent;
-      color: var(--md-sys-color-primary, #6750A4);
+      color: var(--md-sys-color-primary, #6750a4);
       box-shadow: none;
     }
 
@@ -136,13 +152,17 @@ export class MdButton extends LitElement {
 
     /* Elevated variant */
     button.elevated {
-      background: var(--md-sys-color-surface-container-low, #F7F2FA);
-      color: var(--md-sys-color-primary, #6750A4);
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15);
+      background: var(--md-sys-color-surface-container-low, #f7f2fa);
+      color: var(--md-sys-color-primary, #6750a4);
+      box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.3),
+        0 1px 3px 1px rgba(0, 0, 0, 0.15);
     }
 
     button.elevated:hover {
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 6px 2px rgba(0, 0, 0, 0.15);
+      box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.3),
+        0 2px 6px 2px rgba(0, 0, 0, 0.15);
     }
 
     button.elevated:disabled {
@@ -153,8 +173,8 @@ export class MdButton extends LitElement {
 
     /* Tonal variant */
     button.tonal {
-      background: var(--md-sys-color-secondary-container, #E8DEF8);
-      color: var(--md-sys-color-on-secondary-container, #1D192B);
+      background: var(--md-sys-color-secondary-container, #e8def8);
+      color: var(--md-sys-color-on-secondary-container, #1d192b);
       box-shadow: none;
     }
 
@@ -163,30 +183,72 @@ export class MdButton extends LitElement {
       color: color-mix(in srgb, currentColor 38%, transparent);
     }
 
+    /* FAB (Floating Action Button) variant */
+    button.fab {
+      background: var(--md-sys-color-primary, var(--sl-color-primary-600, #6750a4));
+      color: var(--md-sys-color-on-primary, #ffffff);
+      box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.3),
+        0 4px 8px 3px rgba(0, 0, 0, 0.15);
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      padding: 0;
+    }
+
+    button.fab.small {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+    }
+
+    button.fab.large {
+      width: 96px;
+      height: 96px;
+      border-radius: 28px;
+    }
+
+    button.fab:hover {
+      box-shadow:
+        0 2px 3px rgba(0, 0, 0, 0.3),
+        0 6px 10px 4px rgba(0, 0, 0, 0.15);
+    }
+
+    button.fab:disabled {
+      background: color-mix(in srgb, currentColor 12%, transparent);
+      color: color-mix(in srgb, currentColor 38%, transparent);
+      box-shadow: none;
+    }
+
     /* Dark mode support */
     @media (prefers-color-scheme: dark) {
       button.filled {
-        background: var(--md-sys-color-primary, #D0BCFF);
-        color: var(--md-sys-color-on-primary, #381E72);
+        background: var(--md-sys-color-primary, #d0bcff);
+        color: var(--md-sys-color-on-primary, #381e72);
       }
 
       button.outlined {
-        color: var(--md-sys-color-primary, #D0BCFF);
-        border-color: var(--md-sys-color-outline, #938F99);
+        color: var(--md-sys-color-primary, #d0bcff);
+        border-color: var(--md-sys-color-outline, #938f99);
       }
 
       button.text {
-        color: var(--md-sys-color-primary, #D0BCFF);
+        color: var(--md-sys-color-primary, #d0bcff);
       }
 
       button.elevated {
-        background: var(--md-sys-color-surface-container-low, #1D1B20);
-        color: var(--md-sys-color-primary, #D0BCFF);
+        background: var(--md-sys-color-surface-container-low, #1d1b20);
+        color: var(--md-sys-color-primary, #d0bcff);
       }
 
       button.tonal {
-        background: var(--md-sys-color-secondary-container, #4A4458);
-        color: var(--md-sys-color-on-secondary-container, #E8DEF8);
+        background: var(--md-sys-color-secondary-container, #4a4458);
+        color: var(--md-sys-color-on-secondary-container, #e8def8);
+      }
+
+      button.fab {
+        background: var(--md-sys-color-primary, var(--sl-color-primary-600, #d0bcff));
+        color: var(--md-sys-color-on-primary, #381e72);
       }
     }
 
@@ -238,11 +300,9 @@ export class MdButton extends LitElement {
   }
 
   render() {
-    const classes = [
-      this.variant,
-      this.size,
-      this.pill ? 'pill' : ''
-    ].filter(Boolean).join(' ');
+    const classes = [this.variant, this.size, this.pill ? 'pill' : '']
+      .filter(Boolean)
+      .join(' ');
 
     return html`
       <button

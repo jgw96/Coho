@@ -1,179 +1,186 @@
-import { fileOpen } from "browser-fs-access";
-import { addMedia } from "./media";
+import { fileOpen } from 'browser-fs-access';
+import { addMedia } from './media';
 
 let server = localStorage.getItem('server') || '';
 let accessToken = localStorage.getItem('accessToken') || '';
 
 export async function whoBoostedAndFavorited(id: string) {
-    const response = await fetch(`https://${server}/api/v1/statuses/${id}/reactions`, {
-        method: 'GET',
-        headers: new Headers({
-            "Authorization": `Bearer ${accessToken}`
-        })
-    });
+  const response = await fetch(
+    `https://${server}/api/v1/statuses/${id}/reactions`,
+    {
+      method: 'GET',
+      headers: new Headers({
+        Authorization: `Bearer ${accessToken}`,
+      }),
+    }
+  );
 
-    const data = await response.json();
-    return data;
+  const data = await response.json();
+  return data;
 }
 
 export async function editPost(id: string, newContent: string) {
-    const formData = new FormData();
-    formData.append("status", newContent);
-    const response = await fetch(`https://${server}/api/v1/statuses/${id}`, {
-        method: 'PUT',
-        headers: new Headers({
-            "Authorization": `Bearer ${accessToken}`
-        }),
-        body: formData
-    });
+  const formData = new FormData();
+  formData.append('status', newContent);
+  const response = await fetch(`https://${server}/api/v1/statuses/${id}`, {
+    method: 'PUT',
+    headers: new Headers({
+      Authorization: `Bearer ${accessToken}`,
+    }),
+    body: formData,
+  });
 
-    const data = await response.json();
-    return data;
+  const data = await response.json();
+  return data;
 }
 
 export async function deletePost(id: string) {
-    const response = await fetch(`https://${server}/api/v1/statuses/${id}`, {
-        method: 'DELETE',
-        headers: new Headers({
-            "Authorization": `Bearer ${accessToken}`
-        })
-    });
+  const response = await fetch(`https://${server}/api/v1/statuses/${id}`, {
+    method: 'DELETE',
+    headers: new Headers({
+      Authorization: `Bearer ${accessToken}`,
+    }),
+  });
 
-    const data = await response.json();
-    return data;
+  const data = await response.json();
+  return data;
 }
 
 export async function getPostDetail(id: string) {
-    const response = await fetch(`https://${server}/api/v1/statuses/${id}`, {
-        method: 'GET',
-        headers: new Headers({
-            "Authorization": `Bearer ${accessToken}`
-        })
-    });
+  const response = await fetch(`https://${server}/api/v1/statuses/${id}`, {
+    method: 'GET',
+    headers: new Headers({
+      Authorization: `Bearer ${accessToken}`,
+    }),
+  });
 
-    const data = await response.json();
-    return data;
+  const data = await response.json();
+  return data;
 }
 
-export async function publishPost(post: string, ids?: Array<string>, sensitive: boolean = false, spoilerText: string = "") {
-    const formData = new FormData();
+export async function publishPost(
+  post: string,
+  ids?: Array<string>,
+  sensitive: boolean = false,
+  spoilerText: string = ''
+) {
+  const formData = new FormData();
 
-    formData.append("status", post && post.length > 0 ? post : "");
+  formData.append('status', post && post.length > 0 ? post : '');
 
-    if (ids && ids.length > 0) {
-        for(const id of ids) {
-            formData.append("media_ids[]", id);
-        }
+  if (ids && ids.length > 0) {
+    for (const id of ids) {
+      formData.append('media_ids[]', id);
     }
+  }
 
-    if (sensitive) {
-        formData.append("sensitive", "true");
+  if (sensitive) {
+    formData.append('sensitive', 'true');
 
-        if (spoilerText && spoilerText.length > 0) {
-            formData.append("spoiler_text", spoilerText);
-        }
+    if (spoilerText && spoilerText.length > 0) {
+      formData.append('spoiler_text', spoilerText);
     }
+  }
 
-    // make a fetch request to post a status using the mastodon api
-    const response = await fetch(`https://${server}/api/v1/statuses`, {
-        method: 'POST',
-        headers: new Headers({
-            "Authorization": `Bearer ${accessToken}`
-        }),
-        body: formData
-    });
+  // make a fetch request to post a status using the mastodon api
+  const response = await fetch(`https://${server}/api/v1/statuses`, {
+    method: 'POST',
+    headers: new Headers({
+      Authorization: `Bearer ${accessToken}`,
+    }),
+    body: formData,
+  });
 
-    const data = await response.json();
-    return data;
+  const data = await response.json();
+  return data;
 }
 
 export async function replyToPost(id: string, content: string) {
-    const formData = new FormData();
+  const formData = new FormData();
 
-    formData.append("in_reply_to_id", id);
+  formData.append('in_reply_to_id', id);
 
-    formData.append("status", content && content.length > 0 ? content : "");
+  formData.append('status', content && content.length > 0 ? content : '');
 
-    // make a fetch request to post a status using the mastodon api
-    const response = await fetch(`https://${server}/api/v1/statuses`, {
-        method: 'POST',
-        headers: new Headers({
-            "Authorization": `Bearer ${accessToken}`
-        }),
-        body: formData
-    });
+  // make a fetch request to post a status using the mastodon api
+  const response = await fetch(`https://${server}/api/v1/statuses`, {
+    method: 'POST',
+    headers: new Headers({
+      Authorization: `Bearer ${accessToken}`,
+    }),
+    body: formData,
+  });
 
-    const data = await response.json();
-    return data;
+  const data = await response.json();
+  return data;
 }
 
 export async function uploadImageFromURL(url: string) {
-    const response = await fetch(`https://${server}/api/v2/media`, {
-        method: 'POST',
-        headers: new Headers({
-            "Authorization": `Bearer ${accessToken}`
-        }),
-        body: JSON.stringify({
-            url: url
-        })
-    });
+  const response = await fetch(`https://${server}/api/v2/media`, {
+    method: 'POST',
+    headers: new Headers({
+      Authorization: `Bearer ${accessToken}`,
+    }),
+    body: JSON.stringify({
+      url: url,
+    }),
+  });
 
-    const data = await response.json();
-    return data;
+  const data = await response.json();
+  return data;
 }
 
 export async function uploadImageFromBlob(blob: Blob) {
-    // const formData = new FormData();
-    // formData.append('file', blob);
+  // const formData = new FormData();
+  // formData.append('file', blob);
 
-    const formData = new FormData();
-    formData.append('file', blob);
+  const formData = new FormData();
+  formData.append('file', blob);
 
-    const response = await fetch(`https://${server}/api/v2/media`, {
-        method: 'POST',
-        headers: new Headers({
-            "Authorization": `Bearer ${accessToken}`
-        }),
-        body: formData
-    });
+  const response = await fetch(`https://${server}/api/v2/media`, {
+    method: 'POST',
+    headers: new Headers({
+      Authorization: `Bearer ${accessToken}`,
+    }),
+    body: formData,
+  });
 
-    const data = await response.json();
-    return data;
-
+  const data = await response.json();
+  return data;
 }
 
 export async function uploadImageAsFormData(): Promise<Array<any>> {
-    return new Promise(async (resolve) => {
-        const files = await fileOpen({
-            mimeTypes: ['image/*', 'video/*'],
-            multiple: true,
-        });
-``
-        let uploaded: any[] = [];
-
-        // loop through the files and upload them
-
-        for (let i = 0; i < files.length; i++) {
-            const formData = new FormData();
-            formData.append('file', files[i]);
-
-            const response = await fetch(`https://${server}/api/v2/media`, {
-                method: 'POST',
-                headers: new Headers({
-                    "Authorization": `Bearer ${accessToken}`
-                }),
-                body: formData
-            });
-
-            const data = await response.json();
-
-            uploaded = [...uploaded, data];
-
-            await addMedia(files[i])
-
-            console.log("uploaded", uploaded)
-        }
-
-        resolve(uploaded);
+  return new Promise(async (resolve) => {
+    const files = await fileOpen({
+      mimeTypes: ['image/*', 'video/*'],
+      multiple: true,
     });
+    ``;
+    let uploaded: any[] = [];
+
+    // loop through the files and upload them
+
+    for (let i = 0; i < files.length; i++) {
+      const formData = new FormData();
+      formData.append('file', files[i]);
+
+      const response = await fetch(`https://${server}/api/v2/media`, {
+        method: 'POST',
+        headers: new Headers({
+          Authorization: `Bearer ${accessToken}`,
+        }),
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      uploaded = [...uploaded, data];
+
+      await addMedia(files[i]);
+
+      console.log('uploaded', uploaded);
+    }
+
+    resolve(uploaded);
+  });
 }

@@ -68,7 +68,8 @@ export class AppHeader extends LitElement {
         gap: 16px;
       }
 
-      md-button, md-icon-button {
+      md-button,
+      md-icon-button {
         -webkit-app-region: no-drag;
         app-region: no-drag;
       }
@@ -83,7 +84,7 @@ export class AppHeader extends LitElement {
         }
       }
 
-      @media(prefers-color-scheme: light) {
+      @media (prefers-color-scheme: light) {
         header {
           color: black;
         }
@@ -93,17 +94,16 @@ export class AppHeader extends LitElement {
         }
       }
 
-      @media(prefers-color-scheme: dark) {
-        md-button[variant="outlined"]::part(control) {
+      @media (prefers-color-scheme: dark) {
+        md-button[variant='outlined']::part(control) {
           background: #1e1e1e;
           color: white;
         }
 
-          md-button::part(control) {
-              --neutral-fill-stealth-active: #1b1d26;
-              --neutral-fill-stealth-hover: #1b1d26;
-          }
-
+        md-button::part(control) {
+          --neutral-fill-stealth-active: #1b1d26;
+          --neutral-fill-stealth-hover: #1b1d26;
+        }
       }
     `;
   }
@@ -112,12 +112,14 @@ export class AppHeader extends LitElement {
     super();
   }
 
-  protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+  protected firstUpdated(
+    _changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>
+  ): void {
     window.requestIdleCallback(() => {
       if (this.shadowRoot) {
-          enableVibrate(this.shadowRoot);
+        enableVibrate(this.shadowRoot);
       }
-    })
+    });
   }
 
   openSettings() {
@@ -136,14 +138,13 @@ export class AppHeader extends LitElement {
   }
 
   async goBack() {
-    if ("navigation" in window) {
+    if ('navigation' in window) {
       // @ts-ignore
       if (window.navigation.canGoBack) {
         // @ts-ignore
         await window.navigation.back();
       }
-    }
-    else {
+    } else {
       window.history.back();
     }
   }
@@ -151,29 +152,51 @@ export class AppHeader extends LitElement {
   render() {
     return html`
       <header>
+        <div id="back-button-block">
+          ${this.enableBack
+            ? html`<md-button
+                @click="${() => this.goBack()}"
+                title="back"
+                size="small"
+                href="/home"
+              >
+                Back
+              </md-button>`
+            : null}
 
-      <div id="back-button-block">
-          ${this.enableBack ? html`<md-button @click="${() => this.goBack()}" title="back" size="small" href="/home">
-            Back
-          </md-button>` : null}
-
-          <img src="/assets/icons/Android/64-icon.png" alt="Otter" width="20" height="20">
+          <img
+            src="/assets/icons/Android/64-icon.png"
+            alt="Otter"
+            width="20"
+            height="20"
+          />
         </div>
 
         <div id="actions">
-          <!-- <md-button @click="${() => this.openBotDrawer()}" variant="text" title=="Open MammothBot" id="mammoth-bot">
+          <!-- <md-button @click="${() =>
+            this.openBotDrawer()}" variant="text" title=="Open MammothBot" id="mammoth-bot">
             <md-icon src="/assets/sparkles-outline.svg" alt="MammothBot"></md-icon>
           </md-button> -->
 
-          <md-icon-button title="Open Theme Settings" id="open-button" @click="${() => this.handleTheming()}">
-            <md-icon src="/assets/color-palette-outline.svg" alt="Theme"></md-icon>
+          <md-icon-button
+            title="Open Theme Settings"
+            id="open-button"
+            @click="${() => this.handleTheming()}"
+          >
+            <md-icon
+              src="/assets/color-palette-outline.svg"
+              alt="Theme"
+            ></md-icon>
           </md-icon-button>
 
-          <md-icon-button id="settings-button" title="Open Settings" @click="${() => this.openSettings()}">
+          <md-icon-button
+            id="settings-button"
+            title="Open Settings"
+            @click="${() => this.openSettings()}"
+          >
             <md-icon src="/assets/settings-outline.svg"></md-icon>
           </md-icon-button>
         </div>
-
       </header>
     `;
   }

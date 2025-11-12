@@ -28,14 +28,16 @@ export class MdTabs extends LitElement {
   /**
    * Orientation of tabs: horizontal (top/bottom) or vertical (side)
    */
-  @property({ type: String }) orientation: 'horizontal' | 'vertical' = 'horizontal';
+  @property({ type: String }) orientation: 'horizontal' | 'vertical' =
+    'horizontal';
 
   /**
    * Placement of tab bar
    * - top/bottom for horizontal orientation
    * - start/end for vertical orientation (side navigation)
    */
-  @property({ type: String }) placement: 'top' | 'bottom' | 'start' | 'end' = 'top';
+  @property({ type: String }) placement: 'top' | 'bottom' | 'start' | 'end' =
+    'top';
 
   /**
    * Active panel name
@@ -55,21 +57,21 @@ export class MdTabs extends LitElement {
     }
 
     /* Horizontal orientation */
-    :host([orientation="horizontal"]) {
+    :host([orientation='horizontal']) {
       flex-direction: column;
     }
 
-    :host([orientation="horizontal"][placement="bottom"]) {
+    :host([orientation='horizontal'][placement='bottom']) {
       flex-direction: column-reverse;
     }
 
     /* Vertical orientation (side navigation) */
-    :host([orientation="vertical"]) {
+    :host([orientation='vertical']) {
       flex-direction: row;
       height: 100%;
     }
 
-    :host([orientation="vertical"][placement="end"]) {
+    :host([orientation='vertical'][placement='end']) {
       flex-direction: row-reverse;
     }
 
@@ -77,11 +79,12 @@ export class MdTabs extends LitElement {
       display: flex;
       position: relative;
       background: transparent;
-      border-bottom: 1px solid var(--md-sys-color-outline-variant, var(--sl-color-neutral-200));
+      border-bottom: 1px solid
+        var(--md-sys-color-outline-variant, var(--sl-color-neutral-200));
     }
 
     /* Horizontal tab bar */
-    :host([orientation="horizontal"]) .tab-bar {
+    :host([orientation='horizontal']) .tab-bar {
       flex-direction: row;
       overflow-x: auto;
       overflow-y: hidden;
@@ -89,29 +92,32 @@ export class MdTabs extends LitElement {
       -ms-overflow-style: none;
     }
 
-    :host([orientation="horizontal"]) .tab-bar::-webkit-scrollbar {
+    :host([orientation='horizontal']) .tab-bar::-webkit-scrollbar {
       display: none;
     }
 
-    :host([orientation="horizontal"][placement="bottom"]) .tab-bar {
+    :host([orientation='horizontal'][placement='bottom']) .tab-bar {
       border-bottom: none;
-      border-top: 1px solid var(--md-sys-color-outline-variant, var(--sl-color-neutral-200));
+      border-top: 1px solid
+        var(--md-sys-color-outline-variant, var(--sl-color-neutral-200));
     }
 
     /* Vertical tab bar (side navigation) */
-    :host([orientation="vertical"]) .tab-bar {
+    :host([orientation='vertical']) .tab-bar {
       flex-direction: column;
       border-bottom: none;
-      border-right: 1px solid var(--md-sys-color-outline-variant, var(--sl-color-neutral-200));
+      border-right: 1px solid
+        var(--md-sys-color-outline-variant, var(--sl-color-neutral-200));
       min-width: 200px;
       max-width: 280px;
       overflow-y: auto;
       overflow-x: hidden;
     }
 
-    :host([orientation="vertical"][placement="end"]) .tab-bar {
+    :host([orientation='vertical'][placement='end']) .tab-bar {
       border-right: none;
-      border-left: 1px solid var(--md-sys-color-outline-variant, var(--sl-color-neutral-200));
+      border-left: 1px solid
+        var(--md-sys-color-outline-variant, var(--sl-color-neutral-200));
     }
 
     .panel-container {
@@ -132,28 +138,32 @@ export class MdTabs extends LitElement {
     @media (prefers-color-scheme: dark) {
       .tab-bar {
         background: transparent;
-        border-color: var(--md-sys-color-outline-variant, var(--sl-color-neutral-700));
+        border-color: var(
+          --md-sys-color-outline-variant,
+          var(--sl-color-neutral-700)
+        );
       }
     }
 
     /* Mobile adjustments */
     @media (max-width: 700px) {
       /* Move horizontal tabs to bottom on mobile */
-      :host([orientation="horizontal"]) {
+      :host([orientation='horizontal']) {
         flex-direction: column-reverse;
       }
 
       /* Override if explicitly set to bottom placement */
-      :host([orientation="horizontal"][placement="bottom"]) {
+      :host([orientation='horizontal'][placement='bottom']) {
         flex-direction: column-reverse;
       }
 
-      :host([orientation="horizontal"]) .tab-bar {
+      :host([orientation='horizontal']) .tab-bar {
         border-bottom: none;
-        border-top: 1px solid var(--md-sys-color-outline-variant, var(--sl-color-neutral-200));
+        border-top: 1px solid
+          var(--md-sys-color-outline-variant, var(--sl-color-neutral-200));
       }
 
-      :host([orientation="vertical"]) .tab-bar {
+      :host([orientation='vertical']) .tab-bar {
         min-width: 180px;
         max-width: 220px;
       }
@@ -162,12 +172,18 @@ export class MdTabs extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-    this.addEventListener('tab-selected', this._handleTabSelected as EventListener);
+    this.addEventListener(
+      'tab-selected',
+      this._handleTabSelected as EventListener
+    );
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
-    this.removeEventListener('tab-selected', this._handleTabSelected as EventListener);
+    this.removeEventListener(
+      'tab-selected',
+      this._handleTabSelected as EventListener
+    );
   }
 
   firstUpdated() {
@@ -199,22 +215,28 @@ export class MdTabs extends LitElement {
       this._updatePanels();
 
       // Emit tab-change event
-      this.dispatchEvent(new CustomEvent('tab-change', {
-        detail: { panel },
-        bubbles: true,
-        composed: true
-      }));
+      this.dispatchEvent(
+        new CustomEvent('tab-change', {
+          detail: { panel },
+          bubbles: true,
+          composed: true,
+        })
+      );
     }
   }
 
   private _getTabs(): any[] {
     if (!this.navSlot) return [];
-    return this.navSlot.assignedElements().filter(el => el.tagName.toLowerCase() === 'md-tab');
+    return this.navSlot
+      .assignedElements()
+      .filter((el) => el.tagName.toLowerCase() === 'md-tab');
   }
 
   private _getPanels(): any[] {
     if (!this.panelSlot) return [];
-    return this.panelSlot.assignedElements().filter(el => el.tagName.toLowerCase() === 'md-tab-panel');
+    return this.panelSlot
+      .assignedElements()
+      .filter((el) => el.tagName.toLowerCase() === 'md-tab-panel');
   }
 
   private _updatePanels() {

@@ -8,7 +8,11 @@ import { customElement, property, query } from 'lit/decorators.js';
 @customElement('md-dropdown')
 export class MdDropdown extends LitElement {
   @property({ type: Boolean, reflect: true }) open = false;
-  @property({ type: String }) placement: 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end' = 'bottom-start';
+  @property({ type: String }) placement:
+    | 'bottom-start'
+    | 'bottom-end'
+    | 'top-start'
+    | 'top-end' = 'bottom-start';
   @property({ type: Number }) distance = 8;
 
   @query('.popup') popup!: HTMLElement;
@@ -34,7 +38,9 @@ export class MdDropdown extends LitElement {
       opacity: 0;
       transform: scale(0.95);
       transform-origin: top left;
-      transition: opacity 0.15s cubic-bezier(0.2, 0, 0, 1), transform 0.15s cubic-bezier(0.2, 0, 0, 1);
+      transition:
+        opacity 0.15s cubic-bezier(0.2, 0, 0, 1),
+        transform 0.15s cubic-bezier(0.2, 0, 0, 1);
       pointer-events: auto;
     }
 
@@ -83,12 +89,16 @@ export class MdDropdown extends LitElement {
     this.open = true;
     this.requestUpdate();
     this.updateComplete.then(() => this._positionPopup());
-    this.dispatchEvent(new CustomEvent('md-dropdown-show', { bubbles: true, composed: true }));
+    this.dispatchEvent(
+      new CustomEvent('md-dropdown-show', { bubbles: true, composed: true })
+    );
   }
 
   hide() {
     this.open = false;
-    this.dispatchEvent(new CustomEvent('md-dropdown-hide', { bubbles: true, composed: true }));
+    this.dispatchEvent(
+      new CustomEvent('md-dropdown-hide', { bubbles: true, composed: true })
+    );
   }
 
   private _positionPopup() {
@@ -97,7 +107,9 @@ export class MdDropdown extends LitElement {
 
     const rect = triggerEl.getBoundingClientRect();
 
-    const container = this.shadowRoot!.querySelector('.popup-container') as HTMLElement;
+    const container = this.shadowRoot!.querySelector(
+      '.popup-container'
+    ) as HTMLElement;
     if (!container) return;
 
     let top = rect.bottom + this.distance;

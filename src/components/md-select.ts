@@ -12,6 +12,7 @@ export class MdSelect extends LitElement {
   @property({ type: String }) placeholder = '';
   @property({ type: Boolean }) disabled = false;
   @property({ type: String }) variant: 'filled' | 'outlined' = 'filled';
+  @property({ type: Boolean }) pill = false;
 
   @state() private _open = false;
   @state() private _options: MdOption[] = [];
@@ -37,15 +38,20 @@ export class MdSelect extends LitElement {
       background-color: var(--md-sys-color-surface-container-highest, #e6e0e9);
       cursor: pointer;
       user-select: none;
-      font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+      font-family:
+        'Roboto',
+        system-ui,
+        -apple-system,
+        sans-serif;
       font-size: 16px;
       font-weight: 400;
       line-height: 24px;
       letter-spacing: 0.5px;
       color: var(--md-sys-color-on-surface, #1d1b20);
       border-bottom: 1px solid var(--md-sys-color-on-surface-variant, #49454f);
-      transition: background-color 0.2s cubic-bezier(0.2, 0, 0, 1),
-                  border-bottom-color 0.2s cubic-bezier(0.2, 0, 0, 1);
+      transition:
+        background-color 0.2s cubic-bezier(0.2, 0, 0, 1),
+        border-bottom-color 0.2s cubic-bezier(0.2, 0, 0, 1);
       position: relative;
     }
 
@@ -76,6 +82,15 @@ export class MdSelect extends LitElement {
     .select-input.outlined.open {
       border-color: var(--md-sys-color-primary, #6750a4);
       border-width: 2px;
+    }
+
+    .select-input.pill {
+      border-radius: 9999px;
+      border-bottom: none;
+    }
+
+    .select-input.pill.outlined {
+      border-radius: 9999px;
     }
 
     .select-input.disabled {
@@ -122,8 +137,9 @@ export class MdSelect extends LitElement {
       opacity: 0;
       transform: scaleY(0);
       transform-origin: top;
-      transition: opacity 0.15s cubic-bezier(0.2, 0, 0, 1),
-                  transform 0.15s cubic-bezier(0.2, 0, 0, 1);
+      transition:
+        opacity 0.15s cubic-bezier(0.2, 0, 0, 1),
+        transform 0.15s cubic-bezier(0.2, 0, 0, 1);
       pointer-events: none;
     }
 
@@ -161,7 +177,10 @@ export class MdSelect extends LitElement {
     /* Dark mode */
     @media (prefers-color-scheme: dark) {
       .select-input {
-        background-color: var(--md-sys-color-surface-container-highest, #36343b);
+        background-color: var(
+          --md-sys-color-surface-container-highest,
+          #36343b
+        );
         color: var(--md-sys-color-on-surface, #e6e1e5);
         border-bottom-color: var(--md-sys-color-on-surface-variant, #cac4d0);
       }
@@ -232,10 +251,12 @@ export class MdSelect extends LitElement {
     const slot = this.shadowRoot?.querySelector('slot');
     if (slot) {
       const assignedElements = slot.assignedElements() as MdOption[];
-      this._options = assignedElements.filter(el => el.tagName === 'MD-OPTION');
+      this._options = assignedElements.filter(
+        (el) => el.tagName === 'MD-OPTION'
+      );
 
       // Set up click handlers for options
-      this._options.forEach(option => {
+      this._options.forEach((option) => {
         option.addEventListener('click', () => this._handleOptionClick(option));
       });
     }
@@ -254,7 +275,9 @@ export class MdSelect extends LitElement {
       this._close();
     } else {
       this._open = true;
-      this.dispatchEvent(new CustomEvent('md-select-open', { bubbles: true, composed: true }));
+      this.dispatchEvent(
+        new CustomEvent('md-select-open', { bubbles: true, composed: true })
+      );
     }
   }
 
@@ -269,24 +292,30 @@ export class MdSelect extends LitElement {
     this.value = option.value;
 
     // Dispatch change event
-    this.dispatchEvent(new CustomEvent('change', {
-      detail: { value: this.value, oldValue },
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('change', {
+        detail: { value: this.value, oldValue },
+        bubbles: true,
+        composed: true,
+      })
+    );
 
     this._close();
   }
 
   private _close() {
     this._open = false;
-    this.dispatchEvent(new CustomEvent('md-select-close', { bubbles: true, composed: true }));
+    this.dispatchEvent(
+      new CustomEvent('md-select-close', { bubbles: true, composed: true })
+    );
   }
 
   private _getDisplayLabel(): string {
     if (!this.value) return this.placeholder;
 
-    const selectedOption = this._options.find(opt => opt.value === this.value);
+    const selectedOption = this._options.find(
+      (opt) => opt.value === this.value
+    );
     return selectedOption?.textContent?.trim() || this.value;
   }
 
@@ -297,7 +326,10 @@ export class MdSelect extends LitElement {
     return html`
       <div class="select-container">
         <div
-          class="select-input ${this.variant} ${this._open ? 'open' : ''} ${this.disabled ? 'disabled' : ''}"
+          class="select-input ${this.variant} ${this._open ? 'open' : ''} ${this
+            .disabled
+            ? 'disabled'
+            : ''} ${this.pill ? 'pill' : ''}"
           @click=${this._handleInputClick}
           tabindex="${this.disabled ? -1 : 0}"
           role="combobox"
@@ -308,12 +340,20 @@ export class MdSelect extends LitElement {
           <span class="select-label ${isPlaceholder ? 'placeholder' : ''}">
             ${displayLabel}
           </span>
-          <svg class="dropdown-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M7 10l5 5 5-5z" fill="currentColor"/>
+          <svg
+            class="dropdown-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M7 10l5 5 5-5z" fill="currentColor" />
           </svg>
         </div>
 
-        <div class="backdrop ${this._open ? 'open' : ''}" @click=${this._handleBackdropClick}></div>
+        <div
+          class="backdrop ${this._open ? 'open' : ''}"
+          @click=${this._handleBackdropClick}
+        ></div>
 
         <div class="dropdown ${this._open ? 'open' : ''}" role="listbox">
           <slot @slotchange=${this._updateOptions}></slot>

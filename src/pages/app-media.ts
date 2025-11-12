@@ -1,82 +1,79 @@
 import { LitElement, html, css } from 'lit';
-import { customElement, state } from 'lit/decorators.js'
+import { customElement, state } from 'lit/decorators.js';
 import { getAllMedia } from '../services/media';
 
 import '../components/header';
 
 @customElement('app-media')
 export class AppMedia extends LitElement {
-    @state() media: File[] = [];
+  @state() media: File[] = [];
 
-    static styles = [
-        css`
-            :host {
-                display: block;
-            }
+  static styles = [
+    css`
+      :host {
+        display: block;
+      }
 
-            main {
-                padding-top: 60px;
-            }
+      main {
+        padding-top: 60px;
+      }
 
-            ul {
-                margin: 0;
-                padding: 0;
-                list-style: none;
-                overflow-y: scroll;
-                overflow-x: hidden;
-                height: 90vh;
+      ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        height: 90vh;
 
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        grid-auto-rows: max-content;
+        gap: 8px;
+      }
 
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-                    grid-auto-rows: max-content;
-                    gap: 8px;
+      li {
+        height: 260px;
+      }
 
-            }
+      li img {
+        width: 100%;
+        border-radius: 6px;
+        height: 100%;
+        object-fit: cover;
+      }
 
-            li {
-                height: 260px;
-            }
+      @media (min-width: 768px) {
+        ul {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+          grid-auto-rows: max-content;
+          gap: 8px;
+        }
+      }
+    `,
+  ];
 
-            li img {
-                width: 100%;
-                border-radius: 6px;
-                height: 100%;
-                object-fit: cover;
-            }
+  async firstUpdated() {
+    const files = await getAllMedia();
+    console.log(files);
 
-            @media (min-width: 768px) {
-                ul {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-                    grid-auto-rows: max-content;
-                    gap: 8px;
-                }
-            }
-        `
-    ];
+    this.media = files;
+  }
 
-    async firstUpdated() {
-        const files = await getAllMedia();
-        console.log(files);
+  render() {
+    return html`
+      <app-header ?enableBack="${true}"></app-header>
 
-        this.media = files;
-    }
-
-    render() {
-        return html`
-        <app-header ?enableBack="${true}"></app-header>
-
-<main>
+      <main>
         <ul>
-        ${this.media.map(file => {
+          ${this.media.map((file) => {
             return html`<li>
-                <img src="${URL.createObjectURL(file)}" />
-            </li>`
-        })
-            }
+              <img src="${URL.createObjectURL(file)}" />
+            </li>`;
+          })}
         </ul>
-    </main>
-        `;
-    }
+      </main>
+    `;
+  }
 }

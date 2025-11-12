@@ -1,7 +1,14 @@
 import { LitElement, html, css } from 'lit';
-import { customElement, state } from 'lit/decorators.js'
+import { customElement, state } from 'lit/decorators.js';
 import { styleMap } from 'lit/directives/style-map.js';
-import { checkFollowing, followUser, getAccount, getUsersPosts, isFollowingMe, unfollowUser } from '../services/account';
+import {
+  checkFollowing,
+  followUser,
+  getAccount,
+  getUsersPosts,
+  isFollowingMe,
+  unfollowUser,
+} from '../services/account';
 
 import '../components/timeline-item';
 import '../components/md-dialog';
@@ -16,542 +23,597 @@ import { editPost } from '../services/posts';
 
 @customElement('app-profile')
 export class AppProfile extends LitElement {
-
-    @state() user: any | undefined;
-    @state() posts: any[] = [];
-    @state() followed: boolean = false;
-    @state() following: boolean = false;
-    @state() showMiniProfile: boolean = false;
-    @state() selectedPost: Post | undefined = undefined;
-
-    static styles = [
-        css`
-            :host {
-                display: block;
-
-                overflow-y: scroll;
-                height: 100vh;
-            }
-
-            md-dialog::part(base) {
-                z-index: 99999;
-            }
-
-            #profile {
-                view-transition-name: profile-image;
-                contain: paint;
-            }
-
-            #edit-input-block {
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            #edit-input-block md-text-area::part(textarea) {
-                height: 200px;
-            }
-
-            h3 sl-skeleton {
-                width: 186px;
-                height: 22px;
-                border-radius: 8px;
-            }
-
-            #user-url sl-skeleton {
-                width: 300px;
-            }
-
-            #bio-placeholder {
-                display: flex;
-                width: 60%;
-                flex-direction: column;
-                gap: 8px;
-                height: 100px;
-            }
-
-            #bio-placeholder sl-skeleton {
-                height: 12px;
-                width: 100%;
-            }
-
-            #avatar-block sl-skeleton {
-                height: -webkit-fill-available;
-                width: -webkit-fill-available;
-                border-radius: 8px;
-            }
-
-
-            sl-badge {
-                cursor: pointer;
-              }
-
-              #avatarSkel {
-                width: 80px;
-                height: 80px;
-                border-radius: 50%;
-              }
-
-              #follower-info {
-                display: flex;
-                gap: 4px;
-              }
-
-            #fields {
-                display: flex;
-                overflow-x: auto;
-                margin-top: 12px;
-
-                flex-direction: row;
-                gap: 4px;
-                flex-wrap: wrap;
-                margin-top: 1em;
-            }
-
-            #mutuals {
-                color: white;
-                background: var(--sl-color-primary-600);
-                border-radius: 3px;
-                padding: 6px;
-                font-size: 14px;
-            }
-
-            #mini-profile {
-                position: fixed;
-                top: 44px;
-                background: rgb(98 99 105 / 19%);
-                left: 15vw;
-                right: 15vw;
-                border-radius: 6px;
-                backdrop-filter: blur(40px);
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 8px;
-
-                z-index: 100;
-
-                animation-name: slidedown;
-                animation-duration: 0.3s;
-            }
-
-            #mini-profile p {
-                padding: 8px;
-                margin: 0;
-                font-weight: bold;
-            }
-
-            #avatar-mini {
-                display: flex;
-                align-items: center;
-                gap: 2px;
-            }
-
-            #avatar-mini img {
-                height: 40px;
-                border-radius: 50%;
-                border: solid 2px var(--sl-color-primary-600);
-            }
-
-            .field-name {
-                font-weight: bold;
-                margin-right: 4px;
-                border-right: solid white 2px;
-                padding-right: 6px;
-            }
-
-            main {
-                padding-top: 60px;
-                display: grid;
-                gap: 14px;
-                grid-template-columns: auto;
-                padding-left: 20vw;
-                padding-right: 20vw;
-            }
-
-            #profile-card-actions {
-                margin-top: 2em;
-                gap: 4px;
-
-                display: flex;
-                justify-content: flex-end;
-                align-items: center;
-                flex-direction: row;
-            }
-
-            #unfollow::part(control) {
-                background: indianred;
-            }
-
-            #profile-card-actions sl-button::part(base) {
-                width: 110px;
-            }
-
-            ul {
-
-                display: flex;
-                flex-direction: column;
-                margin: 0px;
-                padding: 0px;
-                list-style: none;
-                overflow: hidden scroll;
-
-                border-radius: 6px;
-            }
-
-            ul::-webkit-scrollbar {
-                display: none;
-            }
-
-            #profile {
-                padding-top: 0;
-                border-radius: 6px;
-
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-
-                // animation-name: slideup;
-                // animation-duration: 0.3s;
-              }
-
-            #fake-profile {
-                padding: 12px;
-                padding-top: 0;
-                border-radius: 6px;
-
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                height: 400px
-            }
-
-            #fake-profile sl-skeleton {
-                display: block;
-                height: 400px;
-                --border-radius: 4px;
-            }
-
-              #username-block {
-                display: flex;
-                align-items: center;
-                gap: 14px;
-                margin-top: 8px;
-              }
-
-            #profile #avatar-block img {
-                height: 5em;
-                border: solid var(--sl-color-primary-600) 4px;
-                position: relative;
-                top: 6px;
-                right: 2px;
-                width: 5em;
-                border-radius: 4px;
-                object-fit: cover;
-              }
-
-              #fields sl-badge span {
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-                max-width: 400px;
-              }
-
-              #fields img {
-                height: 22px;
-              }
-
-              #profile-top {
-                    padding: 0px;
-                    padding-left: 8px;
-                    padding-right: 8px;
-                    padding-bottom: 8px;
-                    padding-top: 8px;
-                    border-radius: 4px;
-
-                    background: rgb(32 32 35);
-
-                    overflow-x: hidden;
-                    text-overflow: ellipsis;
-
-                    min-height: 587px;
-              }
-
-              #avatar-block {
-                background-repeat: no-repeat;
-                background-position: center;
-                background-size: cover;
-                padding: 6px;
-                border-radius: 4px;
-                height: 280px;
-
-                display: flex;
-                flex-direction: column;
-                align-items: flex-start;
-                justify-content: flex-end;
-                padding-bottom: 10px;
-              }
-
-              #profile-top h3 {
-                margin-bottom: 0;
-                margin-top: 0;
-              }
-
-              #profile-top p {
-                color: white;
-                font-size: 15px;
-              }
-
-              #user-url {
-                margin-top: 4px;
-                font-size: 12px;
-              }
-
-              @media(max-width: 700px) {
-                main {
-                    display: flex;
-                    flex-direction: column;
-
-                    padding-left: 10px;
-                    padding-right: 10px;
-                    padding-top: 60px;
-                }
-
-                ul {
-                    height: initial;
-                }
-
-                #mini-profile {
-                    right: 14px;
-                    left: 14px;
-                    bottom: 10px;
-                    top: initial;
-
-                    animation-name: slideup;
-                    animation-duration: 0.3s;
-                }
-              }
-
-              @media(prefers-color-scheme: light) {
-                #profile-top {
-                    background: white;
-                    color: black;
-                }
-
-                #profile-top p {
-                    color: black;
-                }
-              }
-
-              @keyframes slideup {
-                from {
-                    transform: translateY(30%);
-                    opacity: 0;
-                }
-
-                to {
-                    transform: translateY(0);
-                    opacity: 1;
-                }
-              }
-
-              @keyframes slidedown {
-                from {
-                    transform: translateY(-100%);
-                    opacity: 0;
-                }
-
-                to {
-                    transform: translateY(0);
-                    opacity: 1;
-                }
-              }
-        `
-    ];
-
-    async firstUpdated() {
-        // get id from query string
-        const urlParams = new URLSearchParams(window.location.search);
-        const id = urlParams.get('id');
-
-        if (id) {
-            const followCheck = await checkFollowing(id);
-            console.log('followCheck', followCheck)
-            this.followed = followCheck[0].following;
-
-            const followedCheck = await isFollowingMe(id);
-            console.log('followedCheck', followedCheck)
-            this.following = followedCheck[0].followed_by;
-
-            const accountData = await getAccount(id);
-            console.log(accountData);
-            this.user = accountData;
-
-            const postsData = await getUsersPosts(id);
-            console.log(postsData);
-
-            this.posts = postsData;
+  @state() user: any | undefined;
+  @state() posts: any[] = [];
+  @state() followed: boolean = false;
+  @state() following: boolean = false;
+  @state() showMiniProfile: boolean = false;
+  @state() selectedPost: Post | undefined = undefined;
+
+  static styles = [
+    css`
+      :host {
+        display: block;
+
+        overflow-y: scroll;
+        height: 100vh;
+      }
+
+      md-dialog::part(base) {
+        z-index: 99999;
+      }
+
+      #profile {
+        view-transition-name: profile-image;
+        contain: paint;
+      }
+
+      #edit-input-block {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      #edit-input-block md-text-area::part(textarea) {
+        height: 200px;
+      }
+
+      h3 sl-skeleton {
+        width: 186px;
+        height: 22px;
+        border-radius: 8px;
+      }
+
+      #user-url sl-skeleton {
+        width: 300px;
+      }
+
+      #bio-placeholder {
+        display: flex;
+        width: 60%;
+        flex-direction: column;
+        gap: 8px;
+        height: 100px;
+      }
+
+      #bio-placeholder sl-skeleton {
+        height: 12px;
+        width: 100%;
+      }
+
+      #avatar-block sl-skeleton {
+        height: -webkit-fill-available;
+        width: -webkit-fill-available;
+        border-radius: 8px;
+      }
+
+      sl-badge {
+        cursor: pointer;
+      }
+
+      #avatarSkel {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+      }
+
+      #follower-info {
+        display: flex;
+        gap: 4px;
+      }
+
+      #fields {
+        display: flex;
+        overflow-x: auto;
+        margin-top: 12px;
+
+        flex-direction: row;
+        gap: 4px;
+        flex-wrap: wrap;
+        margin-top: 1em;
+      }
+
+      #mutuals {
+        color: white;
+        background: var(--sl-color-primary-600);
+        border-radius: 3px;
+        padding: 6px;
+        font-size: 14px;
+      }
+
+      #mini-profile {
+        position: fixed;
+        top: 44px;
+        background: rgb(98 99 105 / 19%);
+        left: 15vw;
+        right: 15vw;
+        border-radius: 6px;
+        backdrop-filter: blur(40px);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px;
+
+        z-index: 100;
+
+        animation-name: slidedown;
+        animation-duration: 0.3s;
+      }
+
+      #mini-profile p {
+        padding: 8px;
+        margin: 0;
+        font-weight: bold;
+      }
+
+      #avatar-mini {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+      }
+
+      #avatar-mini img {
+        height: 40px;
+        border-radius: 50%;
+        border: solid 2px var(--sl-color-primary-600);
+      }
+
+      .field-name {
+        font-weight: bold;
+        margin-right: 4px;
+        border-right: solid white 2px;
+        padding-right: 6px;
+      }
+
+      main {
+        padding-top: 60px;
+        display: grid;
+        gap: 14px;
+        grid-template-columns: auto;
+        padding-left: 20vw;
+        padding-right: 20vw;
+      }
+
+      #profile-card-actions {
+        margin-top: 2em;
+        gap: 4px;
+
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        flex-direction: row;
+      }
+
+      #unfollow::part(control) {
+        background: indianred;
+      }
+
+      #profile-card-actions sl-button::part(base) {
+        width: 110px;
+      }
+
+      ul {
+        display: flex;
+        flex-direction: column;
+        margin: 0px;
+        padding: 0px;
+        list-style: none;
+        overflow: hidden scroll;
+
+        border-radius: 6px;
+      }
+
+      ul::-webkit-scrollbar {
+        display: none;
+      }
+
+      #profile {
+        padding-top: 0;
+        border-radius: 6px;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+
+        // animation-name: slideup;
+        // animation-duration: 0.3s;
+      }
+
+      #fake-profile {
+        padding: 12px;
+        padding-top: 0;
+        border-radius: 6px;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 400px;
+      }
+
+      #fake-profile sl-skeleton {
+        display: block;
+        height: 400px;
+        --border-radius: 4px;
+      }
+
+      #username-block {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-top: 8px;
+      }
+
+      #profile #avatar-block img {
+        height: 5em;
+        border: solid var(--sl-color-primary-600) 4px;
+        position: relative;
+        top: 6px;
+        right: 2px;
+        width: 5em;
+        border-radius: 4px;
+        object-fit: cover;
+      }
+
+      #fields sl-badge span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 400px;
+      }
+
+      #fields img {
+        height: 22px;
+      }
+
+      #profile-top {
+        padding: 0px;
+        padding-left: 8px;
+        padding-right: 8px;
+        padding-bottom: 8px;
+        padding-top: 8px;
+        border-radius: 4px;
+
+        background: rgb(32 32 35);
+
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+
+        min-height: 587px;
+      }
+
+      #avatar-block {
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        padding: 6px;
+        border-radius: 4px;
+        height: 280px;
+
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-end;
+        padding-bottom: 10px;
+      }
+
+      #profile-top h3 {
+        margin-bottom: 0;
+        margin-top: 0;
+      }
+
+      #profile-top p {
+        color: white;
+        font-size: 15px;
+      }
+
+      #user-url {
+        margin-top: 4px;
+        font-size: 12px;
+      }
+
+      @media (max-width: 700px) {
+        main {
+          display: flex;
+          flex-direction: column;
+
+          padding-left: 10px;
+          padding-right: 10px;
+          padding-top: 60px;
         }
 
-        window.requestIdleCallback(() => {
-            // set up intersection observer
-            const options = {
-                root: null,
-                rootMargin: '0px',
-                threshold: 0.8
-            };
+        ul {
+          height: initial;
+        }
 
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    console.log('entry', entry)
-                    if (entry.isIntersecting) {
-                        console.log('intersecting', entry);
+        #mini-profile {
+          right: 14px;
+          left: 14px;
+          bottom: 10px;
+          top: initial;
 
-                        window.requestIdleCallback(async () => {
-                            this.showMiniProfile = false;
-                        })
-                    }
-                    else {
-                        this.showMiniProfile = true;
-                    }
-                })
-            }
-            , options);
+          animation-name: slideup;
+          animation-duration: 0.3s;
+        }
+      }
 
-            // get second child element of postsList
-            const profileDiv = this.shadowRoot?.getElementById('profile');
+      @media (prefers-color-scheme: light) {
+        #profile-top {
+          background: white;
+          color: black;
+        }
 
-            observer.observe(profileDiv!);
-        })
+        #profile-top p {
+          color: black;
+        }
+      }
+
+      @keyframes slideup {
+        from {
+          transform: translateY(30%);
+          opacity: 0;
+        }
+
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes slidedown {
+        from {
+          transform: translateY(-100%);
+          opacity: 0;
+        }
+
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+    `,
+  ];
+
+  async firstUpdated() {
+    // get id from query string
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('id');
+
+    if (id) {
+      const followCheck = await checkFollowing(id);
+      console.log('followCheck', followCheck);
+      this.followed = followCheck[0].following;
+
+      const followedCheck = await isFollowingMe(id);
+      console.log('followedCheck', followedCheck);
+      this.following = followedCheck[0].followed_by;
+
+      const accountData = await getAccount(id);
+      console.log(accountData);
+      this.user = accountData;
+
+      const postsData = await getUsersPosts(id);
+      console.log(postsData);
+
+      this.posts = postsData;
     }
 
-    async follow() {
-        await followUser(this.user.id);
-        this.followed = true;
-    }
+    window.requestIdleCallback(() => {
+      // set up intersection observer
+      const options = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.8,
+      };
 
-    async reloadPosts() {
-        const postsData = await getUsersPosts(this.id);
-        console.log(postsData);
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          console.log('entry', entry);
+          if (entry.isIntersecting) {
+            console.log('intersecting', entry);
 
-        this.posts = postsData;
-    }
+            window.requestIdleCallback(async () => {
+              this.showMiniProfile = false;
+            });
+          } else {
+            this.showMiniProfile = true;
+          }
+        });
+      }, options);
 
-    async unfollow() {
-        await unfollowUser(this.user.id);
-        this.followed = false;
-    }
+      // get second child element of postsList
+      const profileDiv = this.shadowRoot?.getElementById('profile');
 
-    editPost(tweet: Post) {
-        console.log('edit post', tweet);
-        const preview = this.shadowRoot?.getElementById('preview-content') as any;
+      observer.observe(profileDiv!);
+    });
+  }
 
-        this.selectedPost = tweet;
+  async follow() {
+    await followUser(this.user.id);
+    this.followed = true;
+  }
 
-        preview.innerHTML = tweet.content;
+  async reloadPosts() {
+    const postsData = await getUsersPosts(this.id);
+    console.log(postsData);
 
-        const dialog = this.shadowRoot?.getElementById('edit') as any;
-        dialog.show();
-    }
+    this.posts = postsData;
+  }
 
-    async confirmEdit() {
-        const textArea = this.shadowRoot?.getElementById('content') as any;
-        const newContent = textArea.value;
+  async unfollow() {
+    await unfollowUser(this.user.id);
+    this.followed = false;
+  }
 
-        await editPost(this.selectedPost!.id, newContent);
+  editPost(tweet: Post) {
+    console.log('edit post', tweet);
+    const preview = this.shadowRoot?.getElementById('preview-content') as any;
 
-        const dialog = this.shadowRoot?.getElementById('edit') as any;
-        dialog.hide();
-    }
+    this.selectedPost = tweet;
 
-    render() {
-        return html`
-        <app-header ?enableBack="${true}"></app-header>
+    preview.innerHTML = tweet.content;
 
-        <md-dialog id="edit" label="Edit Post">
-            <span id="preview-content"></span>
+    const dialog = this.shadowRoot?.getElementById('edit') as any;
+    dialog.show();
+  }
 
-            <div id="edit-input-block">
-            <md-text-area id="content"></md-text-area>
+  async confirmEdit() {
+    const textArea = this.shadowRoot?.getElementById('content') as any;
+    const newContent = textArea.value;
 
-            <sl-button type="primary" @click=${() => this.confirmEdit()}>Save</sl-button>
+    await editPost(this.selectedPost!.id, newContent);
+
+    const dialog = this.shadowRoot?.getElementById('edit') as any;
+    dialog.hide();
+  }
+
+  render() {
+    return html`
+      <app-header ?enableBack="${true}"></app-header>
+
+      <md-dialog id="edit" label="Edit Post">
+        <span id="preview-content"></span>
+
+        <div id="edit-input-block">
+          <md-text-area id="content"></md-text-area>
+
+          <sl-button type="primary" @click=${() => this.confirmEdit()}
+            >Save</sl-button
+          >
+        </div>
+      </md-dialog>
+
+      <main>
+        <div id="profile">
+          <div id="profile-top">
+            ${this.user
+              ? html`
+                  <div
+                    id="avatar-block"
+                    style=${styleMap({
+                      backgroundImage: `url(${this.user.header})`,
+                    })}
+                  >
+                    <img src="${this.user.avatar}" />
+                  </div>
+                `
+              : html`<div id="avatar-block"><sl-skeleton></sl-skeleton></div>`}
+            <div id="username-block">
+              <h3>
+                ${this.user
+                  ? this.user.display_name
+                  : html`<sl-skeleton></sl-skeleton>`}
+              </h3>
             </div>
-        </md-dialog>
 
-        <main>
-            <div id="profile">
-                <div id="profile-top">
-                    ${this.user ? html`
-                    <div id="avatar-block" style=${styleMap({backgroundImage: `url(${this.user.header})`})}>
-                        <img src="${this.user.avatar}" />
-                    </div>
-                    ` : html`<div id="avatar-block"><sl-skeleton></sl-skeleton></div>`}
-                    <div id="username-block">
-                        <h3>${this.user ? this.user.display_name : html`<sl-skeleton></sl-skeleton>`}</h3>
-                    </div>
+            <p id="user-url">
+              ${this.user ? this.user.url : html`<sl-skeleton></sl-skeleton>`}
+            </p>
 
-                    <p id="user-url">${this.user ? this.user.url : html`<sl-skeleton></sl-skeleton>`}</p>
+            ${this.user && this.user.note
+              ? html`
+                  <div .innerHTML=${this.user ? this.user.note : ''}></div>
+                `
+              : html`
+                  <div id="bio-placeholder">
+                    <sl-skeleton></sl-skeleton>
+                    <sl-skeleton></sl-skeleton>
+                    <sl-skeleton></sl-skeleton>
+                  </div>
+                `}
 
-                    ${
-                        this.user && this.user.note ? html`
-                          <div .innerHTML=${this.user ? this.user.note : "" }></div>
-                        ` : html`
-                            <div id="bio-placeholder">
-                                <sl-skeleton></sl-skeleton>
-                                <sl-skeleton></sl-skeleton>
-                                <sl-skeleton></sl-skeleton>
-                            </div>
-                        `
-                    }
+            <div id="follower-info">
+              <md-badge variant="filled"
+                >${this.user ? this.user.followers_count : 0}
+                followers</md-badge
+              >
+              <md-badge variant="filled"
+                >${this.user ? this.user.following_count : 0}
+                following</md-badge
+              >
+            </div>
 
-                    <div id="follower-info">
-                      <md-badge variant="filled">${this.user ? this.user.followers_count : 0} followers</md-badge>
-                      <md-badge variant="filled">${this.user ? this.user.following_count : 0} following</md-badge>
-                    </div>
+            <div id="fields">
+              ${this.user
+                ? this.user.fields.map(
+                    (field: any) => html`
+                      <div>
+                        <md-badge variant="filled">
+                          <span
+                            class="field-name"
+                            .innerHTML="${field.name}"
+                          ></span>
+                          <span
+                            class="field-value"
+                            .innerHTML="${field.value}"
+                          ></span>
+                        </md-badge>
+                      </div>
+                    `
+                  )
+                : null}
+            </div>
 
-                    <div id="fields">
-                        ${this.user ? this.user.fields.map((field: any) => html`
-                        <div>
-                            <md-badge variant="filled">
-                                <span class="field-name" .innerHTML="${field.name}"></span>
-                               <span class="field-value" .innerHTML="${field.value}"></span>
-                            </md-badge>
-                        </div>
-                        `) : null}
-                    </div>
+            <div id="profile-card-actions">
+              ${this.followed && this.following
+                ? html`<md-button
+                    variant="filled"
+                    id="unfollow"
+                    @click="${() => this.unfollow()}"
+                    >Mutuals</md-button
+                  >`
+                : this.followed
+                  ? html`<md-button
+                      id="unfollow"
+                      @click="${() => this.unfollow()}"
+                      variant="filled"
+                      pill
+                      >Unfollow</md-button
+                    >`
+                  : html`<md-button
+                      pill
+                      variant="filled"
+                      @click="${() => this.follow()}"
+                      >Follow</md-button
+                    >`}
+            </div>
+          </div>
+        </div>
 
-                    <div id="profile-card-actions">
-                        ${this.followed && this.following ? html`<md-button variant="filled" id="unfollow" @click="${() => this.unfollow()}">Mutuals</md-button>` : this.followed ? html`<md-button id="unfollow" @click="${() => this.unfollow()}" variant="filled" pill>Unfollow</md-button>` : html`<md-button pill variant="filled"
-                            @click="${() => this.follow()}">Follow</md-button>`}
-                    </div>
+        ${this.showMiniProfile && this.user
+          ? html`
+              <div id="mini-profile">
+                <div id="avatar-mini">
+                  <img src="${this.user.avatar}" />
+
+                  <p>${this.user.display_name}</p>
                 </div>
-            </div>
 
+                ${this.followed
+                  ? html`<md-button pill disabled>Following</md-button>`
+                  : html`<md-button
+                      pill
+                      variant="filled"
+                      @click="${() => this.follow()}"
+                      >Follow</md-button
+                    >`}
+              </div>
+            `
+          : null}
 
-            ${
-                this.showMiniProfile && this.user ? html`
-                <div id="mini-profile">
-                    <div id="avatar-mini">
-                        <img src="${this.user.avatar}" />
-
-                        <p>${this.user.display_name}</p>
-                    </div>
-
-                 ${this.followed ? html`<md-button pill disabled>Following</md-button>` : html`<md-button pill variant="filled"
-                            @click="${() => this.follow()}">Follow</md-button>`}
-            </div>
-                ` : null
-            }
-
-            <ul>
-                ${this.posts.map(post => html`
-                <li>
-                    <timeline-item @edit="${($event: any) => this.editPost($event.detail.tweet)}" @delete="${() => this.reloadPosts()}" .tweet=${post}></timeline-item>
-                </li>
-                ` )}
-            </ul>
-
-        </main>
-        `;
-    }
+        <ul>
+          ${this.posts.map(
+            (post) => html`
+              <li>
+                <timeline-item
+                  @edit="${($event: any) => this.editPost($event.detail.tweet)}"
+                  @delete="${() => this.reloadPosts()}"
+                  .tweet=${post}
+                ></timeline-item>
+              </li>
+            `
+          )}
+        </ul>
+      </main>
+    `;
+  }
 }

@@ -4,79 +4,73 @@ import { Post } from '../interfaces/Post';
 
 @customElement('app-favorites')
 export class Favorites extends LitElement {
-    @state() favorites = [];
+  @state() favorites = [];
 
-    static styles = [
-        css`
-            :host {
-                display: block;
+  static styles = [
+    css`
+      :host {
+        display: block;
 
-                content-visibility: auto;
-                contain: layout style paint;
-            }
+        content-visibility: auto;
+        contain: layout style paint;
+      }
 
-            ul {
-                display: flex;
-                flex-direction: column;
-                margin: 0;
-                padding: 0;
-                list-style: none;
+      ul {
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+        padding: 0;
+        list-style: none;
 
-                height: 90vh;
-                overflow-y: scroll;
-                overflow-x: hidden;
-            }
+        height: 90vh;
+        overflow-y: scroll;
+        overflow-x: hidden;
+      }
 
-            @media (max-width: 768px) {
-                ul {
-                    padding-left: 10px;
-                    padding-right: 10px;
-                }
-            }
-
-            ul::-webkit-scrollbar {
-                display: none;
-            }
-        `
-    ];
-
-    async firstUpdated() {
-        const options = {
-            root: null,
-            rootMargin: '0px',
-            threshold: 0.1
-        };
-
-        const observer = new IntersectionObserver((entries, observer) => {
-
-            entries.forEach(async entry => {
-                if (entry.isIntersecting) {
-                    const { getFavorites } = await import('../services/favorites');
-                    const favoritesData = await getFavorites();
-                    console.log(favoritesData);
-
-                    this.favorites = favoritesData;
-
-                    observer.disconnect();
-                }
-            });
+      @media (max-width: 768px) {
+        ul {
+          padding-left: 10px;
+          padding-right: 10px;
         }
-        , options);
+      }
 
-        observer.observe(this);
-    }
+      ul::-webkit-scrollbar {
+        display: none;
+      }
+    `,
+  ];
 
-    render() {
-        return html`
-          <ul>
-            ${
-                this.favorites.map((favorite: Post) => {
-                    return html`
-                        <timeline-item .tweet=${favorite}></timeline-item>
-                    `;
-                })
-            }
-          </ul>
-        `;
-    }
+  async firstUpdated() {
+    const options = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1,
+    };
+
+    const observer = new IntersectionObserver((entries, observer) => {
+      entries.forEach(async (entry) => {
+        if (entry.isIntersecting) {
+          const { getFavorites } = await import('../services/favorites');
+          const favoritesData = await getFavorites();
+          console.log(favoritesData);
+
+          this.favorites = favoritesData;
+
+          observer.disconnect();
+        }
+      });
+    }, options);
+
+    observer.observe(this);
+  }
+
+  render() {
+    return html`
+      <ul>
+        ${this.favorites.map((favorite: Post) => {
+          return html` <timeline-item .tweet=${favorite}></timeline-item> `;
+        })}
+      </ul>
+    `;
+  }
 }

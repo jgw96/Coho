@@ -3,100 +3,102 @@
  * Migrated from Azure Functions
  */
 
-import {onRequest} from "firebase-functions/v2/https";
-import * as logger from "firebase-functions/logger";
-import OpenAI from "openai";
+import { onRequest } from 'firebase-functions/v2/https';
+import * as logger from 'firebase-functions/logger';
+import OpenAI from 'openai';
 
-const openai = process.env.OPENAI_API_KEY ? new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-}) : null;
+const openai = process.env.OPENAI_API_KEY
+  ? new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    })
+  : null;
 
 // Helper to enable CORS
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
 // OpenAI Functions
 
 export const generateImage = onRequest(async (request, response) => {
   // Handle CORS preflight
-  if (request.method === "OPTIONS") {
+  if (request.method === 'OPTIONS') {
     response.set(corsHeaders);
-    response.status(204).send("");
+    response.status(204).send('');
     return;
   }
 
   response.set(corsHeaders);
 
   if (!openai) {
-    response.status(500).json({error: "OpenAI API key not configured"});
+    response.status(500).json({ error: 'OpenAI API key not configured' });
     return;
   }
 
   const prompt = request.query.prompt as string;
   if (!prompt) {
-    response.status(400).json({error: "Prompt is required"});
+    response.status(400).json({ error: 'Prompt is required' });
     return;
   }
 
   try {
     const result = await openai.images.generate({
       prompt: prompt,
-      response_format: "b64_json",
+      response_format: 'b64_json',
     });
 
-    logger.info("Generated image", {prompt});
+    logger.info('Generated image', { prompt });
     response.json(result.data);
   } catch (error) {
-    logger.error("Image generation failed", {error});
-    response.status(500).json({error: "Image generation failed"});
+    logger.error('Image generation failed', { error });
+    response.status(500).json({ error: 'Image generation failed' });
   }
 });
 
 export const generateStatus = onRequest(async (request, response) => {
-  if (request.method === "OPTIONS") {
+  if (request.method === 'OPTIONS') {
     response.set(corsHeaders);
-    response.status(204).send("");
+    response.status(204).send('');
     return;
   }
 
   response.set(corsHeaders);
 
   if (!openai) {
-    response.status(500).json({error: "OpenAI API key not configured"});
+    response.status(500).json({ error: 'OpenAI API key not configured' });
     return;
   }
 
   const prompt = request.query.prompt as string;
   if (!prompt) {
-    response.status(400).json({error: "Prompt is required"});
+    response.status(400).json({ error: 'Prompt is required' });
     return;
   }
 
   try {
     const result = await openai.completions.create({
-      model: "gpt-3.5-turbo-instruct",
+      model: 'gpt-3.5-turbo-instruct',
       prompt: `Generate a post for Mastodon that is about: ${prompt}`,
       max_tokens: 50,
       temperature: 0,
     });
 
-    logger.info("Generated status", {prompt});
+    logger.info('Generated status', { prompt });
     response.json(result.choices);
   } catch (error) {
-    logger.error("Status generation failed", {error});
-    response.status(500).json({error: "Status generation failed"});
+    logger.error('Status generation failed', { error });
+    response.status(500).json({ error: 'Status generation failed' });
   }
 });
 
 // Mastodon API Proxy Functions
 
 export const bookmark = onRequest(async (request, response) => {
-  if (request.method === "OPTIONS") {
+  if (request.method === 'OPTIONS') {
     response.set(corsHeaders);
-    response.status(204).send("");
+    response.status(204).send('');
     return;
   }
 
@@ -107,30 +109,33 @@ export const bookmark = onRequest(async (request, response) => {
   const id = request.query.id as string;
 
   if (!accessToken || !server || !id) {
-    response.status(400).json({error: "Missing required parameters"});
+    response.status(400).json({ error: 'Missing required parameters' });
     return;
   }
 
   try {
-    const apiResponse = await fetch(`${server}/api/v1/statuses/${id}/bookmark`, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${accessToken}`,
-      },
-    });
+    const apiResponse = await fetch(
+      `${server}/api/v1/statuses/${id}/bookmark`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
 
     const data = await apiResponse.json();
     response.json(data);
   } catch (error) {
-    logger.error("Bookmark failed", {error});
-    response.status(500).json({error: "Bookmark failed"});
+    logger.error('Bookmark failed', { error });
+    response.status(500).json({ error: 'Bookmark failed' });
   }
 });
 
 export const reblog = onRequest(async (request, response) => {
-  if (request.method === "OPTIONS") {
+  if (request.method === 'OPTIONS') {
     response.set(corsHeaders);
-    response.status(204).send("");
+    response.status(204).send('');
     return;
   }
 
@@ -141,30 +146,30 @@ export const reblog = onRequest(async (request, response) => {
   const id = request.query.id as string;
 
   if (!accessToken || !server || !id) {
-    response.status(400).json({error: "Missing required parameters"});
+    response.status(400).json({ error: 'Missing required parameters' });
     return;
   }
 
   try {
     const apiResponse = await fetch(`${server}/api/v1/statuses/${id}/reblog`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Authorization": `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     });
 
     const data = await apiResponse.json();
     response.json(data);
   } catch (error) {
-    logger.error("Reblog failed", {error});
-    response.status(500).json({error: "Reblog failed"});
+    logger.error('Reblog failed', { error });
+    response.status(500).json({ error: 'Reblog failed' });
   }
 });
 
 export const boost = onRequest(async (request, response) => {
-  if (request.method === "OPTIONS") {
+  if (request.method === 'OPTIONS') {
     response.set(corsHeaders);
-    response.status(204).send("");
+    response.status(204).send('');
     return;
   }
 
@@ -175,30 +180,30 @@ export const boost = onRequest(async (request, response) => {
   const id = request.query.id as string;
 
   if (!accessToken || !server || !id) {
-    response.status(400).json({error: "Missing required parameters"});
+    response.status(400).json({ error: 'Missing required parameters' });
     return;
   }
 
   try {
     const apiResponse = await fetch(`${server}/api/v1/statuses/${id}/reblog`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Authorization": `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     });
 
     const data = await apiResponse.json();
     response.json(data);
   } catch (error) {
-    logger.error("Boost failed", {error});
-    response.status(500).json({error: "Boost failed"});
+    logger.error('Boost failed', { error });
+    response.status(500).json({ error: 'Boost failed' });
   }
 });
 
 export const follow = onRequest(async (request, response) => {
-  if (request.method === "OPTIONS") {
+  if (request.method === 'OPTIONS') {
     response.set(corsHeaders);
-    response.status(204).send("");
+    response.status(204).send('');
     return;
   }
 
@@ -209,30 +214,30 @@ export const follow = onRequest(async (request, response) => {
   const id = request.query.id as string;
 
   if (!accessToken || !server || !id) {
-    response.status(400).json({error: "Missing required parameters"});
+    response.status(400).json({ error: 'Missing required parameters' });
     return;
   }
 
   try {
     const apiResponse = await fetch(`${server}/api/v1/accounts/${id}/follow`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Authorization": `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     });
 
     const data = await apiResponse.json();
     response.json(data);
   } catch (error) {
-    logger.error("Follow failed", {error});
-    response.status(500).json({error: "Follow failed"});
+    logger.error('Follow failed', { error });
+    response.status(500).json({ error: 'Follow failed' });
   }
 });
 
 export const getStatus = onRequest(async (request, response) => {
-  if (request.method === "OPTIONS") {
+  if (request.method === 'OPTIONS') {
     response.set(corsHeaders);
-    response.status(204).send("");
+    response.status(204).send('');
     return;
   }
 
@@ -243,30 +248,30 @@ export const getStatus = onRequest(async (request, response) => {
   const id = request.query.id as string;
 
   if (!accessToken || !server || !id) {
-    response.status(400).json({error: "Missing required parameters"});
+    response.status(400).json({ error: 'Missing required parameters' });
     return;
   }
 
   try {
     const apiResponse = await fetch(`${server}/api/v1/statuses/${id}`, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Authorization": `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     });
 
     const data = await apiResponse.json();
     response.json(data);
   } catch (error) {
-    logger.error("Get status failed", {error});
-    response.status(500).json({error: "Get status failed"});
+    logger.error('Get status failed', { error });
+    response.status(500).json({ error: 'Get status failed' });
   }
 });
 
 export const postStatus = onRequest(async (request, response) => {
-  if (request.method === "OPTIONS") {
+  if (request.method === 'OPTIONS') {
     response.set(corsHeaders);
-    response.status(204).send("");
+    response.status(204).send('');
     return;
   }
 
@@ -276,20 +281,20 @@ export const postStatus = onRequest(async (request, response) => {
   const server = `https://${request.query.server}`;
 
   if (!accessToken || !server) {
-    response.status(400).json({error: "Missing required parameters"});
+    response.status(400).json({ error: 'Missing required parameters' });
     return;
   }
 
   try {
     const apiResponse = await fetch(`${server}/api/v1/statuses`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
       },
       body: JSON.stringify({
         status: request.body.status,
-        visibility: request.body.visibility || "public",
+        visibility: request.body.visibility || 'public',
         media_ids: request.body.media_ids || [],
       }),
     });
@@ -297,15 +302,15 @@ export const postStatus = onRequest(async (request, response) => {
     const data = await apiResponse.json();
     response.json(data);
   } catch (error) {
-    logger.error("Post status failed", {error});
-    response.status(500).json({error: "Post status failed"});
+    logger.error('Post status failed', { error });
+    response.status(500).json({ error: 'Post status failed' });
   }
 });
 
 export const isFollowing = onRequest(async (request, response) => {
-  if (request.method === "OPTIONS") {
+  if (request.method === 'OPTIONS') {
     response.set(corsHeaders);
-    response.status(204).send("");
+    response.status(204).send('');
     return;
   }
 
@@ -316,30 +321,33 @@ export const isFollowing = onRequest(async (request, response) => {
   const id = request.query.id as string;
 
   if (!accessToken || !server || !id) {
-    response.status(400).json({error: "Missing required parameters"});
+    response.status(400).json({ error: 'Missing required parameters' });
     return;
   }
 
   try {
-    const apiResponse = await fetch(`${server}/api/v1/accounts/relationships?id=${id}`, {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${accessToken}`,
-      },
-    });
+    const apiResponse = await fetch(
+      `${server}/api/v1/accounts/relationships?id=${id}`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
 
     const data = await apiResponse.json();
     response.json(data);
   } catch (error) {
-    logger.error("Check following failed", {error});
-    response.status(500).json({error: "Check following failed"});
+    logger.error('Check following failed', { error });
+    response.status(500).json({ error: 'Check following failed' });
   }
 });
 
 export const getMessages = onRequest(async (request, response) => {
-  if (request.method === "OPTIONS") {
+  if (request.method === 'OPTIONS') {
     response.set(corsHeaders);
-    response.status(204).send("");
+    response.status(204).send('');
     return;
   }
 
@@ -349,30 +357,30 @@ export const getMessages = onRequest(async (request, response) => {
   const server = `https://${request.query.server}`;
 
   if (!accessToken || !server) {
-    response.status(400).json({error: "Missing required parameters"});
+    response.status(400).json({ error: 'Missing required parameters' });
     return;
   }
 
   try {
     const apiResponse = await fetch(`${server}/api/v1/conversations`, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Authorization": `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     });
 
     const data = await apiResponse.json();
     response.json(data);
   } catch (error) {
-    logger.error("Get messages failed", {error});
-    response.status(500).json({error: "Get messages failed"});
+    logger.error('Get messages failed', { error });
+    response.status(500).json({ error: 'Get messages failed' });
   }
 });
 
 export const getReplies = onRequest(async (request, response) => {
-  if (request.method === "OPTIONS") {
+  if (request.method === 'OPTIONS') {
     response.set(corsHeaders);
-    response.status(204).send("");
+    response.status(204).send('');
     return;
   }
 
@@ -383,30 +391,30 @@ export const getReplies = onRequest(async (request, response) => {
   const id = request.query.id as string;
 
   if (!accessToken || !server || !id) {
-    response.status(400).json({error: "Missing required parameters"});
+    response.status(400).json({ error: 'Missing required parameters' });
     return;
   }
 
   try {
     const apiResponse = await fetch(`${server}/api/v1/statuses/${id}/context`, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Authorization": `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     });
 
     const data = await apiResponse.json();
     response.json(data);
   } catch (error) {
-    logger.error("Get replies failed", {error});
-    response.status(500).json({error: "Get replies failed"});
+    logger.error('Get replies failed', { error });
+    response.status(500).json({ error: 'Get replies failed' });
   }
 });
 
 export const getUserPosts = onRequest(async (request, response) => {
-  if (request.method === "OPTIONS") {
+  if (request.method === 'OPTIONS') {
     response.set(corsHeaders);
-    response.status(204).send("");
+    response.status(204).send('');
     return;
   }
 
@@ -417,30 +425,33 @@ export const getUserPosts = onRequest(async (request, response) => {
   const id = request.query.id as string;
 
   if (!accessToken || !server || !id) {
-    response.status(400).json({error: "Missing required parameters"});
+    response.status(400).json({ error: 'Missing required parameters' });
     return;
   }
 
   try {
-    const apiResponse = await fetch(`${server}/api/v1/accounts/${id}/statuses`, {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${accessToken}`,
-      },
-    });
+    const apiResponse = await fetch(
+      `${server}/api/v1/accounts/${id}/statuses`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
 
     const data = await apiResponse.json();
     response.json(data);
   } catch (error) {
-    logger.error("Get user posts failed", {error});
-    response.status(500).json({error: "Get user posts failed"});
+    logger.error('Get user posts failed', { error });
+    response.status(500).json({ error: 'Get user posts failed' });
   }
 });
 
 export const getAccount = onRequest(async (request, response) => {
-  if (request.method === "OPTIONS") {
+  if (request.method === 'OPTIONS') {
     response.set(corsHeaders);
-    response.status(204).send("");
+    response.status(204).send('');
     return;
   }
 
@@ -451,30 +462,30 @@ export const getAccount = onRequest(async (request, response) => {
   const id = request.query.id as string;
 
   if (!accessToken || !server || !id) {
-    response.status(400).json({error: "Missing required parameters"});
+    response.status(400).json({ error: 'Missing required parameters' });
     return;
   }
 
   try {
     const apiResponse = await fetch(`${server}/api/v1/accounts/${id}`, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Authorization": `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     });
 
     const data = await apiResponse.json();
     response.json(data);
   } catch (error) {
-    logger.error("Get account failed", {error});
-    response.status(500).json({error: "Get account failed"});
+    logger.error('Get account failed', { error });
+    response.status(500).json({ error: 'Get account failed' });
   }
 });
 
 export const getHashtags = onRequest(async (request, response) => {
-  if (request.method === "OPTIONS") {
+  if (request.method === 'OPTIONS') {
     response.set(corsHeaders);
-    response.status(204).send("");
+    response.status(204).send('');
     return;
   }
 
@@ -485,30 +496,33 @@ export const getHashtags = onRequest(async (request, response) => {
   const query = request.query.query as string;
 
   if (!accessToken || !server || !query) {
-    response.status(400).json({error: "Missing required parameters"});
+    response.status(400).json({ error: 'Missing required parameters' });
     return;
   }
 
   try {
-    const apiResponse = await fetch(`${server}/api/v2/search?q=${query}&type=hashtags`, {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${accessToken}`,
-      },
-    });
+    const apiResponse = await fetch(
+      `${server}/api/v2/search?q=${query}&type=hashtags`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
 
     const data = await apiResponse.json();
     response.json(data);
   } catch (error) {
-    logger.error("Get hashtags failed", {error});
-    response.status(500).json({error: "Get hashtags failed"});
+    logger.error('Get hashtags failed', { error });
+    response.status(500).json({ error: 'Get hashtags failed' });
   }
 });
 
 export const search = onRequest(async (request, response) => {
-  if (request.method === "OPTIONS") {
+  if (request.method === 'OPTIONS') {
     response.set(corsHeaders);
-    response.status(204).send("");
+    response.status(204).send('');
     return;
   }
 
@@ -519,30 +533,30 @@ export const search = onRequest(async (request, response) => {
   const query = request.query.query as string;
 
   if (!accessToken || !server || !query) {
-    response.status(400).json({error: "Missing required parameters"});
+    response.status(400).json({ error: 'Missing required parameters' });
     return;
   }
 
   try {
     const apiResponse = await fetch(`${server}/api/v2/search?q=${query}`, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Authorization": `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     });
 
     const data = await apiResponse.json();
     response.json(data);
   } catch (error) {
-    logger.error("Search failed", {error});
-    response.status(500).json({error: "Search failed"});
+    logger.error('Search failed', { error });
+    response.status(500).json({ error: 'Search failed' });
   }
 });
 
 export const getFollowing = onRequest(async (request, response) => {
-  if (request.method === "OPTIONS") {
+  if (request.method === 'OPTIONS') {
     response.set(corsHeaders);
-    response.status(204).send("");
+    response.status(204).send('');
     return;
   }
 
@@ -553,30 +567,33 @@ export const getFollowing = onRequest(async (request, response) => {
   const id = request.query.id as string;
 
   if (!accessToken || !server || !id) {
-    response.status(400).json({error: "Missing required parameters"});
+    response.status(400).json({ error: 'Missing required parameters' });
     return;
   }
 
   try {
-    const apiResponse = await fetch(`${server}/api/v1/accounts/${id}/following`, {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${accessToken}`,
-      },
-    });
+    const apiResponse = await fetch(
+      `${server}/api/v1/accounts/${id}/following`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
 
     const data = await apiResponse.json();
     response.json(data);
   } catch (error) {
-    logger.error("Get following failed", {error});
-    response.status(500).json({error: "Get following failed"});
+    logger.error('Get following failed', { error });
+    response.status(500).json({ error: 'Get following failed' });
   }
 });
 
 export const getFollowers = onRequest(async (request, response) => {
-  if (request.method === "OPTIONS") {
+  if (request.method === 'OPTIONS') {
     response.set(corsHeaders);
-    response.status(204).send("");
+    response.status(204).send('');
     return;
   }
 
@@ -587,30 +604,33 @@ export const getFollowers = onRequest(async (request, response) => {
   const id = request.query.id as string;
 
   if (!accessToken || !server || !id) {
-    response.status(400).json({error: "Missing required parameters"});
+    response.status(400).json({ error: 'Missing required parameters' });
     return;
   }
 
   try {
-    const apiResponse = await fetch(`${server}/api/v1/accounts/${id}/followers`, {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${accessToken}`,
-      },
-    });
+    const apiResponse = await fetch(
+      `${server}/api/v1/accounts/${id}/followers`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
 
     const data = await apiResponse.json();
     response.json(data);
   } catch (error) {
-    logger.error("Get followers failed", {error});
-    response.status(500).json({error: "Get followers failed"});
+    logger.error('Get followers failed', { error });
+    response.status(500).json({ error: 'Get followers failed' });
   }
 });
 
 export const getFavorites = onRequest(async (request, response) => {
-  if (request.method === "OPTIONS") {
+  if (request.method === 'OPTIONS') {
     response.set(corsHeaders);
-    response.status(204).send("");
+    response.status(204).send('');
     return;
   }
 
@@ -620,30 +640,30 @@ export const getFavorites = onRequest(async (request, response) => {
   const server = `https://${request.query.server}`;
 
   if (!accessToken || !server) {
-    response.status(400).json({error: "Missing required parameters"});
+    response.status(400).json({ error: 'Missing required parameters' });
     return;
   }
 
   try {
     const apiResponse = await fetch(`${server}/api/v1/favourites`, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Authorization": `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     });
 
     const data = await apiResponse.json();
     response.json(data);
   } catch (error) {
-    logger.error("Get favorites failed", {error});
-    response.status(500).json({error: "Get favorites failed"});
+    logger.error('Get favorites failed', { error });
+    response.status(500).json({ error: 'Get favorites failed' });
   }
 });
 
 export const getBookmarks = onRequest(async (request, response) => {
-  if (request.method === "OPTIONS") {
+  if (request.method === 'OPTIONS') {
     response.set(corsHeaders);
-    response.status(204).send("");
+    response.status(204).send('');
     return;
   }
 
@@ -653,30 +673,30 @@ export const getBookmarks = onRequest(async (request, response) => {
   const server = `https://${request.query.server}`;
 
   if (!accessToken || !server) {
-    response.status(400).json({error: "Missing required parameters"});
+    response.status(400).json({ error: 'Missing required parameters' });
     return;
   }
 
   try {
     const apiResponse = await fetch(`${server}/api/v1/bookmarks`, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Authorization": `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     });
 
     const data = await apiResponse.json();
     response.json(data);
   } catch (error) {
-    logger.error("Get bookmarks failed", {error});
-    response.status(500).json({error: "Get bookmarks failed"});
+    logger.error('Get bookmarks failed', { error });
+    response.status(500).json({ error: 'Get bookmarks failed' });
   }
 });
 
 export const getNotifications = onRequest(async (request, response) => {
-  if (request.method === "OPTIONS") {
+  if (request.method === 'OPTIONS') {
     response.set(corsHeaders);
-    response.status(204).send("");
+    response.status(204).send('');
     return;
   }
 
@@ -686,30 +706,30 @@ export const getNotifications = onRequest(async (request, response) => {
   const server = `https://${request.query.server}`;
 
   if (!accessToken || !server) {
-    response.status(400).json({error: "Missing required parameters"});
+    response.status(400).json({ error: 'Missing required parameters' });
     return;
   }
 
   try {
     const apiResponse = await fetch(`${server}/api/v1/notifications`, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Authorization": `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     });
 
     const data = await apiResponse.json();
     response.json(data);
   } catch (error) {
-    logger.error("Get notifications failed", {error});
-    response.status(500).json({error: "Get notifications failed"});
+    logger.error('Get notifications failed', { error });
+    response.status(500).json({ error: 'Get notifications failed' });
   }
 });
 
 export const getTimelinePaginated = onRequest(async (request, response) => {
-  if (request.method === "OPTIONS") {
+  if (request.method === 'OPTIONS') {
     response.set(corsHeaders);
-    response.status(204).send("");
+    response.status(204).send('');
     return;
   }
 
@@ -720,7 +740,7 @@ export const getTimelinePaginated = onRequest(async (request, response) => {
   const sinceId = request.query.since_id as string;
 
   if (!accessToken || !server) {
-    response.status(400).json({error: "Missing required parameters"});
+    response.status(400).json({ error: 'Missing required parameters' });
     return;
   }
 
@@ -731,24 +751,24 @@ export const getTimelinePaginated = onRequest(async (request, response) => {
 
   try {
     const apiResponse = await fetch(url, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Authorization": `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     });
 
     const data = await apiResponse.json();
     response.json(data);
   } catch (error) {
-    logger.error("Get timeline failed", {error});
-    response.status(500).json({error: "Get timeline failed"});
+    logger.error('Get timeline failed', { error });
+    response.status(500).json({ error: 'Get timeline failed' });
   }
 });
 
 export const getUser = onRequest(async (request, response) => {
-  if (request.method === "OPTIONS") {
+  if (request.method === 'OPTIONS') {
     response.set(corsHeaders);
-    response.status(204).send("");
+    response.status(204).send('');
     return;
   }
 
@@ -758,55 +778,60 @@ export const getUser = onRequest(async (request, response) => {
   const server = `https://${request.query.server}`;
 
   if (!accessToken || !server) {
-    response.status(400).json({error: "Missing required parameters"});
+    response.status(400).json({ error: 'Missing required parameters' });
     return;
   }
 
   try {
-    const apiResponse = await fetch(`${server}/api/v1/accounts/verify_credentials`, {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${accessToken}`,
-      },
-    });
+    const apiResponse = await fetch(
+      `${server}/api/v1/accounts/verify_credentials`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
 
     const data = await apiResponse.json();
     response.json(data);
   } catch (error) {
-    logger.error("Get user failed", {error});
-    response.status(500).json({error: "Get user failed"});
+    logger.error('Get user failed', { error });
+    response.status(500).json({ error: 'Get user failed' });
   }
 });
 
 // Authentication Functions
 
 export const authenticate = onRequest(async (request, response) => {
-  if (request.method === "OPTIONS") {
+  if (request.method === 'OPTIONS') {
     response.set(corsHeaders);
-    response.status(204).send("");
+    response.status(204).send('');
     return;
   }
 
   response.set(corsHeaders);
 
   const serverURL = request.query.server as string;
-  const redirectUri = (request.query.redirect_uri as string) || "https://wonderful-glacier-07b022d1e.2.azurestaticapps.net/";
+  const redirectUri =
+    (request.query.redirect_uri as string) ||
+    'https://wonderful-glacier-07b022d1e.2.azurestaticapps.net/';
 
   if (!serverURL) {
-    response.status(400).json({error: "Server is required"});
+    response.status(400).json({ error: 'Server is required' });
     return;
   }
 
   try {
     const apiResponse = await fetch(`https://${serverURL}/api/v1/apps`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        client_name: "Otter",
+        client_name: 'Otter',
         redirect_uris: redirectUri,
-        scopes: "read write follow push",
+        scopes: 'read write follow push',
         website: redirectUri,
       }),
     });
@@ -817,25 +842,27 @@ export const authenticate = onRequest(async (request, response) => {
     const clientSecret = data.client_secret;
 
     // Encode credentials to pass them back through the OAuth flow
-    const encodedState = Buffer.from(JSON.stringify({
-      clientId: clientID,
-      clientSecret: clientSecret,
-      server: serverURL,
-    })).toString("base64");
+    const encodedState = Buffer.from(
+      JSON.stringify({
+        clientId: clientID,
+        clientSecret: clientSecret,
+        server: serverURL,
+      })
+    ).toString('base64');
 
     const authResponseURL = `https://${serverURL}/oauth/authorize?client_id=${clientID}&redirect_uri=${redirectUri}/&response_type=code&scope=read+write+follow+push&state=${encodedState}`;
 
-    response.json({url: authResponseURL});
+    response.json({ url: authResponseURL });
   } catch (error) {
-    logger.error("Authentication init failed", {error, serverURL});
-    response.status(500).json({error: "Authentication init failed"});
+    logger.error('Authentication init failed', { error, serverURL });
+    response.status(500).json({ error: 'Authentication init failed' });
   }
 });
 
 export const getClient = onRequest(async (request, response) => {
-  if (request.method === "OPTIONS") {
+  if (request.method === 'OPTIONS') {
     response.set(corsHeaders);
-    response.status(204).send("");
+    response.status(204).send('');
     return;
   }
 
@@ -843,48 +870,52 @@ export const getClient = onRequest(async (request, response) => {
 
   const code = request.query.code as string;
   const state = request.query.state as string;
-  const redirectUri = (request.query.redirect_uri as string) || "https://wonderful-glacier-07b022d1e.2.azurestaticapps.net/";
+  const redirectUri =
+    (request.query.redirect_uri as string) ||
+    'https://wonderful-glacier-07b022d1e.2.azurestaticapps.net/';
 
   if (!code || !state) {
-    response.status(400).json({error: "Missing code or state parameter"});
+    response.status(400).json({ error: 'Missing code or state parameter' });
     return;
   }
 
   try {
     // Decode the state parameter to get client credentials
-    const decodedState = JSON.parse(Buffer.from(state, "base64").toString());
-    const {clientId, clientSecret, server} = decodedState;
+    const decodedState = JSON.parse(Buffer.from(state, 'base64').toString());
+    const { clientId, clientSecret, server } = decodedState;
 
     if (!clientId || !clientSecret || !server) {
-      response.status(400).json({error: "Invalid state parameter"});
+      response.status(400).json({ error: 'Invalid state parameter' });
       return;
     }
 
     const apiResponse = await fetch(`https://${server}/oauth/token`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         client_id: clientId,
         client_secret: clientSecret,
         code: code,
         redirect_uri: redirectUri,
-        grant_type: "authorization_code",
-        scope: "read write follow push",
+        grant_type: 'authorization_code',
+        scope: 'read write follow push',
       }),
     });
 
     const data: any = await apiResponse.json();
 
     if (data.access_token) {
-      response.json({access_token: data.access_token});
+      response.json({ access_token: data.access_token });
     } else {
-      logger.error("No access token in response", {data});
-      response.status(500).json({error: "Failed to get access token", details: data});
+      logger.error('No access token in response', { data });
+      response
+        .status(500)
+        .json({ error: 'Failed to get access token', details: data });
     }
   } catch (error) {
-    logger.error("Get client token failed", {error});
-    response.status(500).json({error: "Get client token failed"});
+    logger.error('Get client token failed', { error });
+    response.status(500).json({ error: 'Get client token failed' });
   }
 });

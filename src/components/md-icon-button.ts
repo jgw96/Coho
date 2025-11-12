@@ -25,7 +25,8 @@ export class MdIconButton extends LitElement {
   @property({ type: String }) label?: string;
 
   /** Button variant */
-  @property({ type: String }) variant: 'standard' | 'filled' | 'outlined' = 'standard';
+  @property({ type: String }) variant: 'standard' | 'filled' | 'outlined' =
+    'standard';
 
   /** Whether the button is disabled */
   @property({ type: Boolean }) disabled = false;
@@ -69,31 +70,54 @@ export class MdIconButton extends LitElement {
 
     /* Hover states */
     .icon-button:not(:disabled):hover {
-      background: color-mix(in srgb, var(--md-sys-color-on-surface, white) 8%, transparent);
+      background: color-mix(
+        in srgb,
+        var(--md-sys-color-on-surface, white) 8%,
+        transparent
+      );
     }
 
     .icon-button--filled:not(:disabled):hover {
-      background: color-mix(in srgb, var(--md-sys-color-primary, var(--sl-color-primary-600)) 92%, var(--md-sys-color-on-primary, white) 8%);
-      box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      background: color-mix(
+        in srgb,
+        var(--md-sys-color-primary, var(--sl-color-primary-600)) 92%,
+        var(--md-sys-color-on-primary, white) 8%
+      );
+      box-shadow:
+        0px 1px 2px rgba(0, 0, 0, 0.3),
+        0px 1px 3px 1px rgba(0, 0, 0, 0.15);
     }
 
     .icon-button--outlined:not(:disabled):hover {
-      background: color-mix(in srgb, var(--md-sys-color-on-surface, white) 8%, transparent);
+      background: color-mix(
+        in srgb,
+        var(--md-sys-color-on-surface, white) 8%,
+        transparent
+      );
       border-color: var(--md-sys-color-outline, rgba(255, 255, 255, 0.2));
     }
 
     /* Active states */
     .icon-button:not(:disabled):active {
-      background: color-mix(in srgb, var(--md-sys-color-on-surface, white) 12%, transparent);
+      background: color-mix(
+        in srgb,
+        var(--md-sys-color-on-surface, white) 12%,
+        transparent
+      );
     }
 
     .icon-button--filled:not(:disabled):active {
-      background: color-mix(in srgb, var(--md-sys-color-primary, var(--sl-color-primary-600)) 88%, var(--md-sys-color-on-primary, white) 12%);
+      background: color-mix(
+        in srgb,
+        var(--md-sys-color-primary, var(--sl-color-primary-600)) 88%,
+        var(--md-sys-color-on-primary, white) 12%
+      );
     }
 
     /* Focus state */
     .icon-button:focus-visible {
-      outline: 2px solid var(--md-sys-color-primary, var(--sl-color-primary-600));
+      outline: 2px solid
+        var(--md-sys-color-primary, var(--sl-color-primary-600));
       outline-offset: 2px;
     }
 
@@ -111,7 +135,11 @@ export class MdIconButton extends LitElement {
       }
 
       .icon-button:not(:disabled):hover {
-        background: color-mix(in srgb, var(--md-sys-color-on-surface, black) 8%, transparent);
+        background: color-mix(
+          in srgb,
+          var(--md-sys-color-on-surface, black) 8%,
+          transparent
+        );
       }
 
       .icon-button--outlined {
@@ -119,12 +147,20 @@ export class MdIconButton extends LitElement {
       }
 
       .icon-button--outlined:not(:disabled):hover {
-        background: color-mix(in srgb, var(--md-sys-color-on-surface, black) 8%, transparent);
+        background: color-mix(
+          in srgb,
+          var(--md-sys-color-on-surface, black) 8%,
+          transparent
+        );
         border-color: var(--md-sys-color-outline, rgba(0, 0, 0, 0.2));
       }
 
       .icon-button:not(:disabled):active {
-        background: color-mix(in srgb, var(--md-sys-color-on-surface, black) 12%, transparent);
+        background: color-mix(
+          in srgb,
+          var(--md-sys-color-on-surface, black) 12%,
+          transparent
+        );
       }
     }
 
@@ -159,13 +195,16 @@ export class MdIconButton extends LitElement {
       'icon-button': true,
       'icon-button--standard': this.variant === 'standard',
       'icon-button--filled': this.variant === 'filled',
-      'icon-button--outlined': this.variant === 'outlined'
+      'icon-button--outlined': this.variant === 'outlined',
     };
 
     return html`
       <button
         part="base"
-        class="${Object.entries(classes).filter(([_, v]) => v).map(([k]) => k).join(' ')}"
+        class="${Object.entries(classes)
+          .filter(([_, v]) => v)
+          .map(([k]) => k)
+          .join(' ')}"
         ?disabled=${this.disabled}
         @click=${this.handleClick}
         @keydown=${this.handleKeyDown}
@@ -173,9 +212,11 @@ export class MdIconButton extends LitElement {
       >
         <div part="icon" class="icon">
           ${this.src
-            ? html`<md-icon src="${this.src}" label="${ifDefined(this.label)}"></md-icon>`
-            : html`<slot></slot>`
-          }
+            ? html`<md-icon
+                src="${this.src}"
+                label="${ifDefined(this.label)}"
+              ></md-icon>`
+            : html`<slot></slot>`}
         </div>
       </button>
     `;

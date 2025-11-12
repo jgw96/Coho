@@ -21,10 +21,15 @@ export class MdMenu extends LitElement {
       background-color: var(--md-sys-color-surface-container, #f3edf7);
       color: var(--md-sys-color-on-surface, #1d1b20);
       border-radius: 4px;
-      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3),
-                  0 2px 6px 2px rgba(0, 0, 0, 0.15);
+      box-shadow:
+        0 1px 2px 0 rgba(0, 0, 0, 0.3),
+        0 2px 6px 2px rgba(0, 0, 0, 0.15);
       overflow: hidden;
-      font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+      font-family:
+        'Roboto',
+        system-ui,
+        -apple-system,
+        sans-serif;
     }
 
     /* Dark mode support */

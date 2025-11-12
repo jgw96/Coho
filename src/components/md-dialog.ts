@@ -26,11 +26,16 @@ export class MdDialog extends LitElement {
       max-height: calc(100vh - 48px);
       background-color: var(--md-sys-color-surface-container-high, #ece6f0);
       color: var(--md-sys-color-on-surface, #1d1b20);
-      box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14),
-                  0 3px 14px 2px rgba(0, 0, 0, 0.12),
-                  0 5px 5px -3px rgba(0, 0, 0, 0.2);
+      box-shadow:
+        0 8px 10px 1px rgba(0, 0, 0, 0.14),
+        0 3px 14px 2px rgba(0, 0, 0, 0.12),
+        0 5px 5px -3px rgba(0, 0, 0, 0.2);
       overflow: hidden;
-      font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+      font-family:
+        'Roboto',
+        system-ui,
+        -apple-system,
+        sans-serif;
     }
 
     dialog.fullscreen {
@@ -89,7 +94,7 @@ export class MdDialog extends LitElement {
       padding: 16px 24px 24px 24px;
     }
 
-    ::slotted([slot="header-actions"]) {
+    ::slotted([slot='header-actions']) {
       display: flex;
       gap: 8px;
     }
@@ -109,11 +114,16 @@ export class MdDialog extends LitElement {
     }
 
     .close-btn:hover {
-      background-color: color-mix(in srgb, var(--md-sys-color-on-surface, #1d1b20) 8%, transparent);
+      background-color: color-mix(
+        in srgb,
+        var(--md-sys-color-on-surface, #1d1b20) 8%,
+        transparent
+      );
     }
 
     .close-btn:focus-visible {
-      outline: 2px solid var(--md-sys-color-primary, var(--sl-color-primary-600, #6750a4));
+      outline: 2px solid
+        var(--md-sys-color-primary, var(--sl-color-primary-600, #6750a4));
       outline-offset: 2px;
     }
 
@@ -184,13 +194,25 @@ export class MdDialog extends LitElement {
 
   render() {
     return html`
-      <dialog part="dialog" class="${this.fullscreen ? 'fullscreen' : ''}" @close="${this._handleClose}" @click="${this._handleBackdropClick}">
+      <dialog
+        part="dialog"
+        class="${this.fullscreen ? 'fullscreen' : ''}"
+        @close="${this._handleClose}"
+        @click="${this._handleBackdropClick}"
+      >
         <div class="dialog-header">
           <h2 class="dialog-title">${this.label}</h2>
           <slot name="header-actions"></slot>
-          <button class="close-btn" aria-label="Close dialog" @click="${this.hide}">
+          <button
+            class="close-btn"
+            aria-label="Close dialog"
+            @click="${this.hide}"
+          >
             <svg class="close-icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path fill="currentColor" d="M18.3 5.71a1 1 0 0 0-1.41 0L12 10.59 7.11 5.7A1 1 0 0 0 5.7 7.11L10.59 12l-4.9 4.89a1 1 0 1 0 1.41 1.42L12 13.41l4.89 4.9a1 1 0 0 0 1.42-1.41L13.41 12l4.9-4.89a1 1 0 0 0-.01-1.4Z"/>
+              <path
+                fill="currentColor"
+                d="M18.3 5.71a1 1 0 0 0-1.41 0L12 10.59 7.11 5.7A1 1 0 0 0 5.7 7.11L10.59 12l-4.9 4.89a1 1 0 1 0 1.41 1.42L12 13.41l4.89 4.9a1 1 0 0 0 1.42-1.41L13.41 12l4.9-4.89a1 1 0 0 0-.01-1.4Z"
+              />
             </svg>
           </button>
         </div>
@@ -199,11 +221,13 @@ export class MdDialog extends LitElement {
           <slot></slot>
         </div>
 
-        ${this._hasFooterSlot() ? html`
-          <div class="dialog-footer">
-            <slot name="footer"></slot>
-          </div>
-        ` : ''}
+        ${this._hasFooterSlot()
+          ? html`
+              <div class="dialog-footer">
+                <slot name="footer"></slot>
+              </div>
+            `
+          : ''}
       </dialog>
     `;
   }
@@ -222,10 +246,12 @@ export class MdDialog extends LitElement {
     if (this.dialog && !this.dialog.open) {
       this.dialog.showModal();
       this.open = true;
-      this.dispatchEvent(new CustomEvent('md-dialog-show', {
-        bubbles: true,
-        composed: true
-      }));
+      this.dispatchEvent(
+        new CustomEvent('md-dialog-show', {
+          bubbles: true,
+          composed: true,
+        })
+      );
     }
   }
 
@@ -233,10 +259,12 @@ export class MdDialog extends LitElement {
     if (this.dialog && this.dialog.open) {
       this.dialog.close();
       this.open = false;
-      this.dispatchEvent(new CustomEvent('md-dialog-hide', {
-        bubbles: true,
-        composed: true
-      }));
+      this.dispatchEvent(
+        new CustomEvent('md-dialog-hide', {
+          bubbles: true,
+          composed: true,
+        })
+      );
     }
   }
 
@@ -249,10 +277,12 @@ export class MdDialog extends LitElement {
 
   private _handleClose() {
     this.open = false;
-    this.dispatchEvent(new CustomEvent('md-dialog-hide', {
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('md-dialog-hide', {
+        bubbles: true,
+        composed: true,
+      })
+    );
   }
 
   private _hasFooterSlot(): boolean {

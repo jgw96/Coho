@@ -1,0 +1,30 @@
+# Dependencies
+node_modules
+package-lock.json
+
+# Build outputs
+dist
+build
+lib
+*.js.map
+
+# Coverage
+coverage
+
+# Cache
+.cache
+
+# Generated files
+public/sw.js
+functions/lib
+
+# Vendor files
+public/assets
+
+# Config files that may have specific formatting
+*.json
+!tsconfig.json
+!package.json
+
+# Markdown files (optional - remove if you want to format these)
+# *.md

@@ -6,194 +6,198 @@ import { requestMammothBot } from '../services/ai';
 
 @customElement('mammoth-bot')
 export class MammothBot extends LitElement {
+  @state() previousMessages: any[] = [];
 
-    @state() previousMessages: any[] = [];
+  static styles = [
+    css`
+      :host {
+        display: flex;
+        flex-direction: column;
+        background: #ffffff14;
+        padding: 8px;
+        border-radius: 8px;
+      }
 
-    static styles = [
-        css`
-            :host {
-                display: flex;
-                flex-direction: column;
-                background: #ffffff14;
-                padding: 8px;
-                border-radius: 8px;
-            }
+      @media (prefers-color-scheme: light) {
+        :host {
+          background: #f3f3f3;
+        }
+      }
 
-            @media(prefers-color-scheme: light) {
-                :host {
-                    background: #f3f3f3;
-                }
-            }
+      span {
+        font-size: 10px;
+        margin-bottom: 7px;
+        margin-left: 4px;
+        color: #d2d2d2;
+      }
 
-            span {
-                font-size: 10px;
-                margin-bottom: 7px;
-                margin-left: 4px;
-                color: #d2d2d2;
-            }
+      md-text-area::part(textarea) {
+        height: 130px;
+        width: 26vw;
+        overflow-y: clip;
+      }
 
-            md-text-area::part(textarea) {
-                height: 130px;
-                width: 26vw;
-                overflow-y: clip;
-            }
+      ul::-webkit-scrollbar {
+        display: none;
+      }
 
-            ul::-webkit-scrollbar {
-                display: none;
-            }
+      .wrapper {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
 
-            .wrapper {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
+      ul {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+        width: 24.5vw;
+        margin-bottom: 8px;
+        max-height: 200px;
+        border-radius: 6px;
+        padding: 8px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
 
-            ul {
-                padding: 0;
-                margin: 0;
-                list-style: none;
-                width: 24.5vw;
-                margin-bottom: 8px;
-                max-height: 200px;
-                border-radius: 6px;
-                padding: 8px;
-                overflow-y: auto;
-                overflow-x: hidden;
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-            }
+      .copy-button {
+        background: #ffffff14;
+        backdrop-filter: blur(40px);
+        border: none;
+        border-radius: 6px;
 
-            .copy-button {
-                background: #ffffff14;
-                backdrop-filter: blur(40px);
-                border: none;
-                border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4px;
+      }
 
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 4px;
-            }
+      @media (prefers-color-scheme: light) {
+        .copy-button {
+          background: var(--primary-color);
+        }
+      }
 
-            @media(prefers-color-scheme: light) {
-                .copy-button {
-                    background: var(--primary-color);
-                }
-            }
+      .copy-button img {
+        height: 12px;
+      }
 
-            .copy-button img {
-                height: 12px;
-            }
+      ul li {
+        background: #ffffff14;
+        border-radius: 6px;
+        padding: 6px;
+      }
 
-            ul li {
-                background: #ffffff14;
-                border-radius: 6px;
-                padding: 6px;
-            }
+      .role {
+        font-weight: bold;
+        text-decoration: underline;
+        margin-bottom: 6px;
+      }
 
-            .role {
-                font-weight: bold;
-                text-decoration: underline;
-                margin-bottom: 6px;
-            }
+      md-button {
+        place-self: flex-end;
+        margin-top: 6px;
+      }
 
-            md-button {
-                place-self: flex-end;
-                margin-top: 6px;
-            }
+      md-button::part(control) {
+        border: none;
+      }
 
-            md-button::part(control) {
-                border: none;
-            }
+      @media (max-width: 800px) {
+        md-text-area::part(textarea) {
+          display: flex;
+          position: unset;
 
-            @media(max-width: 800px) {
-                md-text-area::part(textarea) {
-                    display: flex;
-                    position: unset;
+          width: 100%;
+        }
 
-                    width: 100%;
-                  }
+        ul {
+          width: 92%;
+        }
+      }
 
-                  ul {
-                    width: 92%;
-                  }
-            }
+      @media (prefers-color-scheme: dark) {
+        md-text-area::part(textarea),
+        md-button[variant='outlined']::part(control) {
+          background: #1e1e1e;
+          color: white;
+        }
 
-            @media(prefers-color-scheme: dark) {
-                md-text-area::part(textarea), md-button[variant="outlined"]::part(control) {
-                    background: #1e1e1e;
-                    color: white;
-                }
+        ul {
+          background: #1e1e1e;
+        }
+      }
+    `,
+  ];
 
-                ul {
-                    background: #1e1e1e;
-                }
-            }
-        `
+  async handleInput() {
+    const value = (this.shadowRoot?.querySelector('md-text-area') as any).value;
+    console.log('value', value);
+
+    this.previousMessages = [
+      ...this.previousMessages,
+      {
+        role: 'user',
+        content: value,
+      },
     ];
 
-    async handleInput() {
-        const value = (this.shadowRoot?.querySelector("md-text-area") as any).value;
-        console.log("value", value);
+    const textarea = this.shadowRoot?.querySelector('md-text-area') as any;
+    textarea.value = '';
 
-        this.previousMessages = [
-            ...this.previousMessages,
-            {
-            role: "user",
-            content: value
-        }];
+    const data = await requestMammothBot(value, this.previousMessages);
+    console.log('data', data);
 
-        const textarea = this.shadowRoot?.querySelector("md-text-area") as any;
-        textarea.value = "";
+    const response = data.choices[0].message;
 
-        const data = await requestMammothBot(value, this.previousMessages);
-        console.log("data", data);
+    this.previousMessages = [...this.previousMessages, response];
 
-        const response = data.choices[0].message;
+    // scroll list to last item in the list
+    const list = this.shadowRoot?.querySelector('ul') as any;
+    list.scrollTop = list.scrollHeight;
 
-        this.previousMessages = [
-            ...this.previousMessages,
-            response
-        ]
+    list.scrollTo(0, list.scrollHeight);
+  }
 
-        // scroll list to last item in the list
-        const list = this.shadowRoot?.querySelector("ul") as any;
-        list.scrollTop = list.scrollHeight;
+  copyContent(content: string) {
+    // copy to clipboard
+    navigator.clipboard.writeText(content);
+  }
 
-        list.scrollTo(0, list.scrollHeight);
-    }
+  render() {
+    return html`
+      <span>alpha</span>
+      <ul>
+        ${this.previousMessages.map((message: any) => {
+          return html`
+            <li>
+              <div class="wrapper">
+                <div class="role">${message.role}</div>
 
-    copyContent(content: string) {
-        // copy to clipboard
-        navigator.clipboard.writeText(content);
-    }
+                <button
+                  @click="${() => this.copyContent(message.content)}"
+                  class="copy-button"
+                >
+                  <img src="/assets/copy-outline.svg" />
+                </button>
+              </div>
+              <div>${message.content}</div>
+            </li>
+          `;
+        })}
+      </ul>
 
-    render() {
-        return html`
-           <span>alpha</span>
-            <ul>
-                ${
-                    this.previousMessages.map((message: any) => {
-                        return html`
-                            <li>
-                                <div class="wrapper">
-                                  <div class="role">${message.role}</div>
+      <md-text-area
+        placeholder="Hello, I am MammothBot. I can help you with Mastodon, such as by generating posts etc, summarizing posts and more. You can chat with me like you would anyone else, no need to talk like a robot 😊"
+        rows="3"
+      ></md-text-area>
 
-                                  <button @click="${() => this.copyContent(message.content)}" class="copy-button">
-                                    <img src="/assets/copy-outline.svg">
-                                  </button>
-                                </div>
-                                <div>${message.content}</div>
-                            </li>
-                        `;
-                    })
-                }
-            </ul>
-
-            <md-text-area placeholder="Hello, I am MammothBot. I can help you with Mastodon, such as by generating posts etc, summarizing posts and more. You can chat with me like you would anyone else, no need to talk like a robot 😊" rows="3"></md-text-area>
-
-            <md-button @click="${() => this.handleInput()}" variant="filled">Send</md-button>
-        `;
-    }
+      <md-button @click="${() => this.handleInput()}" variant="filled"
+        >Send</md-button
+      >
+    `;
+  }
 }

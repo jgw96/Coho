@@ -22,7 +22,11 @@ export class MdMenuItem extends LitElement {
       padding: 0 12px;
       cursor: pointer;
       user-select: none;
-      font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+      font-family:
+        'Roboto',
+        system-ui,
+        -apple-system,
+        sans-serif;
       font-size: 14px;
       font-weight: 400;
       line-height: 20px;
@@ -35,11 +39,19 @@ export class MdMenuItem extends LitElement {
 
     .menu-item:hover:not(.disabled) {
       background-color: var(--md-sys-color-on-surface, #1d1b20);
-      background-color: color-mix(in srgb, var(--md-sys-color-on-surface, #1d1b20) 8%, transparent);
+      background-color: color-mix(
+        in srgb,
+        var(--md-sys-color-on-surface, #1d1b20) 8%,
+        transparent
+      );
     }
 
     .menu-item:active:not(.disabled) {
-      background-color: color-mix(in srgb, var(--md-sys-color-on-surface, #1d1b20) 12%, transparent);
+      background-color: color-mix(
+        in srgb,
+        var(--md-sys-color-on-surface, #1d1b20) 12%,
+        transparent
+      );
     }
 
     .menu-item.disabled {
@@ -59,7 +71,7 @@ export class MdMenuItem extends LitElement {
       gap: 12px;
     }
 
-    ::slotted([slot="prefix"]) {
+    ::slotted([slot='prefix']) {
       width: 24px;
       height: 24px;
     }
@@ -76,7 +88,10 @@ export class MdMenuItem extends LitElement {
       background-color: currentColor;
       opacity: 0;
       transform: translate(-50%, -50%);
-      transition: width 0.3s, height 0.3s, opacity 0.3s;
+      transition:
+        width 0.3s,
+        height 0.3s,
+        opacity 0.3s;
     }
 
     .menu-item:active:not(.disabled)::before {
@@ -92,11 +107,19 @@ export class MdMenuItem extends LitElement {
       }
 
       .menu-item:hover:not(.disabled) {
-        background-color: color-mix(in srgb, var(--md-sys-color-on-surface, #e6e1e5) 8%, transparent);
+        background-color: color-mix(
+          in srgb,
+          var(--md-sys-color-on-surface, #e6e1e5) 8%,
+          transparent
+        );
       }
 
       .menu-item:active:not(.disabled) {
-        background-color: color-mix(in srgb, var(--md-sys-color-on-surface, #e6e1e5) 12%, transparent);
+        background-color: color-mix(
+          in srgb,
+          var(--md-sys-color-on-surface, #e6e1e5) 12%,
+          transparent
+        );
       }
     }
 
@@ -107,11 +130,19 @@ export class MdMenuItem extends LitElement {
       }
 
       .menu-item:hover:not(.disabled) {
-        background-color: color-mix(in srgb, var(--md-sys-color-on-surface-light, #1d1b20) 8%, transparent);
+        background-color: color-mix(
+          in srgb,
+          var(--md-sys-color-on-surface-light, #1d1b20) 8%,
+          transparent
+        );
       }
 
       .menu-item:active:not(.disabled) {
-        background-color: color-mix(in srgb, var(--md-sys-color-on-surface-light, #1d1b20) 12%, transparent);
+        background-color: color-mix(
+          in srgb,
+          var(--md-sys-color-on-surface-light, #1d1b20) 12%,
+          transparent
+        );
       }
     }
   `;
@@ -137,11 +168,13 @@ export class MdMenuItem extends LitElement {
 
   private _handleClick(e: Event) {
     if (!this.disabled) {
-      this.dispatchEvent(new CustomEvent('menu-item-click', {
-        bubbles: true,
-        composed: true,
-        detail: { originalEvent: e }
-      }));
+      this.dispatchEvent(
+        new CustomEvent('menu-item-click', {
+          bubbles: true,
+          composed: true,
+          detail: { originalEvent: e },
+        })
+      );
     }
   }
 

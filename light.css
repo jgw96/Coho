@@ -316,9 +316,9 @@
   --sl-transition-x-fast: 50ms;
 
   --sl-font-mono: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
-  --sl-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
-    "Segoe UI Symbol";
+  --sl-font-sans:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   --sl-font-serif: Georgia, "Times New Roman", serif;
 
   --sl-font-size-2x-small: 0.625rem;
@@ -461,7 +461,8 @@
   margin: var(--sl-spacing-medium);
 }
 
-:host, .sl-theme-light {
+:host,
+.sl-theme-light {
   --direction: ltr;
   --disabled-opacity: 0.3;
   --base-height-multiplier: 8;
@@ -570,10 +571,22 @@
   --neutral-stroke-control-active: #e5e5e5;
   --neutral-stroke-control-focus: linear-gradient(#e5e5e5 90%, #cecece 100%);
   --neutral-stroke-divider-rest: #ebebeb;
-  --neutral-stroke-input-rest: linear-gradient(#efefef calc(100% - 1px), #929292 calc(100% - 1px), #929292);
-  --neutral-stroke-input-hover: linear-gradient(#e5e5e5 calc(100% - 1px), #8a8a8a calc(100% - 1px), #8a8a8a);
+  --neutral-stroke-input-rest: linear-gradient(
+    #efefef calc(100% - 1px),
+    #929292 calc(100% - 1px),
+    #929292
+  );
+  --neutral-stroke-input-hover: linear-gradient(
+    #e5e5e5 calc(100% - 1px),
+    #8a8a8a calc(100% - 1px),
+    #8a8a8a
+  );
   --neutral-stroke-input-active: #e5e5e5;
-  --neutral-stroke-input-focus: linear-gradient(#e5e5e5 calc(100% - 1px), #8a8a8a calc(100% - 1px), #8a8a8a);
+  --neutral-stroke-input-focus: linear-gradient(
+    #e5e5e5 calc(100% - 1px),
+    #8a8a8a calc(100% - 1px),
+    #8a8a8a
+  );
   --neutral-stroke-layer-rest: #efefef;
   --neutral-stroke-layer-hover: #efefef;
   --neutral-stroke-layer-active: #efefef;
@@ -602,16 +615,30 @@
   --elevation-shadow-card-hover-size: 8;
   --elevation-shadow-card-active-size: 0;
   --elevation-shadow-card-focus-size: 8;
-  --elevation-shadow-card-rest: 0 0 2px rgba(0, 0, 0, 0.12), 0 calc(4 * 0.5px) calc((4 * 1px)) rgba(0, 0, 0, 0.14);
-  --elevation-shadow-card-hover: 0 0 2px rgba(0, 0, 0, 0.12), 0 calc(8 * 0.5px) calc((8 * 1px)) rgba(0, 0, 0, 0.14);
-  --elevation-shadow-card-active: 0 0 2px rgba(0, 0, 0, 0.12), 0 calc(0 * 0.5px) calc((0 * 1px)) rgba(0, 0, 0, 0.14);
-  --elevation-shadow-card-focus: 0 0 2px rgba(0, 0, 0, 0.12), 0 calc(8 * 0.5px) calc((8 * 1px)) rgba(0, 0, 0, 0.14);
+  --elevation-shadow-card-rest:
+    0 0 2px rgba(0, 0, 0, 0.12),
+    0 calc(4 * 0.5px) calc((4 * 1px)) rgba(0, 0, 0, 0.14);
+  --elevation-shadow-card-hover:
+    0 0 2px rgba(0, 0, 0, 0.12),
+    0 calc(8 * 0.5px) calc((8 * 1px)) rgba(0, 0, 0, 0.14);
+  --elevation-shadow-card-active:
+    0 0 2px rgba(0, 0, 0, 0.12),
+    0 calc(0 * 0.5px) calc((0 * 1px)) rgba(0, 0, 0, 0.14);
+  --elevation-shadow-card-focus:
+    0 0 2px rgba(0, 0, 0, 0.12),
+    0 calc(8 * 0.5px) calc((8 * 1px)) rgba(0, 0, 0, 0.14);
   --elevation-shadow-tooltip-size: 16;
-  --elevation-shadow-tooltip: 0 0 2px rgba(0, 0, 0, 0.12), 0 calc(16 * 0.5px) calc((16 * 1px)) rgba(0, 0, 0, 0.14);
+  --elevation-shadow-tooltip:
+    0 0 2px rgba(0, 0, 0, 0.12),
+    0 calc(16 * 0.5px) calc((16 * 1px)) rgba(0, 0, 0, 0.14);
   --elevation-shadow-flyout-size: 32;
-  --elevation-shadow-flyout: 0 0 2px rgba(0, 0, 0, 0.2), 0 calc(32 * 0.5px) calc((32 * 1px)) rgba(0, 0, 0, 0.24);
+  --elevation-shadow-flyout:
+    0 0 2px rgba(0, 0, 0, 0.2),
+    0 calc(32 * 0.5px) calc((32 * 1px)) rgba(0, 0, 0, 0.24);
   --elevation-shadow-dialog-size: 128;
-  --elevation-shadow-dialog: 0 0 2px rgba(0, 0, 0, 0.2), 0 calc(128 * 0.5px) calc((128 * 1px)) rgba(0, 0, 0, 0.24);
+  --elevation-shadow-dialog:
+    0 0 2px rgba(0, 0, 0, 0.2),
+    0 calc(128 * 0.5px) calc((128 * 1px)) rgba(0, 0, 0, 0.24);
   --input-placeholder-rest: #767676;
   --input-placeholder-hover: #717171;
   --input-filled-placeholder-rest: #6c6c6c;
