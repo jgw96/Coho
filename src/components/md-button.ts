@@ -185,7 +185,10 @@ export class MdButton extends LitElement {
 
     /* FAB (Floating Action Button) variant */
     button.fab {
-      background: var(--md-sys-color-primary, var(--sl-color-primary-600, #6750a4));
+      background: var(
+        --md-sys-color-primary,
+        var(--sl-color-primary-600, #6750a4)
+      );
       color: var(--md-sys-color-on-primary, #ffffff);
       box-shadow:
         0 1px 3px rgba(0, 0, 0, 0.3),
@@ -247,7 +250,10 @@ export class MdButton extends LitElement {
       }
 
       button.fab {
-        background: var(--md-sys-color-primary, var(--sl-color-primary-600, #d0bcff));
+        background: var(
+          --md-sys-color-primary,
+          var(--sl-color-primary-600, #d0bcff)
+        );
         color: var(--md-sys-color-on-primary, #381e72);
       }
     }

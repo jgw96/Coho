@@ -6,6 +6,7 @@ import './md-button.js';
 import './md-text-field.js';
 import './md-text-area.js';
 import './md-icon.js';
+import './md-icon-button.js';
 import '@shoelace-style/shoelace/dist/components/skeleton/skeleton.js';
 import {
   publishPost,
@@ -179,12 +180,34 @@ export class PostDialog extends LitElement {
         width: 80%;
       }
 
+      .mobile-icon-button {
+        display: none;
+      }
+
+      .desktop-button {
+        display: inline-flex;
+      }
+
       @media (max-width: 700px) {
         md-dialog::part(dialog) {
           height: 100vh;
           max-height: 100vh;
           max-width: 100vw;
           width: 100vw;
+          border-radius: 0;
+        }
+
+        .dialog-footer-actions {
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+
+        .mobile-icon-button {
+          display: inline-flex;
+        }
+
+        .desktop-button {
+          display: none;
         }
       }
 
@@ -526,22 +549,6 @@ export class PostDialog extends LitElement {
         </div>
 
         <div slot="footer" class="dialog-footer-actions">
-          <md-button variant="text" @click="${() => this.markAsSensitive()}">
-            Set Visibility
-            <md-icon src="/assets/eye-outline.svg"></md-icon>
-          </md-button>
-
-          <!--<div id="post-ai-actions">-->
-          ${this.showPrompt === false
-            ? html`<md-button
-                size="small"
-                pill
-                @click="${() => this.openAIPrompt()}"
-                >AI: Generate Image</md-button
-              >`
-            : null}
-          <!--</div>-->
-
           ${this.attaching === false
             ? html`
                 <ul>
@@ -596,7 +603,28 @@ export class PostDialog extends LitElement {
               </div>`
             : null}
 
+          <!-- Desktop buttons with text -->
           <md-button
+            class="desktop-button"
+            variant="text"
+            @click="${() => this.markAsSensitive()}"
+          >
+            Set Visibility
+            <md-icon src="/assets/eye-outline.svg"></md-icon>
+          </md-button>
+
+          ${this.showPrompt === false
+            ? html`<md-button
+                class="desktop-button"
+                size="small"
+                pill
+                @click="${() => this.openAIPrompt()}"
+                >AI: Generate Image</md-button
+              >`
+            : null}
+
+          <md-button
+            class="desktop-button"
             pill
             variant="outlined"
             @click="${() => this.attachFile()}"
@@ -604,6 +632,32 @@ export class PostDialog extends LitElement {
             Attach Media
             <md-icon src="/assets/attach-outline.svg"></md-icon>
           </md-button>
+
+          <!-- Mobile icon buttons -->
+          <md-icon-button
+            class="mobile-icon-button"
+            label="Set Visibility"
+            src="/assets/eye-outline.svg"
+            @click="${() => this.markAsSensitive()}"
+          ></md-icon-button>
+
+          ${this.showPrompt === false
+            ? html`<md-icon-button
+                class="mobile-icon-button"
+                label="AI: Generate Image"
+                src="/assets/sparkles-outline.svg"
+                @click="${() => this.openAIPrompt()}"
+              ></md-icon-button>`
+            : null}
+
+          <md-icon-button
+            class="mobile-icon-button"
+            label="Attach Media"
+            src="/assets/attach-outline.svg"
+            @click="${() => this.attachFile()}"
+          ></md-icon-button>
+
+          <!-- Publish button (same for both) -->
           <md-button
             ?disabled="${this.hasStatus === false || this.attaching === true}"
             pill

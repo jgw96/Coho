@@ -1278,10 +1278,7 @@ export class AppHome extends LitElement {
         </md-tabs>
 
         <div id="mobile-actions">
-          <md-button
-            variant="fab"
-            @click="${() => this.openNewDialog()}"
-          >
+          <md-button variant="fab" @click="${() => this.openNewDialog()}">
             <md-icon src="/assets/add-outline.svg"></md-icon>
           </md-button>
         </div>
@@ -1342,11 +1339,15 @@ export class AppHome extends LitElement {
             </md-badge>
           </div>
 
-           <md-button pill variant="filled" @click="${() => this.openNewDialog()}">
-          New Post
+          <md-button
+            pill
+            variant="filled"
+            @click="${() => this.openNewDialog()}"
+          >
+            New Post
 
-          <md-icon slot="suffix" src="/assets/add-outline.svg"></md-icon>
-        </md-button>
+            <md-icon slot="suffix" src="/assets/add-outline.svg"></md-icon>
+          </md-button>
 
           <!-- <div id="profile-card-actions">
                   <md-button pill size="large" variant="filled" @click="${() =>
