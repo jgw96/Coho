@@ -10,7 +10,7 @@ import '../components/md-icon-button';
 
 import '../components/image-carousel';
 
-// import { getSettings, Settings } from '../services/settings';
+import { getSettings } from '../services/settings';
 
 // import * as blurhash from "blurhash-wasm";
 
@@ -28,9 +28,12 @@ export class TimelineItem extends LitElement {
   @property({ type: Boolean }) show: boolean = false;
   @property({ type: Boolean }) showreply: boolean = false;
 
-  @state() isBoosted = false;
-  @state() isReblogged = false;
-  @state() isBookmarked = false;
+    @state() isBoosted: boolean = false;
+  @state() isReblogged: boolean = false;
+  @state() isBookmarked: boolean = false;
+  @state() threadExpanded: boolean = false;
+  @state() threadPosts: Post[] = [];
+  @state() loadingThread: boolean = false;
 
   @state() settings: any | undefined;
 
@@ -274,6 +277,24 @@ export class TimelineItem extends LitElement {
         gap: 8px;
       }
 
+      .thread-continuation {
+        margin-left: 16px;
+        padding-left: 20px;
+        border-left: 3px solid var(--sl-color-primary-600);
+        margin-top: 8px;
+      }
+
+      .thread-continuation md-card {
+        margin-bottom: 8px;
+      }
+
+      .thread-line {
+        width: 3px;
+        background: var(--sl-color-primary-600);
+        margin-left: 8px;
+        height: 16px;
+      }
+
             @media (max-width: 820px) {
         .timeline-item {
           border-radius: 0;
@@ -297,59 +318,28 @@ export class TimelineItem extends LitElement {
     `,
   ];
 
+  async showThread() {
+    if (!this.tweet?.in_reply_to_id) return;
+
+    this.loadingThread = true;
+    try {
+      const { getReplies } = await import('../services/timeline');
+      const context = await getReplies(this.tweet.id);
+
+      // Combine ancestors and descendants, removing the current post
+      const ancestors = context.ancestors || [];
+      const descendants = context.descendants || [];
+      this.threadPosts = [...ancestors, ...descendants];
+      this.threadExpanded = true;
+    } catch (error) {
+      console.error('Failed to load thread:', error);
+    } finally {
+      this.loadingThread = false;
+    }
+  }
+
   async firstUpdated() {
-    const { getSettings } = await import('../services/settings');
     this.settings = await getSettings();
-
-    const { getCurrentUser } = await import('../services/account');
-    this.currentUser = await getCurrentUser();
-
-    this.device = window.innerWidth <= 600 ? 'mobile' : 'desktop';
-
-    if (!this.settings.data_saver) {
-      // set up intersection observer
-      const options = {
-        root: null,
-        rootMargin: '0px',
-        threshold: 0.1,
-      };
-
-      const observer = new IntersectionObserver((entries, observer) => {
-        entries.forEach(async (entry) => {
-          if (entry.isIntersecting) {
-            console.log('intersected');
-            window.requestIdleCallback(() => {
-              console.log('intersected 2', this.tweet);
-              sessionStorage.setItem(`latest-read`, this.tweet?.id || '');
-              // savePlace(this.tweet?.id || "");
-            });
-
-            observer.unobserve(entry.target);
-          }
-        });
-      }, options);
-
-      observer.observe(this.shadowRoot?.querySelector('md-card') as Element);
-    }
-
-    if (this.tweet && this.tweet.in_reply_to_id !== null) {
-      console.log('getting reply to status', this.tweet);
-      const { getAStatus } = await import('../services/timeline');
-      const replyStatus = await getAStatus(this.tweet?.in_reply_to_id || '');
-
-      this.tweet.reply_to = replyStatus;
-
-      this.requestUpdate();
-
-      console.log('reply status', replyStatus);
-    }
-
-    window.requestIdleCallback(async () => {
-      if (this.shadowRoot) {
-        const { enableVibrate } = await import('../utils/handle-vibrate');
-        enableVibrate(this.shadowRoot);
-      }
-    });
   }
 
   async favorite(id: string) {
@@ -647,7 +637,7 @@ export class TimelineItem extends LitElement {
                 @click="${() => this.viewSensitive()}"
               >
                 View
-                <md-icon slot="suffix" src="/assets/eye-outline.svg"></md-icon>
+                <md-icon slot="suffix" name="eye"></md-icon>
               </md-button>
             </div>
           `
@@ -659,7 +649,7 @@ export class TimelineItem extends LitElement {
                   this.show === true
                     ? html`
                         <div id="reply-to">
-                          <md-icon src="/assets/chatbox-outline.svg"></md-icon>
+                          <md-icon name="chatbox"></md-icon>
                           Thread
                         </div>
 
@@ -680,7 +670,7 @@ export class TimelineItem extends LitElement {
                                 >
                                   <md-icon
                                     slot="suffix"
-                                    src="/assets/chatbox-outline.svg"
+                                    name="chatbox"
                                   ></md-icon>
                                 </md-button>`
                               : null}
@@ -694,7 +684,7 @@ export class TimelineItem extends LitElement {
                                 this.bookmark(this.tweet?.reply_to.id || '')}"
                               ><md-icon
                                 slot="suffix"
-                                src="/assets/bookmark-outline.svg"
+                                name="bookmark"
                               ></md-icon
                             ></md-button>
                             ${this.settings && this.settings.wellness === false
@@ -710,7 +700,7 @@ export class TimelineItem extends LitElement {
                                   >${this.tweet?.reply_to.favourites_count}
                                   <md-icon
                                     slot="suffix"
-                                    src="/assets/heart-outline.svg"
+                                    name="heart"
                                   ></md-icon
                                 ></md-button>`
                               : null}
@@ -725,7 +715,7 @@ export class TimelineItem extends LitElement {
                                   >${this.tweet?.reply_to.reblogs_count}
                                   <md-icon
                                     slot="suffix"
-                                    src="/assets/repeat-outline.svg"
+                                    name="repeat"
                                   ></md-icon
                                 ></md-button>`
                               : null}
@@ -764,7 +754,7 @@ export class TimelineItem extends LitElement {
 
                         <md-icon-button
                           @click="${() => this.shareStatus(this.tweet || null)}"
-                          src="/assets/share-social-outline.svg"
+                          name="share"
                           label="Share"
                         >
                         </md-icon-button>
@@ -773,14 +763,14 @@ export class TimelineItem extends LitElement {
                           ? html`
                               <md-icon-button
                                 @click="${() => this.deleteStatus()}"
-                                src="/assets/trash-outline.svg"
+                                name="trash"
                                 label="Delete"
                               >
                               </md-icon-button>
 
                               <md-icon-button
                                 @click="${() => this.initEditStatus()}"
-                                src="/assets/brush-outline.svg"
+                                name="brush"
                                 label="Edit"
                               >
                               </md-icon-button>
@@ -808,6 +798,21 @@ export class TimelineItem extends LitElement {
                     <user-profile
                       .account="${this.tweet?.account}"
                     ></user-profile>
+
+                    ${this.tweet?.in_reply_to_id && !this.threadExpanded
+                      ? html`
+                          <md-button
+                            variant="text"
+                            size="small"
+                            ?disabled=${this.loadingThread}
+                            @click=${this.showThread}
+                            style="margin-bottom: 8px; padding: 4px 8px;">
+                            <md-icon slot="prefix" name="chatbox" style="width: 14px; height: 14px;"></md-icon>
+                            ${this.loadingThread ? 'Loading thread...' : 'Show this thread'}
+                          </md-button>
+                        `
+                      : null}
+
                     <div
                       @click="${this.openPost}"
                       .innerHTML="${this.tweet?.content || ''}"
@@ -868,7 +873,7 @@ export class TimelineItem extends LitElement {
                             >${this.tweet?.favourites_count}
                             <md-icon
                               slot="suffix"
-                              src="/assets/heart-outline.svg"
+                              name="heart"
                             ></md-icon
                           ></md-button>`
                         : null}
@@ -882,7 +887,7 @@ export class TimelineItem extends LitElement {
                             >${this.tweet?.reblogs_count}
                             <md-icon
                               slot="suffix"
-                              src="/assets/repeat-outline.svg"
+                              name="repeat"
                             ></md-icon
                           ></md-button>`
                         : null}
@@ -919,7 +924,7 @@ export class TimelineItem extends LitElement {
                       </div>
                       <md-icon-button
                         @click="${() => this.shareStatus(this.tweet || null)}"
-                        src="/assets/share-social-outline.svg"
+                        name="share"
                         label="Share"
                       >
                       </md-icon-button>
@@ -940,7 +945,7 @@ export class TimelineItem extends LitElement {
                           >
                             <md-icon
                               slot="suffix"
-                              src="/assets/chatbox-outline.svg"
+                              name="chatbox"
                             ></md-icon>
                           </md-button>`
                         : null}
@@ -951,7 +956,7 @@ export class TimelineItem extends LitElement {
                         @click="${() => this.bookmark(this.tweet?.id || '')}"
                         ><md-icon
                           slot="suffix"
-                          src="/assets/bookmark-outline.svg"
+                          name="bookmark"
                         ></md-icon
                       ></md-button>
                       ${this.settings && this.settings.wellness === false
@@ -965,7 +970,7 @@ export class TimelineItem extends LitElement {
                             >${this.tweet?.reblog.favourites_count}
                             <md-icon
                               slot="suffix"
-                              src="/assets/heart-outline.svg"
+                              name="heart"
                             ></md-icon
                           ></md-button>`
                         : null}
@@ -979,13 +984,70 @@ export class TimelineItem extends LitElement {
                             >${this.tweet?.reblog.reblogs_count}
                             <md-icon
                               slot="suffix"
-                              src="/assets/repeat-outline.svg"
+                              name="repeat"
                             ></md-icon
                           ></md-button>`
                         : null}
                     </div>
                   </md-card>
                 `}
+
+          ${this.threadExpanded && this.threadPosts.length > 0
+            ? html`
+                <div class="thread-line"></div>
+                <div class="thread-continuation">
+                  ${this.threadPosts.map((threadPost: Post) => html`
+                    <md-card>
+                      <div class="header-block" slot="header">
+                        <user-profile
+                          ?small="${true}"
+                          .account="${threadPost.account}"
+                        ></user-profile>
+                      </div>
+                      <div .innerHTML="${threadPost.content}"></div>
+                      <div class="actions" slot="footer">
+                        <md-button
+                          variant="text"
+                          ?disabled=${threadPost.bookmarked}
+                          pill
+                          @click="${() => this.bookmark(threadPost.id)}"
+                          ><md-icon
+                            slot="suffix"
+                            name="bookmark"
+                          ></md-icon
+                        ></md-button>
+                        ${this.settings && this.settings.wellness === false
+                          ? html`<md-button
+                              variant="text"
+                              ?disabled=${threadPost.favourited}
+                              pill
+                              @click="${() => this.favorite(threadPost.id)}"
+                              >${threadPost.favourites_count}
+                              <md-icon
+                                slot="suffix"
+                                name="heart"
+                              ></md-icon
+                            ></md-button>`
+                          : null}
+                        ${this.settings && this.settings.wellness === false
+                          ? html`<md-button
+                              variant="text"
+                              ?disabled=${threadPost.reblogged}
+                              pill
+                              @click="${() => this.reblog(threadPost.id)}"
+                              >${threadPost.reblogs_count}
+                              <md-icon
+                                slot="suffix"
+                                name="repeat"
+                              ></md-icon
+                            ></md-button>`
+                          : null}
+                      </div>
+                    </md-card>
+                  `)}
+                </div>
+              `
+            : null}
           `}
     `;
   }

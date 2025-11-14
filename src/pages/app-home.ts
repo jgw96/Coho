@@ -1235,10 +1235,6 @@ export class AppHome extends LitElement {
         </div>
       </otter-drawer>
 
-      <otter-drawer id="bot-drawer" placement="bottom" label="Coho Bot">
-        <!-- <mammoth-bot></mammoth-bot> -->
-      </otter-drawer>
-
       <!-- <md-toolbar align="end">
         <md-button pill variant="filled" @click="${() => this.openNewDialog()}">
           New Post

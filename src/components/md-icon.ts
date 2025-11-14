@@ -3,21 +3,74 @@ import { customElement, property, state } from 'lit/decorators.js';
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
 
 /**
+ * Built-in icon library for common icons (no network requests)
+ * Icons from Ionicons (MIT License)
+ */
+const ICON_LIBRARY: Record<string, string> = {
+  'home': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M80 212v236a16 16 0 0 0 16 16h96V328a24 24 0 0 1 24-24h80a24 24 0 0 1 24 24v136h96a16 16 0 0 0 16-16V212"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M480 256 266.89 52c-5-5.28-16.69-5.34-21.78 0L32 256m368-77V64h-48v69"/></svg>',
+  'search': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="32" d="M221.09 64a157.09 157.09 0 1 0 157.09 157.09A157.1 157.1 0 0 0 221.09 64z"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="32" d="M338.29 338.29 448 448"/></svg>',
+  'heart': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M352.92 80C288 80 256 144 256 144s-32-64-96.92-64c-52.76 0-94.54 44.14-95.08 96.81-1.1 109.33 86.73 187.08 183 252.42a16 16 0 0 0 18 0c96.26-65.34 184.09-143.09 183-252.42-.54-52.67-42.32-96.81-95.08-96.81"/></svg>',
+  'bookmark': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M352 48H160a48 48 0 0 0-48 48v368l144-128 144 128V96a48 48 0 0 0-48-48"/></svg>',
+  'notifications': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M427.68 351.43C402 320 383.87 304 383.87 217.35 383.87 138 343.35 109.73 310 96c-4.43-1.82-8.6-6-9.95-10.55C294.2 65.54 277.8 48 256 48s-38.21 17.55-44 37.47c-1.35 4.6-5.52 8.71-9.95 10.53-33.39 13.75-73.87 41.92-73.87 121.35C128.13 304 110 320 84.32 351.43 73.68 364.45 83 384 101.61 384h308.88c18.51 0 27.77-19.61 17.19-32.57M320 384v16a64 64 0 0 1-128 0v-16"/></svg>',
+  'chatbox': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="32" d="M408 64H104a56.16 56.16 0 0 0-56 56v192a56.16 56.16 0 0 0 56 56h40v80l93.72-78.14a8 8 0 0 1 5.13-1.86H408a56.16 56.16 0 0 0 56-56V120a56.16 56.16 0 0 0-56-56z"/></svg>',
+  'add': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M256 112v288m144-144H112"/></svg>',
+  'close': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M368 368 144 144m224 0L144 368"/></svg>',
+  'settings': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M262.29 192.31a64 64 0 1057.4 57.4 64.13 64.13 0 00-57.4-57.4zM416.39 256a154.34 154.34 0 01-1.53 20.79l45.21 35.46a10.81 10.81 0 012.45 13.75l-42.77 74a10.81 10.81 0 01-13.14 4.59l-44.9-18.08a16.11 16.11 0 00-15.17 1.75A164.48 164.48 0 01325 400.8a15.94 15.94 0 00-8.82 12.14l-6.73 47.89a11.08 11.08 0 01-10.68 9.17h-85.54a11.11 11.11 0 01-10.69-8.87l-6.72-47.82a16.07 16.07 0 00-9-12.22 155.3 155.3 0 01-21.46-12.57 16 16 0 00-15.11-1.71l-44.89 18.07a10.81 10.81 0 01-13.14-4.58l-42.77-74a10.8 10.8 0 012.45-13.75l38.21-30a16.05 16.05 0 006-14.08c-.36-4.17-.58-8.33-.58-12.5s.21-8.27.58-12.35a16 16 0 00-6.07-13.94l-38.19-30A10.81 10.81 0 0149.48 186l42.77-74a10.81 10.81 0 0113.14-4.59l44.9 18.08a16.11 16.11 0 0015.17-1.75A164.48 164.48 0 01187 111.2a15.94 15.94 0 008.82-12.14l6.73-47.89A11.08 11.08 0 01213.23 42h85.54a11.11 11.11 0 0110.69 8.87l6.72 47.82a16.07 16.07 0 009 12.22 155.3 155.3 0 0121.46 12.57 16 16 0 0015.11 1.71l44.89-18.07a10.81 10.81 0 0113.14 4.58l42.77 74a10.8 10.8 0 01-2.45 13.75l-38.21 30a16.05 16.05 0 00-6.05 14.08c.33 4.14.55 8.3.55 12.47z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/></svg>',
+  'eye': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M255.66 112c-77.94 0-157.89 45.11-220.83 135.33a16 16 0 0 0-.27 17.77C82.92 340.8 161.8 400 255.66 400c92.84 0 173.34-59.38 221.79-135.25a16.14 16.14 0 0 0 0-17.47C428.89 172.28 347.8 112 255.66 112"/><circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="32"/></svg>',
+  'trash': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M112 112l20 320c.95 18.49 14.4 32 32 32h184c17.67 0 30.87-13.51 32-32l20-320"/><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="32" d="M80 112h352"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M192 112V72h0a23.93 23.93 0 0124-24h80a23.93 23.93 0 0124 24h0v40m-64 64v224m-72-224l8 224m136-224l-8 224"/></svg>',
+  'repeat': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M320 120l48 48-48 48"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M352 168H144a80.24 80.24 0 00-80 80v16m128 128l-48-48 48-48"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M160 344h208a80.24 80.24 0 0080-80v-16"/></svg>',
+  'share': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M336 192h40a40 40 0 0140 40v192a40 40 0 01-40 40H136a40 40 0 01-40-40V232a40 40 0 0140-40h40m160-64l-80-80-80 80m80 193V48"/></svg>',
+  'ellipsis-vertical': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><circle cx="256" cy="256" r="32" fill="currentColor"/><circle cx="256" cy="416" r="32" fill="currentColor"/><circle cx="256" cy="96" r="32" fill="currentColor"/></svg>',
+  'copy': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="32" d="M408 480H184a72 72 0 01-72-72V184a72 72 0 0172-72h224a72 72 0 0172 72v224a72 72 0 01-72 72z"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M160 160v-12a72 72 0 0172-72h96a72 72 0 0172 72v12"/></svg>',
+  'attach': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M216.08 192v143.85a40.08 40.08 0 0080.15 0l.13-188.55a67.94 67.94 0 10-135.87 0v189.82a95.51 95.51 0 10191 0V159.74"/></svg>',
+  'sparkles': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M259.92 262.91L216.4 149.77a9 9 0 00-16.8 0l-43.52 113.14a9 9 0 01-5.17 5.17L37.77 311.6a9 9 0 000 16.8l113.14 43.52a9 9 0 015.17 5.17l43.52 113.14a9 9 0 0016.8 0l43.52-113.14a9 9 0 015.17-5.17l113.14-43.52a9 9 0 000-16.8l-113.14-43.52a9 9 0 01-5.17-5.17zM108 68L88 16 68 68 16 88l52 20 20 52 20-52 52-20-52-20zm308 216l-16-40-16 40-40 16 40 16 16 40 16-40 40-16-40-16z"/></svg>',
+  'brush': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M452.37 59.63h0a40.49 40.49 0 00-57.26 0L184 294.74c23.08 4.7 46.12 27.29 49.26 49.26l219.11-211.11a40.49 40.49 0 000-57.26zM138 336c-29.88 0-54 24.5-54 54.86 0 23.95-20.88 36.57-36 36.57C64.56 449.74 92.82 464 120 464c39.78 0 72-32.73 72-73.14 0-30.36-24.12-54.86-54-54.86z"/></svg>',
+  'color-palette': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="32" d="M430.11 347.9c-6.6-6.1-16.3-7.6-24.6-9-11.5-1.9-15.9-4-22.6-10-14.3-12.7-14.3-31.1 0-43.8l30.3-26.9c46.4-41 46.4-108.2 0-149.2-34.2-30.1-80.1-45-127.8-45-55.7 0-113.9 20.3-158.8 60.1-83.5 73.8-83.5 194.7 0 268.5 41.5 36.7 97.5 55 152.9 55.4h1.7c55.4 0 110-17.9 148.8-52.4 14.4-12.7 11-36.6-1.9-47.7z"/><circle cx="144" cy="208" r="32"/><circle cx="152" cy="311" r="32"/><circle cx="224" cy="144" r="32"/><circle cx="256" cy="367" r="48"/><circle cx="328" cy="144" r="32"/></svg>',
+  'planet': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="32" d="M413.48 284.46c58.87 47.24 91.61 89 80.31 108.55-17.85 30.85-138.78-5.48-270.1-81.15S.37 149.84 18.21 119c11.16-19.28 62.58-12.32 131.64 14.09"/><circle cx="256" cy="256" r="160" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="32"/></svg>',
+  'albums': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="32" d="M368 96H144a16 16 0 01-16-16V48a16 16 0 0116-16h224a16 16 0 0116 16v32a16 16 0 01-16 16zm0 64H144a16 16 0 00-16 16v288a16 16 0 0016 16h224a16 16 0 0016-16V176a16 16 0 00-16-16z"/><circle cx="256" cy="368" r="32"/></svg>',
+  'refresh': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="32" d="M320 146s24.36-12-64-12a160 160 0 10160 160"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M256 58l80 80-80 80"/></svg>',
+};
+
+/**
+ * Static in-memory cache for network-loaded SVGs
+ * Prevents redundant fetches for the same icon path
+ */
+const SVG_CACHE = new Map<string, string>();
+
+/**
  * Material Design 3 Icon Component
  *
- * Displays icons from SVG files. Supports both inline SVG content and external SVG sources.
+ * Displays icons from three sources (in priority order):
+ * 1. Named icons from built-in library (no network request)
+ * 2. External SVG files via `src` attribute (cached in memory)
+ * 3. Inline SVG content via default slot
  *
- * @slot - Default slot for inline SVG content (alternative to src)
+ * @slot - Default slot for inline SVG content (alternative to src/name)
  *
  * @fires md-icon-load - Dispatched when the icon has loaded
  * @fires md-icon-error - Dispatched when the icon fails to load
  *
  * @csspart base - The icon's base container
  * @csspart svg - The SVG element
+ *
+ * @example
+ * ```html
+ * <!-- Named icon (fastest, no network) -->
+ * <md-icon name="home"></md-icon>
+ *
+ * <!-- External SVG (cached after first load) -->
+ * <md-icon src="/assets/custom-icon.svg"></md-icon>
+ *
+ * <!-- Inline SVG -->
+ * <md-icon><svg>...</svg></md-icon>
+ * ```
  */
 @customElement('md-icon')
 export class MdIcon extends LitElement {
-  /** The path/URL to the SVG icon file */
+  /** The name of a built-in icon from the icon library */
+  @property({ type: String }) name?: string;
+
+  /** The path/URL to the SVG icon file (used if name is not provided) */
   @property({ type: String }) src?: string;
 
   /** The label for accessibility */
@@ -75,8 +128,13 @@ export class MdIcon extends LitElement {
   `;
 
   async updated(changedProperties: Map<string, any>) {
-    if (changedProperties.has('src') && this.src) {
-      await this.loadIcon();
+    // Priority: name > src
+    if (changedProperties.has('name') || changedProperties.has('src')) {
+      if (this.name) {
+        this.loadNamedIcon();
+      } else if (this.src) {
+        await this.loadExternalIcon();
+      }
     }
     if (changedProperties.has('size')) {
       this.style.setProperty('--md-icon-size', this.size);
@@ -85,15 +143,69 @@ export class MdIcon extends LitElement {
 
   async connectedCallback() {
     super.connectedCallback();
-    if (this.src) {
-      await this.loadIcon();
+    if (this.name) {
+      this.loadNamedIcon();
+    } else if (this.src) {
+      await this.loadExternalIcon();
     }
     this.style.setProperty('--md-icon-size', this.size);
   }
 
-  private async loadIcon() {
+  /**
+   * Load icon from built-in library (instant, no network)
+   */
+  private loadNamedIcon() {
+    const iconSvg = ICON_LIBRARY[this.name!];
+
+    if (iconSvg) {
+      this.svgContent = iconSvg;
+      this.loadError = false;
+
+      this.dispatchEvent(
+        new CustomEvent('md-icon-load', {
+          bubbles: true,
+          composed: true,
+          detail: { name: this.name },
+        })
+      );
+    } else {
+      console.warn(`Icon "${this.name}" not found in icon library. Available icons:`, Object.keys(ICON_LIBRARY).join(', '));
+      this.loadError = true;
+      this.svgContent = '';
+
+      this.dispatchEvent(
+        new CustomEvent('md-icon-error', {
+          bubbles: true,
+          composed: true,
+          detail: { name: this.name, error: new Error(`Icon "${this.name}" not found`) },
+        })
+      );
+    }
+  }
+
+  /**
+   * Load icon from external source with in-memory caching
+   */
+  private async loadExternalIcon() {
     if (!this.src) return;
 
+    // Check cache first
+    const cached = SVG_CACHE.get(this.src);
+    if (cached) {
+      this.svgContent = cached;
+      this.loadError = false;
+
+      this.dispatchEvent(
+        new CustomEvent('md-icon-load', {
+          bubbles: true,
+          composed: true,
+          detail: { src: this.src, cached: true },
+        })
+      );
+      return;
+    }
+
+    // Fetch from network
     try {
       const response = await fetch(this.src);
       if (!response.ok) {
@@ -101,6 +213,10 @@ export class MdIcon extends LitElement {
       }
 
       const text = await response.text();
+
+      // Cache the result
+      SVG_CACHE.set(this.src, text);
+
       this.svgContent = text;
       this.loadError = false;
 
@@ -108,7 +224,7 @@ export class MdIcon extends LitElement {
         new CustomEvent('md-icon-load', {
           bubbles: true,
           composed: true,
-          detail: { src: this.src },
+          detail: { src: this.src, cached: false },
         })
       );
     } catch (error) {

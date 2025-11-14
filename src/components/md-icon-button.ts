@@ -18,7 +18,10 @@ import './md-icon';
  */
 @customElement('md-icon-button')
 export class MdIconButton extends LitElement {
-  /** The path/URL to the SVG icon file */
+  /** The name of a built-in icon from the icon library */
+  @property({ type: String }) name?: string;
+
+  /** The path/URL to the SVG icon file (used if name is not provided) */
   @property({ type: String }) src?: string;
 
   /** The label for accessibility */
@@ -211,7 +214,12 @@ export class MdIconButton extends LitElement {
         aria-label="${this.label || 'icon button'}"
       >
         <div part="icon" class="icon">
-          ${this.src
+          ${this.name
+            ? html`<md-icon
+                name="${this.name}"
+                label="${ifDefined(this.label)}"
+              ></md-icon>`
+            : this.src
             ? html`<md-icon
                 src="${this.src}"
                 label="${ifDefined(this.label)}"

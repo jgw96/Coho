@@ -374,7 +374,7 @@ registerRoute(
 
 // Network first for timeline
 registerRoute(
-    ({ request }) => request.url.includes('/timelines/home'),
+    ({ request }) => request.url.includes('timelines/home'),
     new NetworkFirst({
         cacheName: 'timeline',
         plugins: [
@@ -393,6 +393,53 @@ registerRoute(
     ({ request }) => request.url.includes('/api/v1/notifications'),
     new NetworkFirst({
         cacheName: 'notifications',
+        plugins: [
+            new ExpirationPlugin({
+                maxEntries: 50,
+                // max age is 5 minutes
+                maxAgeSeconds: 60 * 5,
+            }),
+        ],
+    }),
+    'GET'
+);
+
+registerRoute(
+    ({ request }) => request.url.includes('https://us-central1-coho-mastodon.cloudfunctions.net/search'),
+    new NetworkFirst({
+        cacheName: 'search',
+        plugins: [
+            new ExpirationPlugin({
+                maxEntries: 50,
+                // max age is 5 minutes
+                maxAgeSeconds: 60 * 5,
+            }),
+        ],
+    }),
+    'GET'
+);
+
+// for bookmarks https://us-central1-coho-mastodon.cloudfunctions.net/getBookmarks
+registerRoute(
+    ({ request }) => request.url.includes('https://us-central1-coho-mastodon.cloudfunctions.net/getBookmarks'),
+    new NetworkFirst({
+        cacheName: 'bookmarks',
+        plugins: [
+            new ExpirationPlugin({
+                maxEntries: 50,
+                // max age is 5 minutes
+                maxAgeSeconds: 60 * 5,
+            }),
+        ],
+    }),
+    'GET'
+);
+
+// for https://us-central1-coho-mastodon.cloudfunctions.net/getFavorites
+registerRoute(
+    ({ request }) => request.url.includes('https://us-central1-coho-mastodon.cloudfunctions.net/getFavorites'),
+    new NetworkFirst({
+        cacheName: 'favorites',
         plugins: [
             new ExpirationPlugin({
                 maxEntries: 50,

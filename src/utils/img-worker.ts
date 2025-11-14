@@ -1,32 +1,43 @@
 import { decodeBlurHash } from 'fast-blurhash';
 
+console.log('🚀 Worker script loaded at', Date.now());
+
 // @ts-ignore
 const canvas = new OffscreenCanvas(1, 1);
 const ctx: any = canvas.getContext('2d');
 
 self.onmessage = (e) => {
-  const { hash, width, height } = e.data;
+  const workerReceiveTime = Date.now();
+  const { id, hash, width, height, sendTime } = e.data;
 
-  canvas.width = width;
-  canvas.height = height;
+  console.log('Worker received, delay from send:', sendTime ? (workerReceiveTime - sendTime) + 'ms' : 'unknown');
 
-  const pixels = decodeBlurHash(hash, width, height);
+  try {
+    const decodeStart = Date.now();
+    canvas.width = width;
+    canvas.height = height;
 
-  const imageData = (ctx as CanvasRenderingContext2D).createImageData(
-    canvas.width,
-    canvas.height
-  );
+    const pixels = decodeBlurHash(hash, width, height);
+    const decodeEnd = Date.now();
 
-  if (pixels) {
+    console.log('Worker: Decode took', (decodeEnd - decodeStart), 'ms for', id);
+
+    if (!pixels) {
+      console.error('Worker: Failed to decode blurhash');
+      self.postMessage({ id, bitmap: null });
+      return;
+    }
+
+    const imageData = ctx.createImageData(width, height);
     imageData.data.set(pixels);
-    ctx!.putImageData(imageData, 0, 0);
+    ctx.putImageData(imageData, 0, 0);
 
     const bitmap = canvas.transferToImageBitmap();
 
-    self.postMessage(bitmap);
-  } else {
-    const bitmap = canvas.transferToImageBitmap();
-
-    self.postMessage(bitmap);
+    console.log('Worker: Sending bitmap for', id);
+    self.postMessage({ id, bitmap }, { transfer: [bitmap] });
+  } catch (error) {
+    console.error('Worker error:', error);
+    self.postMessage({ id, bitmap: null });
   }
 };

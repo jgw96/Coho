@@ -45,6 +45,8 @@ export class Timeline extends LitElement {
     | 'for you'
     | 'home and some trending' = 'home';
 
+
+
   static styles = [
     css`
       :host {
@@ -305,7 +307,9 @@ export class Timeline extends LitElement {
         this.timeline = [];
         await this.hasUpdated;
 
-        this.timeline = timelineDataMix;
+        // Deduplicate by post ID
+        const uniqueMix = Array.from(new Map(timelineDataMix.map((post: Post) => [post.id, post])).values()) as Post[];
+        this.timeline = uniqueMix;
 
         this.requestUpdate();
         break;
@@ -316,7 +320,9 @@ export class Timeline extends LitElement {
         this.timeline = [];
         await this.hasUpdated;
 
-        this.timeline = timelineDataMix2;
+        // Deduplicate by post ID
+        const uniqueMix2 = Array.from(new Map(timelineDataMix2.map((post: Post) => [post.id, post])).values()) as Post[];
+        this.timeline = uniqueMix2;
 
         this.requestUpdate();
         break;
@@ -328,7 +334,9 @@ export class Timeline extends LitElement {
           this.timeline = [];
           await this.hasUpdated;
 
-          this.timeline = timelineData;
+          // Deduplicate by post ID
+          const uniqueLastPlace = Array.from(new Map(timelineData.map((post: Post) => [post.id, post])).values()) as Post[];
+          this.timeline = uniqueLastPlace;
 
           this.requestUpdate();
           break;
@@ -341,7 +349,9 @@ export class Timeline extends LitElement {
         this.timeline = [];
         await this.hasUpdated;
 
-        this.timeline = timelineData;
+        // Deduplicate by post ID
+        const uniqueHome = Array.from(new Map(timelineData.map((post: Post) => [post.id, post])).values()) as Post[];
+        this.timeline = uniqueHome;
 
         this.requestUpdate();
         break;
@@ -352,7 +362,9 @@ export class Timeline extends LitElement {
         this.timeline = [];
         await this.hasUpdated;
 
-        this.timeline = timelineDataPub;
+        // Deduplicate by post ID
+        const uniquePub = Array.from(new Map(timelineDataPub.map((post: Post) => [post.id, post])).values()) as Post[];
+        this.timeline = uniquePub;
 
         this.requestUpdate();
         break;
@@ -361,12 +373,14 @@ export class Timeline extends LitElement {
         const timelineDataMedia = await getPaginatedHomeTimeline('home');
 
         // filter out tweets that don't have media
-        (timelineDataMedia as Array<Post>).filter(
+        const mediaFiltered = (timelineDataMedia as Array<Post>).filter(
           (tweet: Post) => tweet.media_attachments.length > 0
         );
-        console.log(timelineData);
+        console.log(mediaFiltered);
 
-        this.timeline = timelineDataMedia;
+        // Deduplicate by post ID
+        const uniqueMedia = Array.from(new Map(mediaFiltered.map((post: Post) => [post.id, post])).values()) as Post[];
+        this.timeline = uniqueMedia;
 
         this.requestUpdate();
         break;
@@ -382,7 +396,11 @@ export class Timeline extends LitElement {
     );
     console.log(timelineData);
 
-    this.timeline = [...this.timeline, ...timelineData];
+    // Deduplicate posts by ID to prevent showing duplicates
+    const existingIds = new Set(this.timeline.map(post => post.id));
+    const newPosts = timelineData.filter(post => !existingIds.has(post.id));
+
+    this.timeline = [...this.timeline, ...newPosts];
   }
 
   handleReplies(data: Array<Post>) {

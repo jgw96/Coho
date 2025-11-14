@@ -231,7 +231,7 @@ export class PostDetail extends LitElement {
 
       <main class=${classMap({ standalone: this.passed_tweet !== null })}>
         <div id="main-block">
-          <timeline-item id="main" .tweet="${this.tweet}"></timeline-item>
+          <timeline-item id="main" .tweet="${this.tweet!}"></timeline-item>
           <div id="post-actions">
             <md-text-area placeholder="Reply to this post..."></md-text-area>
             <md-button

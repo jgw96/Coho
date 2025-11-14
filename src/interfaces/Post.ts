@@ -109,4 +109,6 @@ export interface Post {
     }[];
   } | null;
   reply_to: Post;
+  ancestors?: Post[];
+  thread_continuation?: Post[]; // Posts that continue this thread
 }
