@@ -525,6 +525,7 @@ export class PostDialog extends LitElement {
         id="notify-dialog"
         label="New Post"
         ?fullscreen=${this.isMobile}
+        ?no-backdrop-close=${this.isMobile}
       >
         <md-text-area
           @change="${($event: any) => this.handleStatus($event)}"

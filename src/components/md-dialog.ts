@@ -10,6 +10,7 @@ export class MdDialog extends LitElement {
   @property({ type: String }) label = '';
   @property({ type: Boolean }) open = false;
   @property({ type: Boolean }) fullscreen = false;
+  @property({ type: Boolean, attribute: 'no-backdrop-close' }) noBackdropClose = false;
 
   @query('dialog') dialog!: HTMLDialogElement;
 
@@ -257,7 +258,8 @@ export class MdDialog extends LitElement {
 
   private _handleBackdropClick(e: MouseEvent) {
     // Close when clicking on the backdrop area of the native dialog
-    if (e.target === this.dialog) {
+    // unless noBackdropClose is enabled
+    if (e.target === this.dialog && !this.noBackdropClose) {
       this.hide();
     }
   }
