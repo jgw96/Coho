@@ -130,8 +130,13 @@ export class Timeline extends LitElement {
       }
 
       lit-virtualizer {
-        height: 90vh;
+        height: calc(84vh - 60px);
         overflow-x: hidden !important;
+      }
+
+      #load-more {
+        margin: 16px auto;
+        display: block;
       }
 
       sl-card {
@@ -210,9 +215,15 @@ export class Timeline extends LitElement {
         overflow: hidden;
       }
 
-            @media (max-width: 820px) {
-        .timeline-container {
-          padding: 0;
+      @media (max-width: 820px) {
+        ul {
+          height: 85vh;
+        }
+
+        lit-virtualizer {
+          height: 80vh;
+        }
+      }
 
       @keyframes fadein {
         0% {
@@ -252,6 +263,12 @@ export class Timeline extends LitElement {
       async () => {
         // setup intersection observer
         const loadMore = this.shadowRoot?.querySelector('#load-more') as any;
+        const scrollContainer = this.shadowRoot?.querySelector('#mainList') as HTMLElement;
+
+        if (!loadMore || !scrollContainer) {
+          console.warn('Load more button or scroll container not found');
+          return;
+        }
 
         const observer = new IntersectionObserver(
           async (entries: Array<IntersectionObserverEntry>) => {
@@ -265,7 +282,11 @@ export class Timeline extends LitElement {
               }
             });
           },
-          { threshold: 0.5 }
+          {
+            root: scrollContainer,
+            rootMargin: '100px',
+            threshold: 0.1
+          }
         );
 
         observer.observe(loadMore);
