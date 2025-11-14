@@ -342,7 +342,7 @@ export class AppLogin extends LitElement {
         : null}
 
       <main>
-        <img src="/assets/icons/Android/96-icon.png" alt="Coho Logo" />
+        <img src="/assets/icons/new-icons/icon-144x144.webp" alt="Coho Logo" />
 
         <div id="login-block">
           <md-text-field

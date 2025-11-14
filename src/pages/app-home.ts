@@ -1,4 +1,4 @@
-import { LitElement, css, html } from 'lit';
+import { LitElement, css, html, nothing } from 'lit';
 import { property, customElement, state } from 'lit/decorators.js';
 
 import '../components/timeline';
@@ -1074,7 +1074,7 @@ export class AppHome extends LitElement {
                   this.handlePrimaryColor($event.detail.color)}"
               ></app-theme>
             `
-          : html`<p>Loading theme options...</p>`}
+          : nothing }
       </otter-drawer>
 
       <md-dialog id="summary-dialog" label=""> ${this.summary} </md-dialog>
@@ -1148,7 +1148,7 @@ export class AppHome extends LitElement {
         <div class="setting">
           ${this.userTermsLoaded
             ? html`<user-terms></user-terms>`
-            : html`<p>Loading terms...</p>`}
+            : nothing }
         </div>
 
         <div class="setting">
@@ -1313,12 +1313,12 @@ export class AppHome extends LitElement {
           <md-tab-panel name="bookmarks">
             ${this.bookmarksLoaded
               ? html`<app-bookmarks></app-bookmarks>`
-              : html`<p>Loading bookmarks...</p>`}
+              : nothing}
           </md-tab-panel>
           <md-tab-panel name="faves">
             ${this.favoritesLoaded
               ? html`<app-favorites></app-favorites>`
-              : html`<p>Loading favorites...</p>`}
+              : nothing}
           </md-tab-panel>
           <md-tab-panel name="notifications">
             ${this.notificationsLoaded
@@ -1326,12 +1326,12 @@ export class AppHome extends LitElement {
                   @open="${($event: CustomEvent) =>
                     this.handleOpenTweet($event.detail.tweet)}"
                 ></app-notifications>`
-              : html`<p>Loading notifications...</p>`}
+              : nothing}
           </md-tab-panel>
           <md-tab-panel name="search">
             ${this.searchLoaded
               ? html`<search-page></search-page>`
-              : html`<p>Loading search...</p>`}
+              : nothing}
           </md-tab-panel>
         </md-tabs>
 

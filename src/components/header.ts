@@ -165,10 +165,10 @@ export class AppHeader extends LitElement {
             : null}
 
           <img
-            src="/assets/icons/Android/64-icon.png"
-            alt="Otter"
-            width="20"
-            height="20"
+            src="/assets/icons/new-icons/icon-48x48.webp"
+            alt="App Icon"
+            width="28"
+            height="28"
           />
         </div>
 
