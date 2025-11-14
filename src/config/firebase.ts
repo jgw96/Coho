@@ -14,7 +14,7 @@ const FIREBASE_REGION = 'us-central1';
 
 // Base URLs
 const PRODUCTION_BASE_URL = `https://${FIREBASE_REGION}-${FIREBASE_PROJECT_ID}.cloudfunctions.net`;
-const LOCAL_BASE_URL = `http://localhost:5001/${FIREBASE_PROJECT_ID}/${FIREBASE_REGION}`;
+const LOCAL_BASE_URL = `https://${FIREBASE_REGION}-${FIREBASE_PROJECT_ID}.cloudfunctions.net`;
 
 // Export the appropriate base URL
 // Use local emulator when running on localhost, otherwise use production

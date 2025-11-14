@@ -374,7 +374,7 @@ registerRoute(
 
 // Network first for timeline
 registerRoute(
-    ({ request }) => request.url.includes('/api/v1/timelines'),
+    ({ request }) => request.url.includes('/timelines/home'),
     new NetworkFirst({
         cacheName: 'timeline',
         plugins: [

@@ -157,7 +157,7 @@ export class UserProfile extends LitElement {
       >
         <img
           id="avatar"
-          src="/assets/icons/64-icon.png"
+          src="/assets/icons/new-icons/icon-72x72.webp"
           data-src="${this.account.avatar_static}"
         />
         <div>

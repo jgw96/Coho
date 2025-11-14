@@ -123,19 +123,26 @@ export default defineConfig({
     ...customPlugins,
     VitePWA({
       strategies: 'injectManifest',
+      srcDir: 'public',
+      filename: 'sw.js',
       injectManifest: {
         swSrc: 'public/sw.js',
         swDest: 'dist/sw.js',
         globDirectory: 'dist',
         globPatterns: [
-          // glob pattern for index-*.js files
-          '**/*.{json,svg,css,js}',
+          '**/*.{js,css,html,svg,png,jpg,jpeg,gif,webp,woff,woff2}',
+          'assets/**/*',
+          'widgets/**/*'
         ],
+        // Don't include these in the precache
+        globIgnores: ['**/node_modules/**/*'],
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB
       },
       injectRegister: false,
       manifest: false,
       devOptions: {
         enabled: true,
+        type: 'module',
       },
     }),
     wasm(),

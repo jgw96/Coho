@@ -832,22 +832,16 @@
     </script>
 
     <!-- register service worker -->
-    <script type="module">
-      import { Workbox } from 'workbox-window';
+    <script>
       if ('serviceWorker' in navigator) {
-        const wb = new Workbox('/sw.js');
         let registration;
 
         const promptForUpdate = async () => {
-          // show a prompt to the user
-
           const updateToast = document.getElementById('updateToast');
-
           updateToast.style.display = 'flex';
 
           return new Promise((resolve) => {
             const updateButton = document.getElementById('updateButton');
-
             updateButton.addEventListener('click', () => {
               updateToast.style.display = 'none';
               resolve(true);
@@ -855,31 +849,26 @@
           });
         };
 
-        const showSkipWaitingPrompt = async (event) => {
-          wb.addEventListener('controlling', () => {
-            window.location.reload();
+        navigator.serviceWorker.register('/sw.js').then((reg) => {
+          registration = reg;
+
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+
+            newWorker.addEventListener('statechange', async () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                const updateAccepted = await promptForUpdate();
+                if (updateAccepted) {
+                  newWorker.postMessage({ type: 'SKIP_WAITING' });
+                }
+              }
+            });
           });
-
-          const updateAccepted = await promptForUpdate();
-
-          if (updateAccepted) {
-            wb.messageSkipWaiting();
-          }
-        };
-
-        // Add an event listener to detect when the registered
-        // service worker has installed but is waiting to activate.
-        wb.addEventListener('waiting', (event) => {
-          showSkipWaitingPrompt(event);
         });
 
-        window.onload = async () => {
-          try {
-            await wb.register();
-          } catch (error) {
-            console.error(error);
-          }
-        };
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          window.location.reload();
+        });
       }
     </script>
   </body>
