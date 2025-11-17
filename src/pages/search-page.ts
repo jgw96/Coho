@@ -137,6 +137,13 @@ export class SearchPage extends LitElement {
         margin-top: 0px;
       }
 
+      @media (max-width: 820px) {
+        main {
+          padding-left: 0;
+          padding-right: 0;
+        }
+      }
+
       @media (prefers-color-scheme: dark) {
         .account {
           color: white;

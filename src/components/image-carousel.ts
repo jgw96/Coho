@@ -104,7 +104,6 @@ export class ImageCarousel extends LitElement {
   }
 
   private generateBlurhashes() {
-
     if (!this.images || this.images.length === 0) {
       console.warn('⚠ No images to process');
       return;
@@ -137,7 +136,10 @@ export class ImageCarousel extends LitElement {
           newMap.set(id, dataUrl);
           this.blurhashUrls = newMap;
 
-          console.log('✓ Blurhash URLs map updated, size:', this.blurhashUrls.size);
+          console.log(
+            '✓ Blurhash URLs map updated, size:',
+            this.blurhashUrls.size
+          );
           this.requestUpdate();
         }
       );
@@ -202,7 +204,11 @@ export class ImageCarousel extends LitElement {
             @click="${() => this.openInBox(image)}"
           >
             ${blurhashUrl
-              ? html`<img class="blurhash-canvas" src="${blurhashUrl}" aria-hidden="true" />`
+              ? html`<img
+                  class="blurhash-canvas"
+                  src="${blurhashUrl}"
+                  aria-hidden="true"
+                />`
               : null}
             <!-- <img
               loading="lazy"
@@ -236,7 +242,11 @@ export class ImageCarousel extends LitElement {
                 @click="${() => this.openInBox(image)}"
               >
                 ${blurhashUrl
-                  ? html`<img class="blurhash-canvas" src="${blurhashUrl}" aria-hidden="true" />`
+                  ? html`<img
+                      class="blurhash-canvas"
+                      src="${blurhashUrl}"
+                      aria-hidden="true"
+                    />`
                   : null}
                 <img
                   src="${image.preview_url}"
@@ -250,6 +260,12 @@ export class ImageCarousel extends LitElement {
             return html`
               <div>
                 <video controls src="${image.url}"></video>
+              </div>
+            `;
+          } else if (image.type === 'gifv') {
+            return html`
+              <div>
+                <video autoplay loop src="${image.url}"></video>
               </div>
             `;
           }

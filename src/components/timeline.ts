@@ -6,6 +6,12 @@ import {
   getPreviewTimeline,
   mixTimeline,
 } from '../services/timeline';
+import {
+  saveTimelineCache,
+  getTimelineCache,
+  updateCacheScrollPosition,
+  clearTimelineCache,
+} from '../services/timeline-cache';
 
 // @ts-ignore
 import TimelineWorker from '../utils/timeline-worker?worker';
@@ -31,6 +37,7 @@ import { router } from '../utils/router';
 export class Timeline extends LitElement {
   @state() timeline: Post[] = [];
   @state() loadingData: boolean = false;
+  @state() lastScrollPosition: number = 0;
 
   @state() imgPreview: string | undefined = undefined;
 
@@ -44,8 +51,6 @@ export class Timeline extends LitElement {
     | 'media'
     | 'for you'
     | 'home and some trending' = 'home';
-
-
 
   static styles = [
     css`
@@ -250,9 +255,34 @@ export class Timeline extends LitElement {
       this.timelineType = savedTimelineType;
     }
 
-    this.loadingData = true;
-    await this.refreshTimeline();
-    this.loadingData = false;
+    // Check cache first
+    const cachedTimeline = getTimelineCache(this.timelineType);
+    if (cachedTimeline && cachedTimeline.data.length > 0) {
+      console.log('Restoring timeline from cache');
+      this.timeline = cachedTimeline.data;
+      this.loadingData = false;
+
+      // Restore scroll position after render
+      await this.updateComplete;
+      requestAnimationFrame(() => {
+        const scrollContainer = this.shadowRoot?.querySelector(
+          '#mainList'
+        ) as HTMLElement;
+        if (scrollContainer && cachedTimeline.scrollPosition > 0) {
+          scrollContainer.scrollTop = cachedTimeline.scrollPosition;
+          console.log(
+            'Restored scroll position:',
+            cachedTimeline.scrollPosition
+          );
+        }
+      });
+    } else {
+      // No cache, fetch fresh data
+      console.log('No cache found, fetching fresh timeline');
+      this.loadingData = true;
+      await this.refreshTimeline();
+      this.loadingData = false;
+    }
 
     // if (latestReadID && this.timelineType === "for you" && index > 0) {
     //     const virtualizer: any = this.shadowRoot?.querySelector('lit-virtualizer');
@@ -265,12 +295,27 @@ export class Timeline extends LitElement {
       async () => {
         // setup intersection observer
         const loadMore = this.shadowRoot?.querySelector('#load-more') as any;
-        const scrollContainer = this.shadowRoot?.querySelector('#mainList') as HTMLElement;
+        const scrollContainer = this.shadowRoot?.querySelector(
+          '#mainList'
+        ) as HTMLElement;
 
         if (!loadMore || !scrollContainer) {
           console.warn('Load more button or scroll container not found');
           return;
         }
+
+        // Track scroll position for caching
+        let scrollTimeout: number;
+        scrollContainer.addEventListener('scroll', () => {
+          clearTimeout(scrollTimeout);
+          scrollTimeout = window.setTimeout(() => {
+            this.lastScrollPosition = scrollContainer.scrollTop;
+            updateCacheScrollPosition(
+              this.timelineType,
+              this.lastScrollPosition
+            );
+          }, 150);
+        });
 
         const observer = new IntersectionObserver(
           async (entries: Array<IntersectionObserverEntry>) => {
@@ -287,7 +332,7 @@ export class Timeline extends LitElement {
           {
             root: scrollContainer,
             rootMargin: '100px',
-            threshold: 0.1
+            threshold: 0.1,
           }
         );
 
@@ -297,8 +342,31 @@ export class Timeline extends LitElement {
     );
   }
 
-  public async refreshTimeline() {
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    // Save timeline to cache when navigating away
+    if (this.timeline.length > 0) {
+      console.log('Saving timeline to cache on disconnect');
+      saveTimelineCache(
+        this.timelineType,
+        this.timeline,
+        this.lastScrollPosition
+      );
+    }
+  }
+
+  public async refreshTimeline(skipCache: boolean = false) {
     console.log('refreshing timeline', this.timelineType);
+
+    // Save current timeline data before refreshing
+    if (!skipCache && this.timeline.length > 0) {
+      saveTimelineCache(
+        this.timelineType,
+        this.timeline,
+        this.lastScrollPosition
+      );
+    }
+
     switch (this.timelineType) {
       case 'for you':
         const timelineDataMix = await mixTimeline('home');
@@ -308,8 +376,13 @@ export class Timeline extends LitElement {
         await this.hasUpdated;
 
         // Deduplicate by post ID
-        const uniqueMix = Array.from(new Map(timelineDataMix.map((post: Post) => [post.id, post])).values()) as Post[];
+        const uniqueMix = Array.from(
+          new Map(timelineDataMix.map((post: Post) => [post.id, post])).values()
+        ) as Post[];
         this.timeline = uniqueMix;
+
+        // Save to cache after successful fetch
+        saveTimelineCache(this.timelineType, this.timeline, 0);
 
         this.requestUpdate();
         break;
@@ -321,8 +394,15 @@ export class Timeline extends LitElement {
         await this.hasUpdated;
 
         // Deduplicate by post ID
-        const uniqueMix2 = Array.from(new Map(timelineDataMix2.map((post: Post) => [post.id, post])).values()) as Post[];
+        const uniqueMix2 = Array.from(
+          new Map(
+            timelineDataMix2.map((post: Post) => [post.id, post])
+          ).values()
+        ) as Post[];
         this.timeline = uniqueMix2;
+
+        // Save to cache after successful fetch
+        saveTimelineCache(this.timelineType, this.timeline, 0);
 
         this.requestUpdate();
         break;
@@ -335,8 +415,13 @@ export class Timeline extends LitElement {
           await this.hasUpdated;
 
           // Deduplicate by post ID
-          const uniqueLastPlace = Array.from(new Map(timelineData.map((post: Post) => [post.id, post])).values()) as Post[];
+          const uniqueLastPlace = Array.from(
+            new Map(timelineData.map((post: Post) => [post.id, post])).values()
+          ) as Post[];
           this.timeline = uniqueLastPlace;
+
+          // Save to cache after successful fetch
+          saveTimelineCache(this.timelineType, this.timeline, 0);
 
           this.requestUpdate();
           break;
@@ -350,8 +435,13 @@ export class Timeline extends LitElement {
         await this.hasUpdated;
 
         // Deduplicate by post ID
-        const uniqueHome = Array.from(new Map(timelineData.map((post: Post) => [post.id, post])).values()) as Post[];
+        const uniqueHome = Array.from(
+          new Map(timelineData.map((post: Post) => [post.id, post])).values()
+        ) as Post[];
         this.timeline = uniqueHome;
+
+        // Save to cache after successful fetch
+        saveTimelineCache(this.timelineType, this.timeline, 0);
 
         this.requestUpdate();
         break;
@@ -363,8 +453,13 @@ export class Timeline extends LitElement {
         await this.hasUpdated;
 
         // Deduplicate by post ID
-        const uniquePub = Array.from(new Map(timelineDataPub.map((post: Post) => [post.id, post])).values()) as Post[];
+        const uniquePub = Array.from(
+          new Map(timelineDataPub.map((post: Post) => [post.id, post])).values()
+        ) as Post[];
         this.timeline = uniquePub;
+
+        // Save to cache after successful fetch
+        saveTimelineCache(this.timelineType, this.timeline, 0);
 
         this.requestUpdate();
         break;
@@ -379,8 +474,13 @@ export class Timeline extends LitElement {
         console.log(mediaFiltered);
 
         // Deduplicate by post ID
-        const uniqueMedia = Array.from(new Map(mediaFiltered.map((post: Post) => [post.id, post])).values()) as Post[];
+        const uniqueMedia = Array.from(
+          new Map(mediaFiltered.map((post: Post) => [post.id, post])).values()
+        ) as Post[];
         this.timeline = uniqueMedia;
+
+        // Save to cache after successful fetch
+        saveTimelineCache(this.timelineType, this.timeline, 0);
 
         this.requestUpdate();
         break;
@@ -397,10 +497,17 @@ export class Timeline extends LitElement {
     console.log(timelineData);
 
     // Deduplicate posts by ID to prevent showing duplicates
-    const existingIds = new Set(this.timeline.map(post => post.id));
-    const newPosts = timelineData.filter(post => !existingIds.has(post.id));
+    const existingIds = new Set(this.timeline.map((post) => post.id));
+    const newPosts = timelineData.filter((post) => !existingIds.has(post.id));
 
     this.timeline = [...this.timeline, ...newPosts];
+
+    // Update cache with new data
+    saveTimelineCache(
+      this.timelineType,
+      this.timeline,
+      this.lastScrollPosition
+    );
   }
 
   handleReplies(data: Array<Post>) {
@@ -522,7 +629,14 @@ export class Timeline extends LitElement {
           <md-option value="public">public</md-option>
         </md-select>
 
-        <md-button circle @click="${() => this.refreshTimeline()}">
+        <md-button
+          variant="outlined"
+          circle
+          @click="${() => {
+            clearTimelineCache(this.timelineType);
+            this.refreshTimeline(true);
+          }}"
+        >
           <md-icon src="/assets/refresh-circle-outline.svg"></md-icon>
         </md-button>
       </div>

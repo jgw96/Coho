@@ -108,16 +108,19 @@ export default defineConfig({
     },
 
     // Create a dedicated vendor chunk for lit so it can be fetched in parallel
-      rollupOptions: {
-        output: {
-          manualChunks(id) {
-            if (id.includes('/node_modules/lit') || id.includes('/node_modules/@lit')) {
-              return 'vendor-lit';
-            }
-            return undefined;
-          },
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (
+            id.includes('/node_modules/lit') ||
+            id.includes('/node_modules/@lit')
+          ) {
+            return 'vendor-lit';
+          }
+          return undefined;
         },
       },
+    },
   },
   plugins: [
     ...customPlugins,
@@ -132,7 +135,7 @@ export default defineConfig({
         globPatterns: [
           '**/*.{js,css,html,svg,png,jpg,jpeg,gif,webp,woff,woff2}',
           'assets/**/*',
-          'widgets/**/*'
+          'widgets/**/*',
         ],
         // Don't include these in the precache
         globIgnores: ['**/node_modules/**/*'],

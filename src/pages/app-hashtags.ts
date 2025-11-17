@@ -17,6 +17,13 @@ export class AppHashtags extends LitElement {
         padding-top: 60px;
         padding: 10px;
       }
+
+      @media (max-width: 820px) {
+        main {
+          padding-left: 0;
+          padding-right: 0;
+        }
+      }
     `,
   ];
 

@@ -51,7 +51,7 @@ class BlurhashWorkerManager {
       const dataUrl = canvas.toDataURL('image/png');
       const endConvert = Date.now();
 
-      console.log('✓ Canvas conversion took', (endConvert - startConvert), 'ms');
+      console.log('✓ Canvas conversion took', endConvert - startConvert, 'ms');
       console.log('✓ Created data URL for', id);
 
       // Call the registered callback

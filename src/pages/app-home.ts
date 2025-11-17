@@ -3,11 +3,7 @@ import { property, customElement, state } from 'lit/decorators.js';
 
 import '../components/timeline';
 import '../components/timeline-item';
-
-// Lazy loaded components (loaded on demand):
-// - app-theme (loaded when theming drawer opens)
-// - right-click (loaded on first right-click)
-// - user-terms (loaded when settings drawer opens)
+import '../components/md-skeleton';
 
 import '../components/otter-drawer';
 import '../components/md-button';
@@ -28,6 +24,7 @@ import { styles } from '../styles/shared-styles';
 import { router } from '../utils/router';
 // import { resetLastPageID } from '../services/timeline';
 import { Post } from '../interfaces/Post';
+import { clearTimelineCache } from '../services/timeline-cache';
 
 @customElement('app-home')
 export class AppHome extends LitElement {
@@ -175,6 +172,10 @@ export class AppHome extends LitElement {
         #settings-profile-inner img {
           width: 4em;
           border-radius: 50%;
+        }
+
+        #settings-profile-inner md-skeleton {
+          display: block;
         }
 
         #settings-profile-inner h3 {
@@ -386,7 +387,20 @@ export class AppHome extends LitElement {
           width: 80%;
         }
 
-        #profile img {
+        #profile img,
+        #profile-avatar {
+          height: 88px;
+          width: 88px;
+          border-radius: 50%;
+
+          border: solid var(--sl-color-primary-600) 4px;
+        }
+
+        #profile md-skeleton {
+          display: block;
+        }
+
+        #profile md-skeleton#profile-avatar {
           height: 88px;
           width: 88px;
           border-radius: 50%;
@@ -462,9 +476,23 @@ export class AppHome extends LitElement {
           display: none;
         }
 
-        @media (max-width: 1030px) {
+        @media (min-width: 825px) and (max-width: 1030px) {
           #profile-card-actions md-button {
             width: 100%;
+          }
+
+          main {
+            grid-template-columns: auto;
+          }
+
+          #profile {
+            display: none;
+          }
+
+          #mobile-actions {
+            display: flex;
+            bottom: 46px;
+            right: 46px;
           }
         }
 
@@ -673,12 +701,12 @@ export class AppHome extends LitElement {
       }
     });
 
-    setTimeout(async () => {
-      const { getCurrentUser } = await import('../services/account');
-      getCurrentUser().then((user) => {
-        this.user = user;
-      });
-    }, 1200);
+    // setTimeout(async () => {
+    const { getCurrentUser } = await import('../services/account');
+    getCurrentUser().then((user) => {
+      this.user = user;
+    });
+    // }, 1200);
   }
 
   async shareTarget(name: string) {
@@ -868,8 +896,11 @@ export class AppHome extends LitElement {
   }
 
   handleReload() {
+    // Clear cache to ensure fresh timeline after posting
+    clearTimelineCache();
+
     const timeline = this.shadowRoot?.querySelector('.homeTimeline') as any;
-    timeline.refreshTimeline();
+    timeline.refreshTimeline(true); // Pass true to skip saving stale cache
   }
 
   openBotDrawer() {
@@ -1074,7 +1105,7 @@ export class AppHome extends LitElement {
                   this.handlePrimaryColor($event.detail.color)}"
               ></app-theme>
             `
-          : nothing }
+          : nothing}
       </otter-drawer>
 
       <md-dialog id="summary-dialog" label=""> ${this.summary} </md-dialog>
@@ -1090,9 +1121,14 @@ export class AppHome extends LitElement {
       <otter-drawer id="settings-drawer" placement="end" label="Settings">
         <div>
           <div id="settings-profile-inner">
-            ${this.user
+            ${this.user && this.user.avatar
               ? html`<img src="${this.user.avatar}" />`
-              : html`<img src="https://via.placeholder.com/150" />`}
+              : html`<md-skeleton
+                  id="profile-avatar"
+                  shape="circle"
+                  width="4em"
+                  height="4em"
+                ></md-skeleton>`}
             <div id="username-block">
               <h3>${this.user ? this.user.display_name : 'Loading...'}</h3>
 
@@ -1146,9 +1182,7 @@ export class AppHome extends LitElement {
         </div>
 
         <div class="setting">
-          ${this.userTermsLoaded
-            ? html`<user-terms></user-terms>`
-            : nothing }
+          ${this.userTermsLoaded ? html`<user-terms></user-terms>` : nothing}
         </div>
 
         <div class="setting">
@@ -1325,9 +1359,7 @@ export class AppHome extends LitElement {
               : nothing}
           </md-tab-panel>
           <md-tab-panel name="search">
-            ${this.searchLoaded
-              ? html`<search-page></search-page>`
-              : nothing}
+            ${this.searchLoaded ? html`<search-page></search-page>` : nothing}
           </md-tab-panel>
         </md-tabs>
 
@@ -1341,9 +1373,21 @@ export class AppHome extends LitElement {
           <div id="profile-top">
             ${this.user && this.user.avatar
               ? html`<img src="${this.user.avatar}" />`
-              : html`<img src="https://via.placeholder.com/150" />`}
+              : html`<md-skeleton
+                  id="profile-avatar"
+                  shape="circle"
+                  width="88px"
+                  height="88px"
+                ></md-skeleton>`}
             <div id="username-block">
-              <h3>${this.user ? this.user.display_name : 'Loading...'}</h3>
+              <h3>
+                ${this.user
+                  ? this.user.display_name
+                  : html`<md-skeleton
+                      width="100px"
+                      height="25px"
+                    ></md-skeleton>`}
+              </h3>
 
               <div id="user-actions">
                 <md-dropdown>
@@ -1377,16 +1421,20 @@ export class AppHome extends LitElement {
               </div>
             </div>
 
-            <p id="user-url">${this.user ? this.user.url : 'Loading...'}</p>
+            <p id="user-url">
+              ${this.user
+                ? this.user.url
+                : html`<md-skeleton width="100px" height="19px"></md-skeleton>`}
+            </p>
 
             <md-badge
-              variant="filled"
+              variant="outlined"
               clickable
               @click="${() => this.goToFollowers()}"
               >${this.user ? this.user.followers_count : '0'} followers
             </md-badge>
             <md-badge
-              variant="filled"
+              variant="outlined"
               clickable
               @click="${() => this.goToFollowing()}"
               >${this.user ? this.user.following_count : '0'} following

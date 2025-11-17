@@ -1,4 +1,4 @@
-import { LitElement, css, html, PropertyValueMap } from 'lit';
+import { LitElement, css, html, PropertyValueMap, nothing } from 'lit';
 import { property, customElement } from 'lit/decorators.js';
 
 import './md-icon.js';
@@ -55,6 +55,11 @@ export class AppHeader extends LitElement {
         view-transition-name: main-header-icon;
         contain: layout;
         width: fit-content;
+      }
+
+      header svg {
+        width: 24px;
+        height: 24px;
       }
 
       nav a {
@@ -154,22 +159,37 @@ export class AppHeader extends LitElement {
       <header>
         <div id="back-button-block">
           ${this.enableBack
-            ? html`<md-button
+            ? html`<md-icon-button
                 @click="${() => this.goBack()}"
                 title="back"
                 size="small"
                 href="/home"
+                pill
               >
-                Back
-              </md-button>`
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="ionicon"
+                  viewBox="0 0 512 512"
+                >
+                  <path
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="48"
+                    d="M328 112L184 256l144 144"
+                  />
+                </svg>
+              </md-icon-button>`
             : null}
-
-          <img
-            src="/assets/icons/new-icons/icon-48x48.webp"
-            alt="App Icon"
-            width="28"
-            height="28"
-          />
+          ${!this.enableBack
+            ? html`<img
+                src="/assets/icons/new-icons/icon-48x48.webp"
+                alt="App Icon"
+                width="28"
+                height="28"
+              />`
+            : nothing}
         </div>
 
         <div id="actions">

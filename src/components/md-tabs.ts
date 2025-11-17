@@ -112,6 +112,7 @@ export class MdTabs extends LitElement {
       max-width: 280px;
       overflow-y: auto;
       overflow-x: hidden;
+      background: transparent;
     }
 
     :host([orientation='vertical'][placement='end']) .tab-bar {
@@ -205,6 +206,14 @@ export class MdTabs extends LitElement {
       this._activePanel = this.active;
       this._updatePanels();
     }
+
+    // Update tabs when orientation or placement changes (for Firefox)
+    if (
+      changedProperties.has('orientation') ||
+      changedProperties.has('placement')
+    ) {
+      this._updatePanels();
+    }
   }
 
   private _handleTabSelected(e: CustomEvent) {
@@ -243,8 +252,12 @@ export class MdTabs extends LitElement {
     const tabs = this._getTabs();
     const panels = this._getPanels();
 
-    // Update tabs active state
+    // Update tabs active state and data attributes for Firefox
     tabs.forEach((tab: any) => {
+      // Set orientation and placement data attributes for Firefox compatibility
+      tab.setAttribute('data-orientation', this.orientation);
+      tab.setAttribute('data-placement', this.placement);
+
       if (tab.panel === this._activePanel) {
         tab.setAttribute('active', '');
       } else {

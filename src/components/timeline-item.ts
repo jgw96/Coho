@@ -28,7 +28,7 @@ export class TimelineItem extends LitElement {
   @property({ type: Boolean }) show: boolean = false;
   @property({ type: Boolean }) showreply: boolean = false;
 
-    @state() isBoosted: boolean = false;
+  @state() isBoosted: boolean = false;
   @state() isReblogged: boolean = false;
   @state() isBookmarked: boolean = false;
   @state() threadExpanded: boolean = false;
@@ -682,10 +682,7 @@ export class TimelineItem extends LitElement {
                               pill
                               @click="${() =>
                                 this.bookmark(this.tweet?.reply_to.id || '')}"
-                              ><md-icon
-                                slot="suffix"
-                                name="bookmark"
-                              ></md-icon
+                              ><md-icon slot="suffix" name="bookmark"></md-icon
                             ></md-button>
                             ${this.settings && this.settings.wellness === false
                               ? html`<md-button
@@ -698,10 +695,7 @@ export class TimelineItem extends LitElement {
                                       this.tweet?.reply_to.id || ''
                                     )}"
                                   >${this.tweet?.reply_to.favourites_count}
-                                  <md-icon
-                                    slot="suffix"
-                                    name="heart"
-                                  ></md-icon
+                                  <md-icon slot="suffix" name="heart"></md-icon
                                 ></md-button>`
                               : null}
                             ${this.settings && this.settings.wellness === false
@@ -713,10 +707,7 @@ export class TimelineItem extends LitElement {
                                   @click="${() =>
                                     this.reblog(this.tweet?.reply_to.id || '')}"
                                   >${this.tweet?.reply_to.reblogs_count}
-                                  <md-icon
-                                    slot="suffix"
-                                    name="repeat"
-                                  ></md-icon
+                                  <md-icon slot="suffix" name="repeat"></md-icon
                                 ></md-button>`
                               : null}
                           </div>
@@ -806,9 +797,16 @@ export class TimelineItem extends LitElement {
                             size="small"
                             ?disabled=${this.loadingThread}
                             @click=${this.showThread}
-                            style="margin-bottom: 8px; padding: 4px 8px;">
-                            <md-icon slot="prefix" name="chatbox" style="width: 14px; height: 14px;"></md-icon>
-                            ${this.loadingThread ? 'Loading thread...' : 'Show this thread'}
+                            style="margin-bottom: 8px; padding: 4px 8px;"
+                          >
+                            <md-icon
+                              slot="prefix"
+                              name="chatbox"
+                              style="width: 14px; height: 14px;"
+                            ></md-icon>
+                            ${this.loadingThread
+                              ? 'Loading thread...'
+                              : 'Show this thread'}
                           </md-button>
                         `
                       : null}
@@ -871,10 +869,7 @@ export class TimelineItem extends LitElement {
                             @click="${() =>
                               this.favorite(this.tweet?.id || '')}"
                             >${this.tweet?.favourites_count}
-                            <md-icon
-                              slot="suffix"
-                              name="heart"
-                            ></md-icon
+                            <md-icon slot="suffix" name="heart"></md-icon
                           ></md-button>`
                         : null}
                       ${this.settings && this.settings.wellness === false
@@ -885,10 +880,7 @@ export class TimelineItem extends LitElement {
                             pill
                             @click="${() => this.reblog(this.tweet?.id || '')}"
                             >${this.tweet?.reblogs_count}
-                            <md-icon
-                              slot="suffix"
-                              name="repeat"
-                            ></md-icon
+                            <md-icon slot="suffix" name="repeat"></md-icon
                           ></md-button>`
                         : null}
                     </div>
@@ -943,10 +935,7 @@ export class TimelineItem extends LitElement {
                             pill
                             @click="${() => this.replies()}"
                           >
-                            <md-icon
-                              slot="suffix"
-                              name="chatbox"
-                            ></md-icon>
+                            <md-icon slot="suffix" name="chatbox"></md-icon>
                           </md-button>`
                         : null}
                       <md-button
@@ -954,10 +943,7 @@ export class TimelineItem extends LitElement {
                         ?disabled=${this.isBookmarked}
                         pill
                         @click="${() => this.bookmark(this.tweet?.id || '')}"
-                        ><md-icon
-                          slot="suffix"
-                          name="bookmark"
-                        ></md-icon
+                        ><md-icon slot="suffix" name="bookmark"></md-icon
                       ></md-button>
                       ${this.settings && this.settings.wellness === false
                         ? html`<md-button
@@ -968,10 +954,7 @@ export class TimelineItem extends LitElement {
                             @click="${() =>
                               this.favorite(this.tweet?.id || '')}"
                             >${this.tweet?.reblog.favourites_count}
-                            <md-icon
-                              slot="suffix"
-                              name="heart"
-                            ></md-icon
+                            <md-icon slot="suffix" name="heart"></md-icon
                           ></md-button>`
                         : null}
                       ${this.settings && this.settings.wellness === false
@@ -982,72 +965,61 @@ export class TimelineItem extends LitElement {
                             pill
                             @click="${() => this.reblog(this.tweet?.id || '')}"
                             >${this.tweet?.reblog.reblogs_count}
-                            <md-icon
-                              slot="suffix"
-                              name="repeat"
-                            ></md-icon
+                            <md-icon slot="suffix" name="repeat"></md-icon
                           ></md-button>`
                         : null}
                     </div>
                   </md-card>
                 `}
-
-          ${this.threadExpanded && this.threadPosts.length > 0
-            ? html`
-                <div class="thread-line"></div>
-                <div class="thread-continuation">
-                  ${this.threadPosts.map((threadPost: Post) => html`
-                    <md-card>
-                      <div class="header-block" slot="header">
-                        <user-profile
-                          ?small="${true}"
-                          .account="${threadPost.account}"
-                        ></user-profile>
-                      </div>
-                      <div .innerHTML="${threadPost.content}"></div>
-                      <div class="actions" slot="footer">
-                        <md-button
-                          variant="text"
-                          ?disabled=${threadPost.bookmarked}
-                          pill
-                          @click="${() => this.bookmark(threadPost.id)}"
-                          ><md-icon
-                            slot="suffix"
-                            name="bookmark"
-                          ></md-icon
-                        ></md-button>
-                        ${this.settings && this.settings.wellness === false
-                          ? html`<md-button
+            ${this.threadExpanded && this.threadPosts.length > 0
+              ? html`
+                  <div class="thread-line"></div>
+                  <div class="thread-continuation">
+                    ${this.threadPosts.map(
+                      (threadPost: Post) => html`
+                        <md-card>
+                          <div class="header-block" slot="header">
+                            <user-profile
+                              ?small="${true}"
+                              .account="${threadPost.account}"
+                            ></user-profile>
+                          </div>
+                          <div .innerHTML="${threadPost.content}"></div>
+                          <div class="actions" slot="footer">
+                            <md-button
                               variant="text"
-                              ?disabled=${threadPost.favourited}
+                              ?disabled=${threadPost.bookmarked}
                               pill
-                              @click="${() => this.favorite(threadPost.id)}"
-                              >${threadPost.favourites_count}
-                              <md-icon
-                                slot="suffix"
-                                name="heart"
-                              ></md-icon
-                            ></md-button>`
-                          : null}
-                        ${this.settings && this.settings.wellness === false
-                          ? html`<md-button
-                              variant="text"
-                              ?disabled=${threadPost.reblogged}
-                              pill
-                              @click="${() => this.reblog(threadPost.id)}"
-                              >${threadPost.reblogs_count}
-                              <md-icon
-                                slot="suffix"
-                                name="repeat"
-                              ></md-icon
-                            ></md-button>`
-                          : null}
-                      </div>
-                    </md-card>
-                  `)}
-                </div>
-              `
-            : null}
+                              @click="${() => this.bookmark(threadPost.id)}"
+                              ><md-icon slot="suffix" name="bookmark"></md-icon
+                            ></md-button>
+                            ${this.settings && this.settings.wellness === false
+                              ? html`<md-button
+                                  variant="text"
+                                  ?disabled=${threadPost.favourited}
+                                  pill
+                                  @click="${() => this.favorite(threadPost.id)}"
+                                  >${threadPost.favourites_count}
+                                  <md-icon slot="suffix" name="heart"></md-icon
+                                ></md-button>`
+                              : null}
+                            ${this.settings && this.settings.wellness === false
+                              ? html`<md-button
+                                  variant="text"
+                                  ?disabled=${threadPost.reblogged}
+                                  pill
+                                  @click="${() => this.reblog(threadPost.id)}"
+                                  >${threadPost.reblogs_count}
+                                  <md-icon slot="suffix" name="repeat"></md-icon
+                                ></md-button>`
+                              : null}
+                          </div>
+                        </md-card>
+                      `
+                    )}
+                  </div>
+                `
+              : null}
           `}
     `;
   }

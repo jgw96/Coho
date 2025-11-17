@@ -10,7 +10,8 @@ export class MdDialog extends LitElement {
   @property({ type: String }) label = '';
   @property({ type: Boolean }) open = false;
   @property({ type: Boolean }) fullscreen = false;
-  @property({ type: Boolean, attribute: 'no-backdrop-close' }) noBackdropClose = false;
+  @property({ type: Boolean, attribute: 'no-backdrop-close' }) noBackdropClose =
+    false;
 
   @query('dialog') dialog!: HTMLDialogElement;
 

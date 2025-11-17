@@ -22,6 +22,12 @@ export class AppTheme extends LitElement {
         contain: layout style paint;
       }
 
+      md-button::part(button) {
+        height: 48px;
+        width: 48px;
+        border-radius: 50%;
+      }
+
       #open-button {
         position: fixed;
         bottom: 20px;

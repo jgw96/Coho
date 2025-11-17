@@ -67,6 +67,59 @@ export class AppIndex extends LitElement {
       );
       this.applyThemeColor(color);
     }
+
+    // Warm cache on app boot if conditions are good
+    this.warmCacheIfAppropriate(settings);
+  }
+
+  /**
+   * Warm the service worker cache for notifications, bookmarks, and favorites
+   * Only if user has good network and data saver is off
+   */
+  private async warmCacheIfAppropriate(settings: any) {
+    // Skip if data saver mode is enabled
+    if (settings.data_saver) {
+      console.log('[App] Cache warming skipped: Data saver enabled');
+      return;
+    }
+
+    // Check if user is authenticated
+    const accessToken = localStorage.getItem('accessToken');
+    if (!accessToken) {
+      console.log('[App] Cache warming skipped: Not authenticated');
+      return;
+    }
+
+    console.log('checking cache warming: accessToken', accessToken);
+
+    // Check network connection quality
+    if ('connection' in navigator) {
+      const conn = (navigator as any).connection;
+
+      // Skip on slow connections (2G, slow-2g) or if saveData is enabled
+      if (
+        conn.saveData ||
+        conn.effectiveType === '3g' ||
+        conn.effectiveType === '2g' ||
+        conn.effectiveType === 'slow-2g'
+      ) {
+        console.log(
+          '[App] Cache warming skipped: Slow connection or saveData enabled'
+        );
+        return;
+      }
+    }
+
+    console.log(
+      '[App] Conditions met for cache warming.',
+      navigator.serviceWorker.controller
+    );
+
+    // All conditions met - trigger cache warming in service worker
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      console.log('[App] Triggering cache warming...');
+      navigator.serviceWorker.controller.postMessage({ type: 'WARM_CACHE' });
+    }
   }
 
   /**

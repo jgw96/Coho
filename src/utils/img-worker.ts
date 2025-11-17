@@ -10,7 +10,10 @@ self.onmessage = (e) => {
   const workerReceiveTime = Date.now();
   const { id, hash, width, height, sendTime } = e.data;
 
-  console.log('Worker received, delay from send:', sendTime ? (workerReceiveTime - sendTime) + 'ms' : 'unknown');
+  console.log(
+    'Worker received, delay from send:',
+    sendTime ? workerReceiveTime - sendTime + 'ms' : 'unknown'
+  );
 
   try {
     const decodeStart = Date.now();
@@ -20,7 +23,7 @@ self.onmessage = (e) => {
     const pixels = decodeBlurHash(hash, width, height);
     const decodeEnd = Date.now();
 
-    console.log('Worker: Decode took', (decodeEnd - decodeStart), 'ms for', id);
+    console.log('Worker: Decode took', decodeEnd - decodeStart, 'ms for', id);
 
     if (!pixels) {
       console.error('Worker: Failed to decode blurhash');

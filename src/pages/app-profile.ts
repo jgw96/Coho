@@ -29,6 +29,7 @@ export class AppProfile extends LitElement {
   @state() following: boolean = false;
   @state() showMiniProfile: boolean = false;
   @state() selectedPost: Post | undefined = undefined;
+  @state() isOwnProfile: boolean = false;
 
   static styles = [
     css`
@@ -108,9 +109,9 @@ export class AppProfile extends LitElement {
         margin-top: 12px;
 
         flex-direction: row;
-        gap: 4px;
         flex-wrap: wrap;
         margin-top: 1em;
+        gap: 12px;
       }
 
       #mutuals {
@@ -165,13 +166,21 @@ export class AppProfile extends LitElement {
         padding-right: 6px;
       }
 
+      .field-value a {
+        max-width: 12em;
+        overflow-x: hidden;
+        display: block;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+
       main {
         padding-top: 60px;
         display: grid;
         gap: 14px;
         grid-template-columns: auto;
-        padding-left: 20vw;
-        padding-right: 20vw;
+        padding-left: 22vw;
+        padding-right: 22vw;
       }
 
       #profile-card-actions {
@@ -375,13 +384,9 @@ export class AppProfile extends LitElement {
     const id = urlParams.get('id');
 
     if (id) {
-      const followCheck = await checkFollowing(id);
-      console.log('followCheck', followCheck);
-      this.followed = followCheck[0].following;
-
-      const followedCheck = await isFollowingMe(id);
-      console.log('followedCheck', followedCheck);
-      this.following = followedCheck[0].followed_by;
+      // Check if viewing own profile
+      const currentUserID = localStorage.getItem('currentUserID');
+      this.isOwnProfile = currentUserID === id;
 
       const accountData = await getAccount(id);
       console.log(accountData);
@@ -391,6 +396,17 @@ export class AppProfile extends LitElement {
       console.log(postsData);
 
       this.posts = postsData;
+
+      // Only check follow status if not viewing own profile
+      if (!this.isOwnProfile) {
+        const followCheck = await checkFollowing(id);
+        console.log('followCheck', followCheck);
+        this.followed = followCheck[0].following;
+
+        const followedCheck = await isFollowingMe(id);
+        console.log('followedCheck', followedCheck);
+        this.following = followedCheck[0].followed_by;
+      }
     }
 
     window.requestIdleCallback(() => {
@@ -533,7 +549,7 @@ export class AppProfile extends LitElement {
                 ? this.user.fields.map(
                     (field: any) => html`
                       <div>
-                        <md-badge variant="filled">
+                        <md-badge variant="outlined">
                           <span
                             class="field-name"
                             .innerHTML="${field.name}"
@@ -550,27 +566,29 @@ export class AppProfile extends LitElement {
             </div>
 
             <div id="profile-card-actions">
-              ${this.followed && this.following
-                ? html`<md-button
-                    variant="filled"
-                    id="unfollow"
-                    @click="${() => this.unfollow()}"
-                    >Mutuals</md-button
-                  >`
-                : this.followed
+              ${!this.isOwnProfile
+                ? this.followed && this.following
                   ? html`<md-button
+                      variant="filled"
                       id="unfollow"
                       @click="${() => this.unfollow()}"
-                      variant="filled"
-                      pill
-                      >Unfollow</md-button
+                      >Mutuals</md-button
                     >`
-                  : html`<md-button
-                      pill
-                      variant="filled"
-                      @click="${() => this.follow()}"
-                      >Follow</md-button
-                    >`}
+                  : this.followed
+                    ? html`<md-button
+                        id="unfollow"
+                        @click="${() => this.unfollow()}"
+                        variant="filled"
+                        pill
+                        >Unfollow</md-button
+                      >`
+                    : html`<md-button
+                        pill
+                        variant="filled"
+                        @click="${() => this.follow()}"
+                        >Follow</md-button
+                      >`
+                : null}
             </div>
           </div>
         </div>
@@ -584,14 +602,16 @@ export class AppProfile extends LitElement {
                   <p>${this.user.display_name}</p>
                 </div>
 
-                ${this.followed
-                  ? html`<md-button pill disabled>Following</md-button>`
-                  : html`<md-button
-                      pill
-                      variant="filled"
-                      @click="${() => this.follow()}"
-                      >Follow</md-button
-                    >`}
+                ${!this.isOwnProfile
+                  ? this.followed
+                    ? html`<md-button pill disabled>Following</md-button>`
+                    : html`<md-button
+                        pill
+                        variant="filled"
+                        @click="${() => this.follow()}"
+                        >Follow</md-button
+                      >`
+                  : null}
               </div>
             `
           : null}

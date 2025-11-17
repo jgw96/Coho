@@ -43,7 +43,7 @@ export class MdCard extends LitElement {
       background: transparent;
       border-bottom: 1px solid
         var(--md-sys-color-outline-variant, rgba(255, 255, 255, 0.08));
-      border-radius: 0;
+      border-radius: 12px;
       overflow: hidden;
       transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
       position: relative;

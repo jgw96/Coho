@@ -220,11 +220,11 @@ export class MdIconButton extends LitElement {
                 label="${ifDefined(this.label)}"
               ></md-icon>`
             : this.src
-            ? html`<md-icon
-                src="${this.src}"
-                label="${ifDefined(this.label)}"
-              ></md-icon>`
-            : html`<slot></slot>`}
+              ? html`<md-icon
+                  src="${this.src}"
+                  label="${ifDefined(this.label)}"
+                ></md-icon>`
+              : html`<slot></slot>`}
         </div>
       </button>
     `;

@@ -1,4 +1,4 @@
-import { LitElement, html, css } from 'lit';
+import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 
 import '../components/header';
@@ -36,6 +36,8 @@ export class PostDetail extends LitElement {
         align-items: flex-start;
         padding-right: 20px;
         gap: 0px;
+        overflow-y: auto;
+        height: calc(100vh - 60px);
       }
 
       #replies ul {
@@ -55,10 +57,10 @@ export class PostDetail extends LitElement {
         display: flex;
         flex-direction: column;
         flex: 1.5;
-        position: sticky;
-        top: 60px;
+        /* position: sticky;
+        top: 60px; */
 
-        overflow-x: hidden;
+        /* overflow-x: hidden; */
 
         width: 100%;
       }
@@ -113,6 +115,13 @@ export class PostDetail extends LitElement {
         to {
           transform: translateY(0);
           opacity: 1;
+        }
+      }
+
+      @media (min-width: 820px) {
+        main {
+          padding-left: 22vw;
+          padding-right: 22vw;
         }
       }
 
@@ -233,7 +242,10 @@ export class PostDetail extends LitElement {
         <div id="main-block">
           <timeline-item id="main" .tweet="${this.tweet!}"></timeline-item>
           <div id="post-actions">
-            <md-text-area placeholder="Reply to this post..."></md-text-area>
+            <md-text-area
+              variant="outlined"
+              placeholder="Reply to this post..."
+            ></md-text-area>
             <md-button
               @click="${() => this.handleReply()}"
               id="reply-button"
@@ -247,9 +259,7 @@ export class PostDetail extends LitElement {
         </div>
 
         <div id="replies">
-          ${this.replies.length > 0
-            ? html`<h2>Replies</h2>`
-            : html`<h2>No Replies</h2>`}
+          ${this.replies.length > 0 ? html`<h2>Replies</h2>` : nothing}
 
           <ul>
             ${this.replies.map(

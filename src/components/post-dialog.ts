@@ -543,17 +543,6 @@ export class PostDialog extends LitElement {
             </div>`
           : null}
 
-        <div id="post-copilot">
-          <span
-            >Enter a prompt in the field below and Otter will generate a toot
-            for you.</span
-          >
-          <md-text-field
-            @change="${() => this.generateStatus()}"
-            placeholder="I got promoted!"
-          ></md-text-field>
-        </div>
-
         <div slot="footer" class="dialog-footer-actions">
           ${this.attaching === false
             ? html`

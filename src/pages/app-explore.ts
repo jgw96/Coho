@@ -64,6 +64,8 @@ export class AppExplore extends LitElement {
           grid-template-columns: 1fr;
           display: flex;
           flex-direction: column-reverse;
+          padding-left: 0;
+          padding-right: 0;
         }
       }
 

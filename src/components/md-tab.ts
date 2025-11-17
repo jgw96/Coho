@@ -80,7 +80,7 @@ export class MdTab extends LitElement {
     }
 
     /* Vertical orientation (side nav) - align left with more padding */
-    :host-context(md-tabs[orientation='vertical']) button {
+    :host([data-orientation='vertical']) button {
       justify-content: flex-start;
       padding: 16px 24px;
       width: 100%;
@@ -144,7 +144,7 @@ export class MdTab extends LitElement {
     }
 
     /* Horizontal indicator (bottom) */
-    :host-context(md-tabs[orientation='horizontal']) .indicator {
+    :host([data-orientation='horizontal']) .indicator {
       bottom: 0;
       left: 0;
       right: 0;
@@ -153,15 +153,14 @@ export class MdTab extends LitElement {
     }
 
     /* Horizontal bottom placement indicator (top) */
-    :host-context(md-tabs[orientation='horizontal'][placement='bottom'])
-      .indicator {
+    :host([data-orientation='horizontal'][data-placement='bottom']) .indicator {
       bottom: auto;
       top: 0;
       border-radius: 0 0 3px 3px;
     }
 
     /* Vertical indicator (left or right) */
-    :host-context(md-tabs[orientation='vertical']) .indicator {
+    :host([data-orientation='vertical']) .indicator {
       top: 0;
       bottom: 0;
       left: 0;
@@ -169,7 +168,7 @@ export class MdTab extends LitElement {
       border-radius: 0 3px 3px 0;
     }
 
-    :host-context(md-tabs[orientation='vertical'][placement='end']) .indicator {
+    :host([data-orientation='vertical'][data-placement='end']) .indicator {
       left: auto;
       right: 0;
       border-radius: 3px 0 0 3px;

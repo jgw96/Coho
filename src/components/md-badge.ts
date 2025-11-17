@@ -34,6 +34,7 @@ export class MdBadge extends LitElement {
       letter-spacing: 0.1px;
       transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
       user-select: none;
+      height: 1em;
     }
 
     .badge.filled {
@@ -100,6 +101,7 @@ export class MdBadge extends LitElement {
           --md-sys-color-primary,
           var(--sl-color-primary-600, #d0bcff)
         );
+        border: 1px solid;
       }
 
       .badge.clickable.filled:hover {
