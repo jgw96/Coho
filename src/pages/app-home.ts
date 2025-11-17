@@ -19,6 +19,7 @@ import '../components/md-tab';
 import '../components/md-tab-panel';
 import '../components/md-icon';
 import '../components/md-icon-button';
+import '../components/md-toast';
 
 import { styles } from '../styles/shared-styles';
 import { router } from '../utils/router';
@@ -913,6 +914,12 @@ export class AppHome extends LitElement {
     const summary = $event.detail.data;
     this.summary = summary;
 
+    // Hide translation toast if it's open
+    const toast = this.shadowRoot?.getElementById('translation-toast') as any;
+    if (toast && toast.open) {
+      toast.hide();
+    }
+
     const dialog = this.shadowRoot?.getElementById('summary-dialog') as any;
     dialog.show();
   }
@@ -1029,6 +1036,19 @@ export class AppHome extends LitElement {
     }
   }
 
+  async handleTranslating(_event: any) {
+    console.log("handle translating event received");
+    // Show translation toast
+    const toast = this.shadowRoot?.getElementById('translation-toast') as any;
+    console.log('Toast element:', toast, 'Open:', toast?.open);
+    if (toast) {
+      toast.show();
+      console.log('After show(), Open:', toast.open);
+    } else {
+      console.error('Toast element not found!');
+    }
+  }
+
   render() {
     return html`
       ${this.rightClickLoaded
@@ -1099,21 +1119,21 @@ export class AppHome extends LitElement {
 
       <otter-drawer label="Theming" id="theming-drawer">
         ${this.appThemeLoaded
-          ? html`
+        ? html`
               <app-theme
                 @color-chosen="${($event: any) =>
-                  this.handlePrimaryColor($event.detail.color)}"
+            this.handlePrimaryColor($event.detail.color)}"
               ></app-theme>
             `
-          : nothing}
+        : nothing}
       </otter-drawer>
 
       <md-dialog id="summary-dialog" label=""> ${this.summary} </md-dialog>
 
       <md-dialog id="open-tweet-dialog">
         ${this.openTweet
-          ? html`<post-detail .passed_tweet="${this.openTweet}"></post-detail>`
-          : null}
+        ? html`<post-detail .passed_tweet="${this.openTweet}"></post-detail>`
+        : null}
       </md-dialog>
 
       <post-dialog @published="${() => this.handleReload()}"></post-dialog>
@@ -1122,8 +1142,8 @@ export class AppHome extends LitElement {
         <div>
           <div id="settings-profile-inner">
             ${this.user && this.user.avatar
-              ? html`<img src="${this.user.avatar}" />`
-              : html`<md-skeleton
+        ? html`<img src="${this.user.avatar}" />`
+        : html`<md-skeleton
                   id="profile-avatar"
                   shape="circle"
                   width="4em"
@@ -1191,7 +1211,7 @@ export class AppHome extends LitElement {
 
             <md-switch
               @sl-change="${($event: any) =>
-                this.handleWellnessMode($event.target.checked)}"
+        this.handleWellnessMode($event.target.checked)}"
               ?checked="${this.wellnessMode}"
             ></md-switch>
           </div>
@@ -1205,7 +1225,7 @@ export class AppHome extends LitElement {
 
             <md-switch
               @sl-change="${($event: any) =>
-                this.handleDataSaverMode($event.target.checked)}"
+        this.handleDataSaverMode($event.target.checked)}"
               ?checked="${this.dataSaverMode}"
             ></md-switch>
           </div>
@@ -1230,7 +1250,7 @@ export class AppHome extends LitElement {
         </div>
 
         ${this.instanceInfo
-          ? html`
+        ? html`
               <div id="instanceInfo">
                 <h4>Instance Info</h4>
 
@@ -1240,22 +1260,22 @@ export class AppHome extends LitElement {
                 <div .innerHTML="${this.instanceInfo.description}"></div>
               </div>
             `
-          : null}
+        : null}
       </otter-drawer>
 
       <otter-drawer id="replies-drawer" placement="end" label="Comments">
         ${this.replies.length > 0
-          ? html`<ul>
+        ? html`<ul>
               ${this.replies.map((reply: any) => {
-                return html`
+          return html`
                   <timeline-item
                     ?show="${false}"
                     .tweet="${reply}"
                   ></timeline-item>
                 `;
-              })}
+        })}
             </ul>`
-          : html`
+        : html`
               <div id="no-replies">
                 <p>No comments yet.</p>
               </div>
@@ -1282,11 +1302,11 @@ export class AppHome extends LitElement {
           @tab-change="${(e: CustomEvent) => this.handleTabChange(e)}"
           .active="${this.activeTab}"
           orientation="${window.matchMedia('(max-width: 820px)').matches
-            ? 'horizontal'
-            : 'vertical'}"
+        ? 'horizontal'
+        : 'vertical'}"
           .placement="${window.matchMedia('(max-width: 820px)').matches
-            ? 'bottom'
-            : 'start'}"
+        ? 'bottom'
+        : 'start'}"
         >
           <md-tab
             @click="${() => this.reloadHome()}"
@@ -1323,12 +1343,14 @@ export class AppHome extends LitElement {
           <md-tab-panel name="general">
             <app-timeline
               @open="${($event: CustomEvent) =>
-                this.handleOpenTweet($event.detail.tweet)}"
+        this.handleOpenTweet($event.detail.tweet)}"
               @handle-summary="${($event: any) => this.showSummary($event)}"
+              @handle-translating="${($event: any) =>
+        this.handleTranslating($event)}"
               class="homeTimeline"
               timelineType="home"
               @replies="${($event: any) =>
-                this.handleReplies($event.detail.data, $event.detail.id)}"
+        this.handleReplies($event.detail.data, $event.detail.id)}"
             ></app-timeline>
           </md-tab-panel>
           <md-tab-panel name="media">
@@ -1342,21 +1364,21 @@ export class AppHome extends LitElement {
           </md-tab-panel>
           <md-tab-panel name="bookmarks">
             ${this.bookmarksLoaded
-              ? html`<app-bookmarks></app-bookmarks>`
-              : nothing}
+        ? html`<app-bookmarks></app-bookmarks>`
+        : nothing}
           </md-tab-panel>
           <md-tab-panel name="faves">
             ${this.favoritesLoaded
-              ? html`<app-favorites></app-favorites>`
-              : nothing}
+        ? html`<app-favorites></app-favorites>`
+        : nothing}
           </md-tab-panel>
           <md-tab-panel name="notifications">
             ${this.notificationsLoaded
-              ? html`<app-notifications
+        ? html`<app-notifications
                   @open="${($event: CustomEvent) =>
-                    this.handleOpenTweet($event.detail.tweet)}"
+            this.handleOpenTweet($event.detail.tweet)}"
                 ></app-notifications>`
-              : nothing}
+        : nothing}
           </md-tab-panel>
           <md-tab-panel name="search">
             ${this.searchLoaded ? html`<search-page></search-page>` : nothing}
@@ -1372,8 +1394,8 @@ export class AppHome extends LitElement {
         <div id="profile">
           <div id="profile-top">
             ${this.user && this.user.avatar
-              ? html`<img src="${this.user.avatar}" />`
-              : html`<md-skeleton
+        ? html`<img src="${this.user.avatar}" />`
+        : html`<md-skeleton
                   id="profile-avatar"
                   shape="circle"
                   width="88px"
@@ -1382,8 +1404,8 @@ export class AppHome extends LitElement {
             <div id="username-block">
               <h3>
                 ${this.user
-                  ? this.user.display_name
-                  : html`<md-skeleton
+        ? this.user.display_name
+        : html`<md-skeleton
                       width="100px"
                       height="25px"
                     ></md-skeleton>`}
@@ -1423,8 +1445,8 @@ export class AppHome extends LitElement {
 
             <p id="user-url">
               ${this.user
-                ? this.user.url
-                : html`<md-skeleton width="100px" height="19px"></md-skeleton>`}
+        ? this.user.url
+        : html`<md-skeleton width="100px" height="19px"></md-skeleton>`}
             </p>
 
             <md-badge
@@ -1453,7 +1475,7 @@ export class AppHome extends LitElement {
 
           <!-- <div id="profile-card-actions">
                   <md-button pill size="large" variant="filled" @click="${() =>
-            this.openNewDialog()}">
+        this.openNewDialog()}">
                     New Post
 
                     <md-icon slot="suffix" src="/assets/add-outline.svg"></md-icon>
@@ -1463,6 +1485,14 @@ export class AppHome extends LitElement {
 
         <!-- <mammoth-bot></mammoth-bot> -->
       </main>
+
+      <md-toast
+        id="translation-toast"
+        variant="info"
+        position="bottom"
+        duration="0"
+        message="Translating post...">
+      </md-toast>
     `;
   }
 }

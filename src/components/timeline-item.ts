@@ -603,6 +603,16 @@ export class TimelineItem extends LitElement {
   async translatePost(postContent: string | null) {
     if (!postContent) return;
 
+    this.dispatchEvent(
+      new CustomEvent('translating', {
+        detail: {
+          tweet: this.tweet,
+        },
+        bubbles: true,
+        composed: true,
+      })
+    );
+
     // remove all html tags
     const text = postContent.replace(/(<([^>]+)>)/gi, '');
 
@@ -615,7 +625,7 @@ export class TimelineItem extends LitElement {
       this.dispatchEvent(
         new CustomEvent('summarize', {
           detail: {
-            data: translateData.choices[0].message.content,
+            data: translateData,
             tweet: this.tweet,
           },
         })
@@ -643,11 +653,11 @@ export class TimelineItem extends LitElement {
           `
         : html`
             ${this.tweet?.reblog === null || this.tweet?.reblog === undefined
-              ? html`
+            ? html`
                   ${this.tweet?.reply_to !== null &&
-                  this.tweet?.reply_to !== undefined &&
-                  this.show === true
-                    ? html`
+                this.tweet?.reply_to !== undefined &&
+                this.show === true
+                ? html`
                         <div id="reply-to">
                           <md-icon name="chatbox"></md-icon>
                           Thread
@@ -663,7 +673,7 @@ export class TimelineItem extends LitElement {
 
                           <div class="actions" slot="footer">
                             ${this.show === true
-                              ? html`<md-button
+                    ? html`<md-button
                                   variant="text"
                                   pill
                                   @click="${() => this.replies()}"
@@ -673,63 +683,63 @@ export class TimelineItem extends LitElement {
                                     name="chatbox"
                                   ></md-icon>
                                 </md-button>`
-                              : null}
+                    : null}
 
                             <md-button
                               variant="text"
                               ?disabled=${this.isBookmarked ||
-                              this.tweet?.reply_to.bookmarked}
+                  this.tweet?.reply_to.bookmarked}
                               pill
                               @click="${() =>
-                                this.bookmark(this.tweet?.reply_to.id || '')}"
+                    this.bookmark(this.tweet?.reply_to.id || '')}"
                               ><md-icon slot="suffix" name="bookmark"></md-icon
                             ></md-button>
                             ${this.settings && this.settings.wellness === false
-                              ? html`<md-button
+                    ? html`<md-button
                                   variant="text"
                                   ?disabled=${this.isBoosted ||
-                                  this.tweet?.reply_to.favourited}
+                      this.tweet?.reply_to.favourited}
                                   pill
                                   @click="${() =>
-                                    this.favorite(
-                                      this.tweet?.reply_to.id || ''
-                                    )}"
+                        this.favorite(
+                          this.tweet?.reply_to.id || ''
+                        )}"
                                   >${this.tweet?.reply_to.favourites_count}
                                   <md-icon slot="suffix" name="heart"></md-icon
                                 ></md-button>`
-                              : null}
+                    : null}
                             ${this.settings && this.settings.wellness === false
-                              ? html`<md-button
+                    ? html`<md-button
                                   variant="text"
                                   ?disabled=${this.isReblogged ||
-                                  this.tweet?.reply_to.reblogged}
+                      this.tweet?.reply_to.reblogged}
                                   pill
                                   @click="${() =>
-                                    this.reblog(this.tweet?.reply_to.id || '')}"
+                        this.reblog(this.tweet?.reply_to.id || '')}"
                                   >${this.tweet?.reply_to.reblogs_count}
                                   <md-icon slot="suffix" name="repeat"></md-icon
                                 ></md-button>`
-                              : null}
+                    : null}
                           </div>
                         </md-card>
                       `
-                    : null}
+                : null}
 
                   <md-card
                     part="card"
                     class="${classMap({
-                      replyCard: this.tweet?.reply_to ? true : false,
-                    })}"
+                  replyCard: this.tweet?.reply_to ? true : false,
+                })}"
                   >
                     ${this.tweet && this.tweet.media_attachments.length > 0
-                      ? html`
+                ? html`
                           <image-carousel
                             .images="${this.tweet.media_attachments}"
                             slot="image"
                           >
                           </image-carousel>
                         `
-                      : html``}
+                : html``}
 
                     <div class="header-actions-block" slot="header">
                       <div>
@@ -738,7 +748,7 @@ export class TimelineItem extends LitElement {
                           variant="outlined"
                           size="small"
                           @click="${() =>
-                            this.translatePost(this.tweet?.content || null)}"
+                this.translatePost(this.tweet?.content || null)}"
                           pill
                           >Translate</md-button
                         >
@@ -751,7 +761,7 @@ export class TimelineItem extends LitElement {
                         </md-icon-button>
 
                         ${this.tweet?.account.acct === this.currentUser?.acct
-                          ? html`
+                ? html`
                               <md-icon-button
                                 @click="${() => this.deleteStatus()}"
                                 name="trash"
@@ -766,23 +776,23 @@ export class TimelineItem extends LitElement {
                               >
                               </md-icon-button>
                             `
-                          : null}
+                : null}
                       </div>
 
                       <span>
                         ${new Intl.RelativeTimeFormat('en', {
-                          numeric: 'auto',
-                        }).format(
-                          Math.floor(
-                            -(
-                              (new Date() as any) -
-                              (new Date(this.tweet?.created_at || '') as any)
-                            ) /
-                              1000 /
-                              60
-                          ),
-                          'minutes'
-                        )}
+                  numeric: 'auto',
+                }).format(
+                  Math.floor(
+                    -(
+                      (new Date() as any) -
+                      (new Date(this.tweet?.created_at || '') as any)
+                    ) /
+                    1000 /
+                    60
+                  ),
+                  'minutes'
+                )}
                       </span>
                     </div>
 
@@ -791,7 +801,7 @@ export class TimelineItem extends LitElement {
                     ></user-profile>
 
                     ${this.tweet?.in_reply_to_id && !this.threadExpanded
-                      ? html`
+                ? html`
                           <md-button
                             variant="text"
                             size="small"
@@ -805,11 +815,11 @@ export class TimelineItem extends LitElement {
                               style="width: 14px; height: 14px;"
                             ></md-icon>
                             ${this.loadingThread
-                              ? 'Loading thread...'
-                              : 'Show this thread'}
+                    ? 'Loading thread...'
+                    : 'Show this thread'}
                           </md-button>
                         `
-                      : null}
+                : null}
 
                     <div
                       @click="${this.openPost}"
@@ -817,15 +827,15 @@ export class TimelineItem extends LitElement {
                     ></div>
 
                     ${this.tweet && this.tweet.card
-                      ? html`
+                ? html`
                           <div
                             @click="${() =>
-                              this.openLinkCard(this.tweet?.card?.url || '')}"
+                    this.openLinkCard(this.tweet?.card?.url || '')}"
                             class="link-card"
                           >
                             <img
                               src="${this.tweet.card.image ||
-                              '/assets/bookmark-outline.svg'}"
+                  '/assets/bookmark-outline.svg'}"
                               alt="${this.tweet.card.title}"
                             />
 
@@ -835,11 +845,11 @@ export class TimelineItem extends LitElement {
                             </div>
                           </div>
                         `
-                      : null}
+                : null}
 
                     <div class="actions" slot="footer">
                       ${this.show === true
-                        ? html`<md-button
+                ? html`<md-button
                             variant="text"
                             pill
                             @click="${() => this.replies()}"
@@ -849,7 +859,7 @@ export class TimelineItem extends LitElement {
                               src="/assets/chatbox-outline.svg"
                             ></md-icon>
                           </md-button>`
-                        : null}
+                : null}
                       <md-button
                         variant="text"
                         ?disabled=${this.isBookmarked || this.tweet?.bookmarked}
@@ -861,43 +871,43 @@ export class TimelineItem extends LitElement {
                         ></md-icon
                       ></md-button>
                       ${this.settings && this.settings.wellness === false
-                        ? html`<md-button
+                ? html`<md-button
                             variant="text"
                             ?disabled=${this.isBoosted ||
-                            this.tweet?.favourited}
+                  this.tweet?.favourited}
                             pill
                             @click="${() =>
-                              this.favorite(this.tweet?.id || '')}"
+                    this.favorite(this.tweet?.id || '')}"
                             >${this.tweet?.favourites_count}
                             <md-icon slot="suffix" name="heart"></md-icon
                           ></md-button>`
-                        : null}
+                : null}
                       ${this.settings && this.settings.wellness === false
-                        ? html`<md-button
+                ? html`<md-button
                             variant="text"
                             ?disabled=${this.isReblogged ||
-                            this.tweet?.reblogged}
+                  this.tweet?.reblogged}
                             pill
                             @click="${() => this.reblog(this.tweet?.id || '')}"
                             >${this.tweet?.reblogs_count}
                             <md-icon slot="suffix" name="repeat"></md-icon
                           ></md-button>`
-                        : null}
+                : null}
                     </div>
                   </md-card>
                 `
-              : html`
+            : html`
                   <md-card slot="card">
                     ${this.tweet.reblog &&
-                    this.tweet.reblog.media_attachments.length > 0
-                      ? html`
+                this.tweet.reblog.media_attachments.length > 0
+                ? html`
                           <image-carousel
                             .images="${this.tweet.reblog.media_attachments}"
                             slot="image"
                           >
                           </image-carousel>
                         `
-                      : html``}
+                : html``}
 
                     <div class="header-block reblog-header" slot="header">
                       <user-profile
@@ -930,14 +940,14 @@ export class TimelineItem extends LitElement {
 
                     <div class="actions" slot="footer">
                       ${this.show === true
-                        ? html`<md-button
+                ? html`<md-button
                             variant="text"
                             pill
                             @click="${() => this.replies()}"
                           >
                             <md-icon slot="suffix" name="chatbox"></md-icon>
                           </md-button>`
-                        : null}
+                : null}
                       <md-button
                         variant="text"
                         ?disabled=${this.isBookmarked}
@@ -946,37 +956,37 @@ export class TimelineItem extends LitElement {
                         ><md-icon slot="suffix" name="bookmark"></md-icon
                       ></md-button>
                       ${this.settings && this.settings.wellness === false
-                        ? html`<md-button
+                ? html`<md-button
                             variant="text"
                             ?disabled=${this.isBoosted ||
-                            this.tweet?.favourited}
+                  this.tweet?.favourited}
                             pill
                             @click="${() =>
-                              this.favorite(this.tweet?.id || '')}"
+                    this.favorite(this.tweet?.id || '')}"
                             >${this.tweet?.reblog.favourites_count}
                             <md-icon slot="suffix" name="heart"></md-icon
                           ></md-button>`
-                        : null}
+                : null}
                       ${this.settings && this.settings.wellness === false
-                        ? html`<md-button
+                ? html`<md-button
                             variant="text"
                             ?disabled=${this.isReblogged ||
-                            this.tweet?.reblogged}
+                  this.tweet?.reblogged}
                             pill
                             @click="${() => this.reblog(this.tweet?.id || '')}"
                             >${this.tweet?.reblog.reblogs_count}
                             <md-icon slot="suffix" name="repeat"></md-icon
                           ></md-button>`
-                        : null}
+                : null}
                     </div>
                   </md-card>
                 `}
             ${this.threadExpanded && this.threadPosts.length > 0
-              ? html`
+            ? html`
                   <div class="thread-line"></div>
                   <div class="thread-continuation">
                     ${this.threadPosts.map(
-                      (threadPost: Post) => html`
+              (threadPost: Post) => html`
                         <md-card>
                           <div class="header-block" slot="header">
                             <user-profile
@@ -994,7 +1004,7 @@ export class TimelineItem extends LitElement {
                               ><md-icon slot="suffix" name="bookmark"></md-icon
                             ></md-button>
                             ${this.settings && this.settings.wellness === false
-                              ? html`<md-button
+                  ? html`<md-button
                                   variant="text"
                                   ?disabled=${threadPost.favourited}
                                   pill
@@ -1002,9 +1012,9 @@ export class TimelineItem extends LitElement {
                                   >${threadPost.favourites_count}
                                   <md-icon slot="suffix" name="heart"></md-icon
                                 ></md-button>`
-                              : null}
+                  : null}
                             ${this.settings && this.settings.wellness === false
-                              ? html`<md-button
+                  ? html`<md-button
                                   variant="text"
                                   ?disabled=${threadPost.reblogged}
                                   pill
@@ -1012,14 +1022,14 @@ export class TimelineItem extends LitElement {
                                   >${threadPost.reblogs_count}
                                   <md-icon slot="suffix" name="repeat"></md-icon
                                 ></md-button>`
-                              : null}
+                  : null}
                           </div>
                         </md-card>
                       `
-                    )}
+            )}
                   </div>
                 `
-              : null}
+            : null}
           `}
     `;
   }

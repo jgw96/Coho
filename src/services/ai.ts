@@ -26,32 +26,129 @@ export const requestMammothBot = async (
 };
 
 export const summarize = async (prompt: string) => {
-  // This uses Azure Functions - keep as is for now
-  const response = await fetch(`/api/summarizeStatus?prompt=${prompt}`, {
-    method: 'GET',
-    headers: new Headers({
-      'Content-Type': 'application/json',
-    }),
-  });
-  const data = await response.json();
+  // Use Chrome's built-in Summarizer API
+  try {
+    // Check if the API is available
+    if (!('summarizer' in window)) {
+      throw new Error('Summarizer API not available');
+    }
 
-  return data;
-};
+    const canSummarize = await (window as any).summarizer.capabilities();
+    if (canSummarize.available === 'no') {
+      throw new Error('Summarizer not available on this device');
+    }
 
-export const translate = async (prompt: string, language: string = 'en-us') => {
-  // This uses Azure Functions - keep as is for now
-  const response = await fetch(
-    `/api/translateStatus?prompt=${prompt}&language=${language}`,
-    {
+    // Create summarizer session
+    const summarizer = await (window as any).summarizer.create({
+      type: 'tl;dr', // or 'key-points', 'teaser', 'headline'
+      format: 'plain-text', // or 'markdown'
+      length: 'short', // or 'medium', 'long'
+    });
+
+    // Summarize the text
+    const summary = await summarizer.summarize(prompt);
+
+    // Clean up
+    summarizer.destroy();
+
+    return { summary };
+  } catch (error) {
+    console.error('Summarizer API error:', error);
+    // Fallback to Azure Functions if built-in API fails
+    const response = await fetch(`/api/summarizeStatus?prompt=${prompt}`, {
       method: 'GET',
       headers: new Headers({
         'Content-Type': 'application/json',
       }),
-    }
-  );
-  const data = await response.json();
+    });
+    const data = await response.json();
+    return data;
+  }
+};
 
-  return data;
+export const translate = async (prompt: string, language: string = 'en-us') => {
+  // Use Chrome's built-in Translator API
+  try {
+    // Check if the API is available
+    if (!('translation' in window)) {
+      throw new Error('Translator API not available');
+    }
+
+    // Detect source language using Language Detector API
+    let sourceLanguage = 'en';
+    if ('translation' in window && 'canDetect' in (window as any).translation) {
+      try {
+        const canDetect = await (window as any).translation.canDetect();
+        if (canDetect !== 'no') {
+          const detector = await (window as any).translation.createDetector();
+          const results = await detector.detect(prompt);
+          if (results && results.length > 0 && results[0].confidence > 0.5) {
+            sourceLanguage = results[0].detectedLanguage;
+          }
+          detector.destroy();
+        }
+      } catch (detectorError) {
+        console.warn('Language detection failed, defaulting to English:', detectorError);
+      }
+    }
+
+    // Normalize language code (e.g., 'en-us' -> 'en')
+    const targetLanguage = language.split('-')[0].toLowerCase();
+
+    // Skip translation if source and target are the same
+    if (sourceLanguage === targetLanguage) {
+      return { translation: prompt };
+    }
+
+    // Check if translation is available for this language pair
+    const canTranslate = await (window as any).translation.canTranslate({
+      sourceLanguage,
+      targetLanguage,
+    });
+
+    if (canTranslate === 'no') {
+      throw new Error(`Translation from ${sourceLanguage} to ${targetLanguage} not available`);
+    }
+
+    // Create translator session
+    const translator = await (window as any).translation.createTranslator({
+      sourceLanguage,
+      targetLanguage,
+    });
+
+    // If the model needs to be downloaded, wait for it
+    if (canTranslate === 'after-download') {
+      translator.addEventListener('downloadprogress', (e: any) => {
+        console.log(`Translation model download: ${e.loaded}/${e.total}`);
+      });
+      await translator.ready;
+    }
+
+    // Translate the text
+    const translatedText = await translator.translate(prompt);
+
+    // Clean up
+    translator.destroy();
+
+    return { translation: translatedText };
+  } catch (error) {
+    console.error('Translator API error:', error);
+
+    const response = await fetch(
+      `${FIREBASE_FUNCTIONS_BASE_URL}/translateStatus?content=${encodeURIComponent(
+        prompt
+      )}&language=${language}`,
+      {
+        method: 'GET',
+        headers: new Headers({
+          'Content-Type': 'application/json',
+        }),
+      }
+    );
+    console.log('translate response', response);
+    const data = await response.json();
+    return data;
+  }
 };
 
 export const createAPost = async (prompt: string) => {

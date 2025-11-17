@@ -5,13 +5,11 @@
 
 import { onRequest } from 'firebase-functions/v2/https';
 import * as logger from 'firebase-functions/logger';
+import { defineSecret } from 'firebase-functions/params';
 import OpenAI from 'openai';
 
-const openai = process.env.OPENAI_API_KEY
-  ? new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    })
-  : null;
+// Define the secret
+const openaiApiKey = defineSecret('OPENAI_API_KEY');
 
 // Helper to enable CORS
 const corsHeaders = {
@@ -22,76 +20,127 @@ const corsHeaders = {
 
 // OpenAI Functions
 
-export const generateImage = onRequest(async (request, response) => {
-  // Handle CORS preflight
-  if (request.method === 'OPTIONS') {
+export const generateImage = onRequest(
+  { secrets: [openaiApiKey] },
+  async (request, response) => {
+    // Handle CORS preflight
+    if (request.method === 'OPTIONS') {
+      response.set(corsHeaders);
+      response.status(204).send('');
+      return;
+    }
+
     response.set(corsHeaders);
-    response.status(204).send('');
-    return;
-  }
 
-  response.set(corsHeaders);
+    const apiKey = openaiApiKey.value();
+    if (!apiKey) {
+      response.status(500).json({ error: 'OpenAI API key not configured' });
+      return;
+    }
 
-  if (!openai) {
-    response.status(500).json({ error: 'OpenAI API key not configured' });
-    return;
-  }
+    const openai = new OpenAI({ apiKey });
 
-  const prompt = request.query.prompt as string;
-  if (!prompt) {
-    response.status(400).json({ error: 'Prompt is required' });
-    return;
-  }
+    const prompt = request.query.prompt as string;
+    if (!prompt) {
+      response.status(400).json({ error: 'Prompt is required' });
+      return;
+    }
 
-  try {
-    const result = await openai.images.generate({
-      prompt: prompt,
-      response_format: 'b64_json',
-    });
+    try {
+      const result = await openai.images.generate({
+        prompt: prompt,
+        response_format: 'b64_json',
+      });
 
-    logger.info('Generated image', { prompt });
-    response.json(result.data);
-  } catch (error) {
-    logger.error('Image generation failed', { error });
-    response.status(500).json({ error: 'Image generation failed' });
-  }
-});
+      logger.info('Generated image', { prompt });
+      response.json(result.data);
+    } catch (error) {
+      logger.error('Image generation failed', { error });
+      response.status(500).json({ error: 'Image generation failed' });
+    }
+  });
 
-export const generateStatus = onRequest(async (request, response) => {
-  if (request.method === 'OPTIONS') {
+export const generateStatus = onRequest(
+  { secrets: [openaiApiKey] },
+  async (request, response) => {
+    if (request.method === 'OPTIONS') {
+      response.set(corsHeaders);
+      response.status(204).send('');
+      return;
+    }
+
     response.set(corsHeaders);
-    response.status(204).send('');
-    return;
-  }
 
-  response.set(corsHeaders);
+    const apiKey = openaiApiKey.value();
+    if (!apiKey) {
+      response.status(500).json({ error: 'OpenAI API key not configured' });
+      return;
+    }
 
-  if (!openai) {
-    response.status(500).json({ error: 'OpenAI API key not configured' });
-    return;
-  }
+    const openai = new OpenAI({ apiKey });
 
-  const prompt = request.query.prompt as string;
-  if (!prompt) {
-    response.status(400).json({ error: 'Prompt is required' });
-    return;
-  }
+    const prompt = request.query.prompt as string;
+    if (!prompt) {
+      response.status(400).json({ error: 'Prompt is required' });
+      return;
+    }
 
-  try {
-    const result = await openai.completions.create({
-      model: 'gpt-3.5-turbo-instruct',
-      prompt: `Generate a post for Mastodon that is about: ${prompt}`,
-      max_tokens: 50,
-      temperature: 0,
-    });
+    try {
+      const result = await openai.completions.create({
+        model: 'gpt-3.5-turbo-instruct',
+        prompt: `Generate a post for Mastodon that is about: ${prompt}`,
+        max_tokens: 50,
+        temperature: 0,
+      });
 
-    logger.info('Generated status', { prompt });
-    response.json(result.choices);
-  } catch (error) {
-    logger.error('Status generation failed', { error });
-    response.status(500).json({ error: 'Status generation failed' });
-  }
-});
+      logger.info('Generated status', { prompt });
+      response.json(result.choices);
+    } catch (error) {
+      logger.error('Status generation failed', { error });
+      response.status(500).json({ error: 'Status generation failed' });
+    }
+  });
+
+export const translateStatus = onRequest(
+  { secrets: [openaiApiKey] },
+  async (request, response) => {
+    if (request.method === 'OPTIONS') {
+      response.set(corsHeaders);
+      response.status(204).send('');
+      return;
+    }
+
+    response.set(corsHeaders);
+
+    const apiKey = openaiApiKey.value();
+    if (!apiKey) {
+      response.status(500).json({ error: 'OpenAI API key not configured' });
+      return;
+    }
+
+    const openai = new OpenAI({ apiKey });
+
+    const content = request.query.content as string;
+    const target_language = request.query.language as string;
+
+    if (!content || !target_language) {
+      response.status(400).json({ error: 'Missing required parameters' });
+      return;
+    }
+
+    try {
+      const result = await openai.responses.create({
+        model: 'gpt-5-mini',
+        input: `Translate the following text to ${target_language}: ${content} . Provide only the translated text.`,
+      });
+
+      logger.info('Translated status', { content, target_language, result: result.output_text });
+      response.json(result.output_text);
+    } catch (error) {
+      logger.error('Translation failed', { error });
+      response.status(500).json({ error: 'Translation failed' });
+    }
+  });
 
 // Mastodon API Proxy Functions
 

@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
-import '@shoelace-style/shoelace/dist/components/alert/alert.js';
+import './md-toast.js';
 
 @customElement('offline-notify')
 export class OfflineNotify extends LitElement {
@@ -45,33 +45,35 @@ export class OfflineNotify extends LitElement {
 
   showOfflineToast() {
     const toast = this.shadowRoot?.getElementById('offline-toast') as any;
-
-    toast.toast();
+    if (toast) {
+      toast.show();
+    }
   }
 
   showBackOnlineToast() {
     const toast = this.shadowRoot?.getElementById('back-online-toast') as any;
-
-    toast.toast();
+    if (toast) {
+      toast.show();
+    }
   }
 
   render() {
     return html`
-      <sl-alert id="offline-toast" variant="primary" duration="3000" closable>
-        <strong>You have entered offline mode</strong><br />
-        Otter will still work, including if you close and reopen the app, but
-        some functionality may be limited.
-      </sl-alert>
+      <md-toast
+        id="offline-toast"
+        variant="warning"
+        duration="4000"
+        closable
+        message="You have entered offline mode. Otter will still work, including if you close and reopen the app, but some functionality may be limited.">
+      </md-toast>
 
-      <sl-alert
+      <md-toast
         id="back-online-toast"
-        variant="primary"
+        variant="success"
         duration="3000"
         closable
-      >
-        <strong>You are back online</strong><br />
-        Otter will resume normal functionality.
-      </sl-alert>
+        message="You are back online. Otter will resume normal functionality.">
+      </md-toast>
     `;
   }
 }
