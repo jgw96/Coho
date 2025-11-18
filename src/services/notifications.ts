@@ -51,18 +51,73 @@ function urlBase64ToUint8Array(key: string) {
 }
 
 export const subToPush = async () => {
-  // get push subscription
   const registration = await navigator.serviceWorker.getRegistration();
-  const subscription = await registration?.pushManager.subscribe({
-    userVisibleOnly: true,
-    applicationServerKey: urlBase64ToUint8Array(
-      'BCC4QfjFdiAxT48FxxKUrTn4K6PJS17W76g6ccUs1JUqy5cLzLEjfNW61ezEz928wP-t3ywtRNaD41U5yWNo_4s'
-    ),
-  });
+
+  let vapidKey: string | undefined;
+  let subscription: PushSubscription | null | undefined;
+
+  // First, try to get VAPID key from app credentials
+  // This is the correct way according to Mastodon docs
+  try {
+    const appResponse = await fetch(`https://${server}/api/v1/apps/verify_credentials`, {
+      method: 'GET',
+      headers: new Headers({
+        'Authorization': `Bearer ${accessToken}`,
+      }),
+    });
+
+    if (appResponse.ok) {
+      const appData = await appResponse.json();
+      vapidKey = appData.vapid_key;
+      console.log('Got VAPID key from app credentials:', vapidKey);
+    }
+  } catch (error) {
+    console.log('Could not get VAPID key from app credentials:', error);
+  }
+
+  // Fallback: Try to get existing subscription from Mastodon API which contains the server_key
+  if (!vapidKey) {
+    try {
+      const existingSubResponse = await fetch(`https://${server}/api/v1/push/subscription`, {
+        method: 'GET',
+        headers: new Headers({
+          'Authorization': `Bearer ${accessToken}`,
+        }),
+      });
+
+      if (existingSubResponse.ok) {
+        const existingSub = await existingSubResponse.json();
+        vapidKey = existingSub.server_key;
+        console.log('Got VAPID key from existing subscription:', vapidKey);
+      }
+    } catch (error) {
+      console.log('No existing subscription found:', error);
+    }
+  }
+
+  // If we have the VAPID key, create a browser push subscription
+  if (vapidKey) {
+    console.log('Creating push subscription with VAPID key:', vapidKey, registration);
+    subscription = await registration?.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(vapidKey),
+    });
+    console.log('Created push subscription:', subscription);
+  } else {
+    // Check if browser already has a subscription
+    subscription = await registration?.pushManager.getSubscription();
+
+    if (!subscription) {
+      throw new Error('Cannot create push subscription: No VAPID key available. Your Mastodon server may not support Web Push notifications.');
+    }
+  }
 
   if (!subscription) {
     return;
   }
+
+  // Convert subscription to the format Mastodon expects
+  const subscriptionJSON = subscription.toJSON();
 
   const response = await fetch(`https://${server}/api/v1/push/subscription`, {
     method: 'POST',
@@ -71,7 +126,13 @@ export const subToPush = async () => {
       'Content-Type': 'application/json',
     }),
     body: JSON.stringify({
-      subscription: subscription,
+      subscription: {
+        endpoint: subscriptionJSON.endpoint,
+        keys: {
+          p256dh: subscriptionJSON.keys?.p256dh,
+          auth: subscriptionJSON.keys?.auth,
+        },
+      },
       data: {
         alerts: {
           follow: true,
