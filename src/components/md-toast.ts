@@ -24,30 +24,30 @@ export type ToastVariant = 'info' | 'success' | 'warning' | 'error';
  */
 @customElement('md-toast')
 export class MdToast extends LitElement {
-    /** The message to display in the toast */
-    @property({ type: String }) message = '';
+  /** The message to display in the toast */
+  @property({ type: String }) message = '';
 
-    /** Optional action button label */
-    @property({ type: String, attribute: 'action-label' }) actionLabel = '';
+  /** Optional action button label */
+  @property({ type: String, attribute: 'action-label' }) actionLabel = '';
 
-    /** Duration in milliseconds (0 = persistent until dismissed) */
-    @property({ type: Number }) duration = 4000;
+  /** Duration in milliseconds (0 = persistent until dismissed) */
+  @property({ type: Number }) duration = 4000;
 
-    /** Visual variant of the toast */
-    @property({ type: String }) variant: ToastVariant = 'info';
+  /** Visual variant of the toast */
+  @property({ type: String }) variant: ToastVariant = 'info';
 
-    /** Whether to show a close button */
-    @property({ type: Boolean }) closable = false;
+  /** Whether to show a close button */
+  @property({ type: Boolean }) closable = false;
 
-    /** Controls visibility */
-    @property({ type: Boolean, reflect: true }) open = false;
+  /** Controls visibility */
+  @property({ type: Boolean, reflect: true }) open = false;
 
-    /** Position on screen */
-    @property({ type: String }) position: 'bottom' | 'top' = 'bottom';
+  /** Position on screen */
+  @property({ type: String }) position: 'bottom' | 'top' = 'bottom';
 
-    private hideTimer?: number;
+  private hideTimer?: number;
 
-    static styles = css`
+  static styles = css`
     :host {
       display: block;
       position: fixed;
@@ -58,11 +58,11 @@ export class MdToast extends LitElement {
       visibility: hidden;
     }
 
-    :host([position="bottom"]) {
+    :host([position='bottom']) {
       bottom: 16px;
     }
 
-    :host([position="top"]) {
+    :host([position='top']) {
       top: 16px;
     }
 
@@ -84,14 +84,19 @@ export class MdToast extends LitElement {
       box-shadow:
         0px 1px 2px rgba(0, 0, 0, 0.3),
         0px 2px 6px 2px rgba(0, 0, 0, 0.15);
-      font-family: Roboto, system-ui, -apple-system, sans-serif;
+      font-family:
+        Roboto,
+        system-ui,
+        -apple-system,
+        sans-serif;
       font-size: 14px;
       line-height: 20px;
       font-weight: 400;
       opacity: 0;
       transform: translateY(100px);
-      transition: opacity 0.2s cubic-bezier(0, 0, 0.2, 1),
-                  transform 0.2s cubic-bezier(0, 0, 0.2, 1);
+      transition:
+        opacity 0.2s cubic-bezier(0, 0, 0.2, 1),
+        transform 0.2s cubic-bezier(0, 0, 0.2, 1);
     }
 
     :host([open]) .toast-container {
@@ -99,26 +104,26 @@ export class MdToast extends LitElement {
       transform: translateY(0);
     }
 
-    :host([position="top"]) .toast-container {
+    :host([position='top']) .toast-container {
       transform: translateY(-100px);
     }
 
-    :host([position="top"][open]) .toast-container {
+    :host([position='top'][open]) .toast-container {
       transform: translateY(0);
     }
 
     /* Variant backgrounds */
-    :host([variant="success"]) .toast-container {
+    :host([variant='success']) .toast-container {
       background: #2e7d32;
       color: #ffffff;
     }
 
-    :host([variant="error"]) .toast-container {
+    :host([variant='error']) .toast-container {
       background: var(--md-sys-color-error, #b3261e);
       color: var(--md-sys-color-on-error, #ffffff);
     }
 
-    :host([variant="warning"]) .toast-container {
+    :host([variant='warning']) .toast-container {
       background: #f57c00;
       color: #ffffff;
     }
@@ -130,17 +135,17 @@ export class MdToast extends LitElement {
         color: white;
       }
 
-      :host([variant="success"]) .toast-container {
+      :host([variant='success']) .toast-container {
         background: #4caf50;
         color: #ffffff;
       }
 
-      :host([variant="error"]) .toast-container {
+      :host([variant='error']) .toast-container {
         background: #f2b8b5;
         color: #601410;
       }
 
-      :host([variant="warning"]) .toast-container {
+      :host([variant='warning']) .toast-container {
         background: #ff9800;
         color: #ffffff;
       }
@@ -149,9 +154,9 @@ export class MdToast extends LitElement {
         color: #6750a4;
       }
 
-      :host([variant="success"]) button,
-      :host([variant="error"]) button,
-      :host([variant="warning"]) button {
+      :host([variant='success']) button,
+      :host([variant='error']) button,
+      :host([variant='warning']) button {
         color: #ffffff;
       }
     }
@@ -185,9 +190,9 @@ export class MdToast extends LitElement {
       overflow: hidden;
     }
 
-    :host([variant="success"]) button,
-    :host([variant="error"]) button,
-    :host([variant="warning"]) button {
+    :host([variant='success']) button,
+    :host([variant='error']) button,
+    :host([variant='warning']) button {
       color: #ffffff;
     }
 
@@ -224,107 +229,121 @@ export class MdToast extends LitElement {
     }
   `;
 
-    /**
-     * Show the toast programmatically
-     */
-    show() {
-        this.open = true;
+  /**
+   * Show the toast programmatically
+   */
+  show() {
+    this.open = true;
 
-        this.dispatchEvent(new CustomEvent('show', {
-            bubbles: true,
-            composed: true
-        }));
+    this.dispatchEvent(
+      new CustomEvent('show', {
+        bubbles: true,
+        composed: true,
+      })
+    );
 
-        // Clear any existing timer
-        if (this.hideTimer) {
-            clearTimeout(this.hideTimer);
-        }
-
-        // Auto-hide after duration
-        if (this.duration > 0) {
-            this.hideTimer = window.setTimeout(() => {
-                this.hide();
-            }, this.duration);
-        }
+    // Clear any existing timer
+    if (this.hideTimer) {
+      clearTimeout(this.hideTimer);
     }
 
-    /**
-     * Hide the toast programmatically
-     */
-    hide() {
-        this.open = false;
-
-        this.dispatchEvent(new CustomEvent('hide', {
-            bubbles: true,
-            composed: true
-        }));
-
-        if (this.hideTimer) {
-            clearTimeout(this.hideTimer);
-            this.hideTimer = undefined;
-        }
-    }
-
-    /**
-     * Convenience method to show toast with a message
-     */
-    toast(message?: string) {
-        if (message) {
-            this.message = message;
-        }
-        this.show();
-    }
-
-    disconnectedCallback() {
-        super.disconnectedCallback();
-        if (this.hideTimer) {
-            clearTimeout(this.hideTimer);
-        }
-    }
-
-    private handleActionClick() {
-        this.dispatchEvent(new CustomEvent('action-click', {
-            bubbles: true,
-            composed: true
-        }));
+    // Auto-hide after duration
+    if (this.duration > 0) {
+      this.hideTimer = window.setTimeout(() => {
         this.hide();
+      }, this.duration);
     }
+  }
 
-    private handleCloseClick() {
-        this.hide();
+  /**
+   * Hide the toast programmatically
+   */
+  hide() {
+    this.open = false;
+
+    this.dispatchEvent(
+      new CustomEvent('hide', {
+        bubbles: true,
+        composed: true,
+      })
+    );
+
+    if (this.hideTimer) {
+      clearTimeout(this.hideTimer);
+      this.hideTimer = undefined;
     }
+  }
 
-    render() {
-        return html`
+  /**
+   * Convenience method to show toast with a message
+   */
+  toast(message?: string) {
+    if (message) {
+      this.message = message;
+    }
+    this.show();
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    if (this.hideTimer) {
+      clearTimeout(this.hideTimer);
+    }
+  }
+
+  private handleActionClick() {
+    this.dispatchEvent(
+      new CustomEvent('action-click', {
+        bubbles: true,
+        composed: true,
+      })
+    );
+    this.hide();
+  }
+
+  private handleCloseClick() {
+    this.hide();
+  }
+
+  render() {
+    return html`
       <div class="toast-container" role="status" aria-live="polite">
         <div class="message">${this.message}</div>
-        ${this.actionLabel || this.closable ? html`
-          <div class="actions">
-            ${this.actionLabel ? html`
-              <button
-                class="action-button"
-                @click=${this.handleActionClick}
-                aria-label=${this.actionLabel}>
-                ${this.actionLabel}
-              </button>
-            ` : ''}
-            ${this.closable ? html`
-              <button
-                class="close-button"
-                @click=${this.handleCloseClick}
-                aria-label="Close">
-                ✕
-              </button>
-            ` : ''}
-          </div>
-        ` : ''}
+        ${this.actionLabel || this.closable
+          ? html`
+              <div class="actions">
+                ${this.actionLabel
+                  ? html`
+                      <button
+                        class="action-button"
+                        @click=${this.handleActionClick}
+                        aria-label=${this.actionLabel}
+                      >
+                        ${this.actionLabel}
+                      </button>
+                    `
+                  : ''}
+                ${this.closable
+                  ? html`
+                      <button
+                        class="close-button"
+                        @click=${this.handleCloseClick}
+                        aria-label="Close"
+                      >
+                        ✕
+                      </button>
+                    `
+                  : ''}
+              </div>
+            `
+          : ''}
       </div>
     `;
-    }
+  }
 }
 
 declare global {
-    interface HTMLElementTagNameMap {
-        'md-toast': MdToast;
-    }
+  interface HTMLElementTagNameMap {
+    'md-toast': MdToast;
+  }
 }

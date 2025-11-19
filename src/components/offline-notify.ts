@@ -64,7 +64,8 @@ export class OfflineNotify extends LitElement {
         variant="warning"
         duration="4000"
         closable
-        message="You have entered offline mode. Otter will still work, including if you close and reopen the app, but some functionality may be limited.">
+        message="You have entered offline mode. Otter will still work, including if you close and reopen the app, but some functionality may be limited."
+      >
       </md-toast>
 
       <md-toast
@@ -72,7 +73,8 @@ export class OfflineNotify extends LitElement {
         variant="success"
         duration="3000"
         closable
-        message="You are back online. Otter will resume normal functionality.">
+        message="You are back online. Otter will resume normal functionality."
+      >
       </md-toast>
     `;
   }

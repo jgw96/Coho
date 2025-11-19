@@ -59,12 +59,15 @@ export const subToPush = async () => {
   // First, try to get VAPID key from app credentials
   // This is the correct way according to Mastodon docs
   try {
-    const appResponse = await fetch(`https://${server}/api/v1/apps/verify_credentials`, {
-      method: 'GET',
-      headers: new Headers({
-        'Authorization': `Bearer ${accessToken}`,
-      }),
-    });
+    const appResponse = await fetch(
+      `https://${server}/api/v1/apps/verify_credentials`,
+      {
+        method: 'GET',
+        headers: new Headers({
+          Authorization: `Bearer ${accessToken}`,
+        }),
+      }
+    );
 
     if (appResponse.ok) {
       const appData = await appResponse.json();
@@ -78,12 +81,15 @@ export const subToPush = async () => {
   // Fallback: Try to get existing subscription from Mastodon API which contains the server_key
   if (!vapidKey) {
     try {
-      const existingSubResponse = await fetch(`https://${server}/api/v1/push/subscription`, {
-        method: 'GET',
-        headers: new Headers({
-          'Authorization': `Bearer ${accessToken}`,
-        }),
-      });
+      const existingSubResponse = await fetch(
+        `https://${server}/api/v1/push/subscription`,
+        {
+          method: 'GET',
+          headers: new Headers({
+            Authorization: `Bearer ${accessToken}`,
+          }),
+        }
+      );
 
       if (existingSubResponse.ok) {
         const existingSub = await existingSubResponse.json();
@@ -97,7 +103,11 @@ export const subToPush = async () => {
 
   // If we have the VAPID key, create a browser push subscription
   if (vapidKey) {
-    console.log('Creating push subscription with VAPID key:', vapidKey, registration);
+    console.log(
+      'Creating push subscription with VAPID key:',
+      vapidKey,
+      registration
+    );
     subscription = await registration?.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(vapidKey),
@@ -108,7 +118,9 @@ export const subToPush = async () => {
     subscription = await registration?.pushManager.getSubscription();
 
     if (!subscription) {
-      throw new Error('Cannot create push subscription: No VAPID key available. Your Mastodon server may not support Web Push notifications.');
+      throw new Error(
+        'Cannot create push subscription: No VAPID key available. Your Mastodon server may not support Web Push notifications.'
+      );
     }
   }
 

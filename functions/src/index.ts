@@ -58,7 +58,8 @@ export const generateImage = onRequest(
       logger.error('Image generation failed', { error });
       response.status(500).json({ error: 'Image generation failed' });
     }
-  });
+  }
+);
 
 export const generateStatus = onRequest(
   { secrets: [openaiApiKey] },
@@ -99,7 +100,8 @@ export const generateStatus = onRequest(
       logger.error('Status generation failed', { error });
       response.status(500).json({ error: 'Status generation failed' });
     }
-  });
+  }
+);
 
 export const translateStatus = onRequest(
   { secrets: [openaiApiKey] },
@@ -134,13 +136,18 @@ export const translateStatus = onRequest(
         input: `Translate the following text to ${target_language}: ${content} . Provide only the translated text.`,
       });
 
-      logger.info('Translated status', { content, target_language, result: result.output_text });
+      logger.info('Translated status', {
+        content,
+        target_language,
+        result: result.output_text,
+      });
       response.json(result.output_text);
     } catch (error) {
       logger.error('Translation failed', { error });
       response.status(500).json({ error: 'Translation failed' });
     }
-  });
+  }
+);
 
 // Mastodon API Proxy Functions
 

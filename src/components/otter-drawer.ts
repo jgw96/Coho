@@ -27,6 +27,12 @@ export class OtterDrawer extends LitElement {
       --transition-speed: 0.3s;
     }
 
+    @media (prefers-color-scheme: dark) {
+      .drawer {
+        --drawer-bg: var(--md-sys-color-background);
+      }
+    }
+
     .overlay {
       position: fixed;
       inset: 0;

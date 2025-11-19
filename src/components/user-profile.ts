@@ -89,13 +89,14 @@ export class UserProfile extends LitElement {
     // set up intersection observer
     const options = {
       root: null,
-      rootMargin: '0px',
-      threshold: 0.1,
+      rootMargin: '200px',
+      threshold: 0,
     };
 
     const observer = new IntersectionObserver((entries, observer) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
+          console.log('User profile image in view, loading image');
           this.loadImage();
 
           observer.unobserve(entry.target);
@@ -103,7 +104,7 @@ export class UserProfile extends LitElement {
       });
     }, options);
 
-    observer.observe(this.shadowRoot?.querySelector('div') as Element);
+    observer.observe(this.shadowRoot?.querySelector('img') as Element);
 
     window.requestIdleCallback(async () => {
       if (this.shadowRoot) {
@@ -149,10 +150,10 @@ export class UserProfile extends LitElement {
       <div
         @click="${() => this.openUser()}"
         class=${classMap({
-          small: this.small === true,
-          headerBlock: true,
-          boosted: this.boosted,
-        })}
+      small: this.small === true,
+      headerBlock: true,
+      boosted: this.boosted,
+    })}
         slot="header"
       >
         <img

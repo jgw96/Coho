@@ -32,7 +32,7 @@ export class MdSelect extends LitElement {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      min-height: 30px;
+      min-height: 26px;
       padding: 8px 16px;
       border-radius: 4px 4px 0 0;
       background-color: var(--md-sys-color-surface-container-highest, #e6e0e9);
@@ -309,9 +309,9 @@ export class MdSelect extends LitElement {
       <div class="select-container">
         <div
           class="select-input ${this.variant} ${this._open ? 'open' : ''} ${this
-            .disabled
-            ? 'disabled'
-            : ''} ${this.pill ? 'pill' : ''}"
+        .disabled
+        ? 'disabled'
+        : ''} ${this.pill ? 'pill' : ''}"
           @click=${this._handleInputClick}
           tabindex="${this.disabled ? -1 : 0}"
           role="combobox"

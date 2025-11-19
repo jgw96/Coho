@@ -66,6 +66,10 @@ export class Timeline extends LitElement {
         width: 100%;
       }
 
+      timeline-item {
+        margin-bottom: 30px;
+      }
+
       #list-actions {
         display: none;
         margin-bottom: 12px;
@@ -642,8 +646,7 @@ export class Timeline extends LitElement {
           <md-option value="public">public</md-option>
         </md-select>
 
-        <md-button
-          variant="outlined"
+        <md-icon-button
           circle
           @click="${() => {
         clearTimelineCache(this.timelineType);
@@ -651,7 +654,7 @@ export class Timeline extends LitElement {
       }}"
         >
           <md-icon src="/assets/refresh-circle-outline.svg"></md-icon>
-        </md-button>
+        </md-icon-button>
       </div>
 
       <ul id="mainList" part="list" class="scrollbar-hidden">

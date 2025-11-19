@@ -59,6 +59,9 @@ export class TimelineItem extends LitElement {
         animation-name: slideUp;
         animation-duration: 0.3s;
         animation-fill-mode: forwards;
+
+        border-bottom: solid 1px;
+        border-color: #6767679e;
       }
 
       .boosted-by {
@@ -97,6 +100,7 @@ export class TimelineItem extends LitElement {
       .link-card {
         align-items: center;
         display: flex;
+        flex-direction: column;
         gap: 10px;
 
         background: #ffffff0d;
@@ -111,14 +115,16 @@ export class TimelineItem extends LitElement {
       }
 
       .link-card img {
-        height: 140px;
+        min-height: 140px;
         border-radius: 6px;
-        width: 140px;
+        width: 100%;
         object-fit: cover;
       }
 
       .link-card-content {
-        width: 52%;
+        width: -webkit-fill-available;
+        padding-left: 12px;
+        padding-right: 12px;
       }
 
       .link-card-content p {

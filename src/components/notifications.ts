@@ -271,8 +271,8 @@ export class Notifications extends LitElement {
         @md-dialog-hide="${() => (this.openTweet = null)}"
       >
         ${this.openTweet
-        ? html`<post-detail .passed_tweet="${this.openTweet}"></post-detail>`
-        : null}
+          ? html`<post-detail .passed_tweet="${this.openTweet}"></post-detail>`
+          : null}
       </md-dialog>
 
       <div id="notify-actions">
@@ -300,10 +300,10 @@ export class Notifications extends LitElement {
         <fluent-tab-panel name="all">
           <ul>
             ${this.notifications && this.notifications.length > 0
-        ? this.notifications.map((notification: any) => {
-          return html`
+              ? this.notifications.map((notification: any) => {
+                  return html`
                     ${notification.type === 'follow'
-              ? html`
+                      ? html`
                           <li class="follow">
                             <div>
                               <user-profile
@@ -315,9 +315,9 @@ export class Notifications extends LitElement {
                             </div>
                           </li>
                         `
-              : null}
+                      : null}
                     ${notification.type === 'reblog'
-              ? html`
+                      ? html`
                           <li class="reblog">
                             <div>
                               <user-profile
@@ -329,20 +329,20 @@ export class Notifications extends LitElement {
                             </div>
 
                             <!-- <timeline-item @open="${(
-                $event: CustomEvent
-              ) =>
-                  this.handleOpen(
-                    $event.detail.tweet
-                  )}" .tweet=${notification.status}></timeline-item> -->
+                              $event: CustomEvent
+                            ) =>
+                              this.handleOpen(
+                                $event.detail.tweet
+                              )}" .tweet=${notification.status}></timeline-item> -->
                             <div
                               class="content-item"
                               .innerHTML="${notification.status.content}"
                             ></div>
                           </li>
                         `
-              : null}
+                      : null}
                     ${notification.type === 'favourite'
-              ? html`
+                      ? html`
                           <li class="favourite">
                             <div>
                               <user-profile
@@ -359,9 +359,9 @@ export class Notifications extends LitElement {
                             ></div>
                           </li>
                         `
-              : null}
+                      : null}
                     ${notification.type === 'mention'
-              ? html`
+                      ? html`
                           <li class="mention">
                             <div>
                               <user-profile
@@ -378,9 +378,9 @@ export class Notifications extends LitElement {
                             ></div>
                           </li>
                         `
-              : null}
+                      : null}
                     ${notification.type === 'update'
-              ? html`
+                      ? html`
                           <li class="edit">
                             <div>
                               <user-profile
@@ -397,10 +397,10 @@ export class Notifications extends LitElement {
                             ></div>
                           </li>
                         `
-              : null}
+                      : null}
                   `;
-        })
-        : html`
+                })
+              : html`
                   <li id="no">
                     <img src="/assets/notify-done.svg" alt="no notifications" />
                     <p>No notifications</p>
@@ -412,10 +412,10 @@ export class Notifications extends LitElement {
         <fluent-tab-panel name="mentions">
           <ul>
             ${this.notifications && this.notifications.length > 0
-        ? this.notifications.map((notification: any) => {
-          return html`
+              ? this.notifications.map((notification: any) => {
+                  return html`
                     ${notification.type === 'mention'
-              ? html`
+                      ? html`
                           <li class="mention">
                             <div>
                               <user-profile
@@ -432,10 +432,10 @@ export class Notifications extends LitElement {
                             ></div>
                           </li>
                         `
-              : null}
+                      : null}
                   `;
-        })
-        : html`
+                })
+              : html`
                   <li id="no">
                     <img src="/assets/notify-done.svg" alt="no notifications" />
                     <p>No notifications</p>
@@ -447,10 +447,10 @@ export class Notifications extends LitElement {
         <fluent-tab-panel name="follows">
           <ul>
             ${this.notifications && this.notifications.length > 0
-        ? this.notifications.map((notification: any) => {
-          return html`
+              ? this.notifications.map((notification: any) => {
+                  return html`
                     ${notification.type === 'follow'
-              ? html`
+                      ? html`
                           <li class="follow">
                             <div>
                               <user-profile
@@ -462,10 +462,10 @@ export class Notifications extends LitElement {
                             </div>
                           </li>
                         `
-              : null}
+                      : null}
                   `;
-        })
-        : html`
+                })
+              : html`
                   <li id="no">
                     <img src="/assets/notify-done.svg" alt="no notifications" />
                     <p>No notifications</p>

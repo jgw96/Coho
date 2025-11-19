@@ -63,6 +63,8 @@ export class PostDetail extends LitElement {
         /* overflow-x: hidden; */
 
         width: 100%;
+
+        margin-bottom: 4em;
       }
 
       #post-actions {
@@ -263,10 +265,10 @@ export class PostDetail extends LitElement {
 
           <ul>
             ${this.replies.map(
-              (reply) => html`
+          (reply) => html`
                 <timeline-item .tweet="${reply}"></timeline-item>
               `
-            )}
+        )}
           </ul>
         </div>
       </main>

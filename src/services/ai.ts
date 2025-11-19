@@ -88,7 +88,10 @@ export const translate = async (prompt: string, language: string = 'en-us') => {
           detector.destroy();
         }
       } catch (detectorError) {
-        console.warn('Language detection failed, defaulting to English:', detectorError);
+        console.warn(
+          'Language detection failed, defaulting to English:',
+          detectorError
+        );
       }
     }
 
@@ -107,7 +110,9 @@ export const translate = async (prompt: string, language: string = 'en-us') => {
     });
 
     if (canTranslate === 'no') {
-      throw new Error(`Translation from ${sourceLanguage} to ${targetLanguage} not available`);
+      throw new Error(
+        `Translation from ${sourceLanguage} to ${targetLanguage} not available`
+      );
     }
 
     // Create translator session
