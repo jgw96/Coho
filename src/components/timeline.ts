@@ -1,4 +1,5 @@
-import { LitElement, html, css } from 'lit';
+import { LitElement, html, css, PropertyValues } from 'lit';
+import { ref } from 'lit/directives/ref.js';
 import { customElement, property, state } from 'lit/decorators.js';
 import {
   getLastPlaceTimeline,
@@ -62,7 +63,7 @@ export class Timeline extends LitElement {
         z-index: 99999;
       }
 
-      #mainList li {
+      #mainList .timeline-list-item {
         width: 100%;
       }
 
@@ -127,9 +128,8 @@ export class Timeline extends LitElement {
         border-radius: 6px;
       }
 
-      ul {
-        display: flex;
-        flex-direction: column;
+      #mainList {
+        display: block;
         border-radius: 6px;
         margin: 0;
         padding: 0;
@@ -138,11 +138,11 @@ export class Timeline extends LitElement {
         height: 84vh;
         overflow-y: scroll;
         overflow-x: hidden;
+        overflow-anchor: none;
       }
 
       lit-virtualizer {
-        height: calc(84vh - 60px);
-        overflow-x: hidden !important;
+        width: 100%;
       }
 
       #load-more {
@@ -154,7 +154,7 @@ export class Timeline extends LitElement {
         --padding: 10px;
       }
 
-      li {
+      .timeline-list-item {
         animation-name: fadein;
         animation-duration: 0.3s;
       }
@@ -227,12 +227,9 @@ export class Timeline extends LitElement {
       }
 
       @media (max-width: 820px) {
-        ul {
+        #mainList {
           height: 85vh;
-        }
-
-        lit-virtualizer {
-          height: 80vh;
+          padding-bottom: 80px;
         }
       }
 
@@ -246,6 +243,8 @@ export class Timeline extends LitElement {
       }
     `,
   ];
+
+  private observer: IntersectionObserver | undefined;
 
   async connectedCallback() {
     super.connectedCallback();
@@ -294,60 +293,56 @@ export class Timeline extends LitElement {
     //     console.log("check this", virtualizer?.element(index), index, latestReadID);
     //     virtualizer.scrollToIndex(index);
     // }
+  }
 
-    window.requestIdleCallback(
-      async () => {
-        // setup intersection observer
-        const loadMore = this.shadowRoot?.querySelector('#load-more') as any;
-        const scrollContainer = this.shadowRoot?.querySelector(
-          '#mainList'
-        ) as HTMLElement;
+  setupObserver(el: Element | undefined) {
+    if (!el) return;
 
-        if (!loadMore || !scrollContainer) {
-          console.warn('Load more button or scroll container not found');
-          return;
-        }
+    const scrollContainer = this.shadowRoot?.querySelector('#mainList');
+    if (!scrollContainer) return;
 
-        // Track scroll position for caching
-        let scrollTimeout: number;
-        scrollContainer.addEventListener('scroll', () => {
-          clearTimeout(scrollTimeout);
-          scrollTimeout = window.setTimeout(() => {
-            this.lastScrollPosition = scrollContainer.scrollTop;
-            updateCacheScrollPosition(
-              this.timelineType,
-              this.lastScrollPosition
-            );
-          }, 150);
-        });
-
-        const observer = new IntersectionObserver(
-          async (entries: Array<IntersectionObserverEntry>) => {
-            entries.forEach(async (entry: IntersectionObserverEntry) => {
-              if (entry.isIntersecting) {
-                if (this.loadingData) return;
-
-                this.loadingData = true;
-                await this.loadMore();
-                this.loadingData = false;
-              }
-            });
-          },
-          {
-            root: scrollContainer,
-            rootMargin: '100px',
-            threshold: 0.1,
-          }
+    // Track scroll position for caching
+    let scrollTimeout: number;
+    scrollContainer.addEventListener('scroll', () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = window.setTimeout(() => {
+        this.lastScrollPosition = scrollContainer.scrollTop;
+        updateCacheScrollPosition(
+          this.timelineType,
+          this.lastScrollPosition
         );
+      }, 150);
+    });
 
-        observer.observe(loadMore);
+    if (this.observer) {
+      this.observer.disconnect();
+    }
+
+    this.observer = new IntersectionObserver(
+      async (entries: Array<IntersectionObserverEntry>) => {
+        entries.forEach(async (entry: IntersectionObserverEntry) => {
+          if (entry.isIntersecting) {
+            if (this.loadingData) return;
+
+            this.loadingData = true;
+            await this.loadMore();
+            this.loadingData = false;
+          }
+        });
       },
-      { timeout: 3000 }
+      {
+        root: scrollContainer,
+        rootMargin: '500px',
+        threshold: 0.1,
+      }
     );
+
+    this.observer.observe(el);
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
+    this.observer?.disconnect();
     // Save timeline to cache when navigating away
     if (this.timeline.length > 0) {
       console.log('Saving timeline to cache on disconnect');
@@ -615,6 +610,19 @@ export class Timeline extends LitElement {
     );
   }
 
+  updated(_changedProperties: PropertyValues) {
+    // ...existing code...
+  }
+
+  initVirtualizer(el: Element | undefined) {
+    if (el) {
+      const scrollContainer = this.shadowRoot?.querySelector('#mainList');
+      if (scrollContainer) {
+        (el as any).scroller = scrollContainer;
+      }
+    }
+  }
+
   render() {
     return html`
       <md-dialog
@@ -657,11 +665,11 @@ export class Timeline extends LitElement {
         </md-icon-button>
       </div>
 
-      <ul id="mainList" part="list" class="scrollbar-hidden">
+      <div id="mainList" part="list" class="scrollbar-hidden">
         <!-- ${guard([this.timeline.length, this.timelineType], () =>
         this.timeline.map(
           (tweet: Post) => html`
-              <li class="timeline-list-item">
+              <div class="timeline-list-item">
                 <timeline-item
                   @summarize="${($event: any) => this.handleSummary($event)}"
                   tweetID="${tweet.id}"
@@ -679,7 +687,7 @@ export class Timeline extends LitElement {
               this.handleReplies($event.detail.data)}"
                   .tweet="${tweet}"
                 ></timeline-item>
-              </li>
+              </div>
             `
         )
       )} -->
@@ -688,9 +696,10 @@ export class Timeline extends LitElement {
         ? html`<md-skeleton-card count="5"></md-skeleton-card>`
         : html`
               <lit-virtualizer
+                ${ref((el) => this.initVirtualizer(el))}
                 .items=${this.timeline}
                 .renderItem=${(tweet: Post) =>
-            html`<li class="timeline-list-item">
+            html`<div class="timeline-list-item">
                     <timeline-item
                       @open="${($event: CustomEvent) =>
                 this.handleOpen($event.detail.tweet)}"
@@ -713,11 +722,12 @@ export class Timeline extends LitElement {
                 this.handleReplies($event.detail.data)}"
                       .tweet="${tweet}"
                     ></timeline-item>
-                  </li>`}
+                  </div>`}
               >
               </lit-virtualizer>
 
               <md-button
+                ${ref((el) => this.setupObserver(el))}
                 variant="text"
                 ?disabled="${this.loadingData}"
                 id="load-more"
@@ -725,7 +735,7 @@ export class Timeline extends LitElement {
                 ${this.loadingData ? 'Loading...' : 'Load More'}
               </md-button>
             `}
-      </ul>
+      </div>
     `;
   }
 }
