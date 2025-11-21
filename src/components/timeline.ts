@@ -45,6 +45,13 @@ export class Timeline extends LitElement {
   @state() imageDesc: string | undefined = undefined;
   @state() analyzeTweet: Post | null = null;
 
+  @state() isRefreshing: boolean = false;
+  private _pullStartY: number = 0;
+  private _isPulling: boolean = false;
+  private _pullDistance: number = 0;
+  private _threshold: number = 80;
+  private _hapticTriggered: boolean = false;
+
   @property({ type: String }) timelineType:
     | 'home'
     | 'public'
@@ -226,6 +233,47 @@ export class Timeline extends LitElement {
         overflow: hidden;
       }
 
+      ul {
+        overscroll-behavior-y: contain;
+        position: relative;
+      }
+
+      #refresh-indicator {
+        height: 0;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        transition: height 0.2s ease;
+        flex-shrink: 0;
+        z-index: 100;
+        position: relative;
+      }
+
+      #refresh-indicator md-icon {
+        transform: rotate(0deg);
+        transition: transform 0.2s ease;
+        width: 32px;
+        height: 32px;
+        font-size: 32px;
+        color: var(--md-sys-color-primary);
+      }
+
+      #refresh-indicator.refreshing {
+        height: 60px;
+      }
+
+      #refresh-indicator.refreshing md-icon {
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
       @media (max-width: 820px) {
         ul {
           height: 85vh;
@@ -246,6 +294,118 @@ export class Timeline extends LitElement {
       }
     `,
   ];
+
+  firstUpdated() {
+    const scrollContainer = this.shadowRoot?.querySelector(
+      '#mainList'
+    ) as HTMLElement;
+    if (scrollContainer) {
+      scrollContainer.addEventListener(
+        'touchstart',
+        this._handleTouchStart.bind(this),
+        { passive: true }
+      );
+      scrollContainer.addEventListener(
+        'touchmove',
+        this._handleTouchMove.bind(this),
+        { passive: false }
+      );
+      scrollContainer.addEventListener(
+        'touchend',
+        this._handleTouchEnd.bind(this),
+        { passive: true }
+      );
+    }
+  }
+
+  _handleTouchStart(e: TouchEvent) {
+    const scrollContainer = this.shadowRoot?.querySelector(
+      '#mainList'
+    ) as HTMLElement;
+    if (scrollContainer.scrollTop === 0) {
+      this._pullStartY = e.touches[0].clientY;
+      this._isPulling = true;
+    }
+  }
+
+  _handleTouchMove(e: TouchEvent) {
+    if (!this._isPulling) return;
+
+    const scrollContainer = this.shadowRoot?.querySelector(
+      '#mainList'
+    ) as HTMLElement;
+    if (scrollContainer.scrollTop > 0) {
+      this._isPulling = false;
+      return;
+    }
+
+    const y = e.touches[0].clientY;
+    const deltaY = y - this._pullStartY;
+
+    if (deltaY > 0) {
+      if (e.cancelable) e.preventDefault();
+
+      this._pullDistance = deltaY * 0.5;
+
+      const indicator = this.shadowRoot?.querySelector(
+        '#refresh-indicator'
+      ) as HTMLElement;
+      const icon = indicator?.querySelector('md-icon') as HTMLElement;
+
+      if (indicator) {
+        indicator.style.height = `${Math.min(this._pullDistance, 150)}px`;
+        indicator.style.transition = 'none'; // Disable transition during drag
+      }
+
+      if (icon) {
+        const rotation = Math.min(
+          (this._pullDistance / this._threshold) * 360,
+          360
+        );
+        icon.style.transform = `rotate(${rotation}deg)`;
+      }
+
+      if (this._pullDistance >= this._threshold && !this._hapticTriggered) {
+        if (navigator.vibrate) navigator.vibrate(10);
+        this._hapticTriggered = true;
+      } else if (this._pullDistance < this._threshold) {
+        this._hapticTriggered = false;
+      }
+    }
+  }
+
+  async _handleTouchEnd() {
+    if (!this._isPulling) return;
+    this._isPulling = false;
+    this._hapticTriggered = false;
+
+    const indicator = this.shadowRoot?.querySelector(
+      '#refresh-indicator'
+    ) as HTMLElement;
+    if (indicator) {
+      indicator.style.transition = 'height 0.2s ease'; // Re-enable transition
+    }
+
+    if (this._pullDistance >= this._threshold) {
+      this.isRefreshing = true;
+      if (indicator) indicator.classList.add('refreshing');
+
+      // Reset height to fixed loading height
+      if (indicator) indicator.style.height = '60px';
+
+      await this.refreshTimeline(true);
+
+      this.isRefreshing = false;
+      if (indicator) {
+        indicator.classList.remove('refreshing');
+        indicator.style.height = '0px';
+      }
+    } else {
+      if (indicator) indicator.style.height = '0px';
+    }
+
+    this._pullDistance = 0;
+  }
 
   async connectedCallback() {
     super.connectedCallback();
@@ -359,7 +519,7 @@ export class Timeline extends LitElement {
     }
   }
 
-  public async refreshTimeline(skipCache: boolean = false) {
+  public async refreshTimeline(skipCache: boolean = true) {
     console.log('refreshing timeline', this.timelineType);
 
     // Save current timeline data before refreshing
@@ -658,6 +818,9 @@ export class Timeline extends LitElement {
       </div>
 
       <ul id="mainList" part="list" class="scrollbar-hidden">
+        <div id="refresh-indicator">
+           <md-icon src="/assets/refresh-circle-outline.svg"></md-icon>
+        </div>
         <!-- ${guard([this.timeline.length, this.timelineType], () =>
         this.timeline.map(
           (tweet: Post) => html`
