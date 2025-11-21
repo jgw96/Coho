@@ -63,7 +63,7 @@ export class MdTab extends LitElement {
         system-ui,
         -apple-system,
         sans-serif;
-      font-size: 14px;
+      font-size: var(--md-sys-typescale-label-large-font-size);
       font-weight: 500;
       line-height: 20px;
       letter-spacing: 0.1px;

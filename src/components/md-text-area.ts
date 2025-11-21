@@ -41,7 +41,7 @@ export class MdTextArea extends LitElement {
         system-ui,
         -apple-system,
         sans-serif;
-      font-size: 16px;
+      font-size: var(--md-sys-typescale-body-large-font-size);
       font-weight: 400;
       line-height: 24px;
       letter-spacing: 0.5px;
@@ -162,7 +162,7 @@ export class MdTextArea extends LitElement {
       display: flex;
       justify-content: flex-end;
       padding: 4px 16px 0;
-      font-size: 12px;
+      font-size: var(--md-sys-typescale-body-small-font-size);
       font-weight: 400;
       color: var(--md-sys-color-on-surface-variant, #49454f);
     }
@@ -222,12 +222,12 @@ export class MdTextArea extends LitElement {
           @change="${this._handleChange}"
         ></textarea>
         ${this.maxlength
-          ? html`
+        ? html`
               <div class="char-counter">
                 ${this.value.length} / ${this.maxlength}
               </div>
             `
-          : ''}
+        : ''}
       </div>
     `;
   }

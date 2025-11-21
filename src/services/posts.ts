@@ -149,6 +149,35 @@ export async function uploadImageFromBlob(blob: Blob) {
   return data;
 }
 
+export async function pickMedia(): Promise<File[]> {
+  try {
+    const files = await fileOpen({
+      mimeTypes: ['image/*', 'video/*'],
+      multiple: true,
+    });
+    return Array.isArray(files) ? files : [files];
+  } catch (err) {
+    return [];
+  }
+}
+
+export async function uploadMediaFile(file: File): Promise<any> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch(`https://${server}/api/v2/media`, {
+    method: 'POST',
+    headers: new Headers({
+      Authorization: `Bearer ${accessToken}`,
+    }),
+    body: formData,
+  });
+
+  const data = await response.json();
+  await addMedia(file);
+  return data;
+}
+
 export async function uploadImageAsFormData(): Promise<Array<any>> {
   return new Promise(async (resolve) => {
     const files = await fileOpen({
@@ -183,4 +212,20 @@ export async function uploadImageAsFormData(): Promise<Array<any>> {
 
     resolve(uploaded);
   });
+}
+
+export async function updateMedia(id: string, description: string) {
+  const formData = new FormData();
+  formData.append('description', description);
+
+  const response = await fetch(`https://${server}/api/v1/media/${id}`, {
+    method: 'PUT',
+    headers: new Headers({
+      Authorization: `Bearer ${accessToken}`,
+    }),
+    body: formData,
+  });
+
+  const data = await response.json();
+  return data;
 }

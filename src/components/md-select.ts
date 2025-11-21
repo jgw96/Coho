@@ -43,7 +43,7 @@ export class MdSelect extends LitElement {
         system-ui,
         -apple-system,
         sans-serif;
-      font-size: 16px;
+      font-size: var(--md-sys-typescale-body-large-font-size);
       font-weight: 400;
       line-height: 24px;
       letter-spacing: 0.5px;

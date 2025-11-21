@@ -62,7 +62,7 @@ export class MdDialog extends LitElement {
     }
 
     .dialog-title {
-      font-size: 24px;
+      font-size: var(--md-sys-typescale-headline-small-font-size);
       font-weight: 400;
       line-height: 32px;
       margin: 0;
@@ -151,11 +151,9 @@ export class MdDialog extends LitElement {
       }
 
       .dialog-title {
-        font-size: 20px;
-        line-height: 28px;
-      }
-
-      .dialog-body {
+      font-size: var(--md-sys-typescale-title-large-font-size);
+      line-height: 28px;
+    }      .dialog-body {
         padding: 0 16px 16px 16px;
       }
 
@@ -211,12 +209,12 @@ export class MdDialog extends LitElement {
         </div>
 
         ${this._hasFooterSlot()
-          ? html`
+        ? html`
               <div class="dialog-footer">
                 <slot name="footer"></slot>
               </div>
             `
-          : ''}
+        : ''}
       </dialog>
     `;
   }

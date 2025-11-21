@@ -47,7 +47,7 @@ export class AppHeader extends LitElement {
       header h1 {
         margin-top: 0;
         margin-bottom: 0;
-        font-size: 20px;
+        font-size: var(--md-sys-typescale-title-large-font-size);
         font-weight: bold;
       }
 
@@ -159,7 +159,7 @@ export class AppHeader extends LitElement {
       <header>
         <div id="back-button-block">
           ${this.enableBack
-            ? html`<md-icon-button
+        ? html`<md-icon-button
                 @click="${() => this.goBack()}"
                 title="back"
                 size="small"
@@ -181,20 +181,20 @@ export class AppHeader extends LitElement {
                   />
                 </svg>
               </md-icon-button>`
-            : null}
+        : null}
           ${!this.enableBack
-            ? html`<img
+        ? html`<img
                 src="/assets/icons/new-icons/icon-48x48.webp"
                 alt="App Icon"
                 width="28"
                 height="28"
               />`
-            : nothing}
+        : nothing}
         </div>
 
         <div id="actions">
           <!-- <md-button @click="${() =>
-            this.openBotDrawer()}" variant="text" title=="Open MammothBot" id="mammoth-bot">
+        this.openBotDrawer()}" variant="text" title=="Open MammothBot" id="mammoth-bot">
             <md-icon src="/assets/sparkles-outline.svg" alt="MammothBot"></md-icon>
           </md-button> -->
 

@@ -96,7 +96,7 @@ export class AppLogin extends LitElement {
       }
 
       main p {
-        font-size: 12px;
+        font-size: var(--md-sys-typescale-body-small-font-size);
         position: fixed;
         bottom: 10px;
         text-align: center;

@@ -83,21 +83,21 @@ export class MdButton extends LitElement {
     button.small {
       height: 32px;
       padding: 0 12px;
-      font-size: 13px;
+      font-size: var(--md-sys-typescale-label-medium-font-size);
       border-radius: 16px;
     }
 
     button.medium {
       height: 40px;
       padding: 0 24px;
-      font-size: 14px;
+      font-size: var(--md-sys-typescale-label-large-font-size);
       border-radius: 20px;
     }
 
     button.large {
       height: 56px;
       padding: 0 32px;
-      font-size: 16px;
+      font-size: var(--md-sys-typescale-body-large-font-size);
       border-radius: 28px;
     }
 

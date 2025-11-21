@@ -25,7 +25,7 @@ export class MammothBot extends LitElement {
       }
 
       span {
-        font-size: 10px;
+        font-size: var(--md-sys-typescale-label-small-font-size);
         margin-bottom: 7px;
         margin-left: 4px;
         color: #d2d2d2;
@@ -159,7 +159,7 @@ export class MammothBot extends LitElement {
       <span>alpha</span>
       <ul>
         ${this.previousMessages.map((message: any) => {
-          return html`
+      return html`
             <li>
               <div class="wrapper">
                 <div class="role">${message.role}</div>
@@ -174,7 +174,7 @@ export class MammothBot extends LitElement {
               <div>${message.content}</div>
             </li>
           `;
-        })}
+    })}
       </ul>
 
       <md-text-area

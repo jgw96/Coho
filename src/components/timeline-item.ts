@@ -1,26 +1,18 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import { classMap } from 'lit/directives/class-map.js';
-
-import '../components/user-profile';
-
-import '../components/md-card';
-import '../components/md-icon';
-import '../components/md-icon-button';
-
-import '../components/image-carousel';
 
 import { getSettings } from '../services/settings';
 
-// import * as blurhash from "blurhash-wasm";
-
-import '../components/md-button';
-
-// @ts-ignore
-import ImgWorker from '../utils/img-worker?worker';
 import { router } from '../utils/router';
 import { Post } from '../interfaces/Post';
-// import { enableVibrate } from '../utils/handle-vibrate';
+import {
+  renderSensitive,
+  renderRegularTweet,
+  renderReblog,
+  renderThread,
+  TimelineItemHandlers,
+  TimelineItemState
+} from './timeline-renderers';
 
 @customElement('timeline-item')
 export class TimelineItem extends LitElement {
@@ -38,8 +30,6 @@ export class TimelineItem extends LitElement {
   @state() settings: any | undefined;
 
   @state() currentUser: any;
-
-  worker: Worker | undefined;
 
   device: 'mobile' | 'desktop' = 'mobile';
 
@@ -64,12 +54,26 @@ export class TimelineItem extends LitElement {
         border-color: #6767679e;
       }
 
+      md-card::part(header) {
+        padding: 12px;
+        padding-bottom: 0;
+      }
+
+      md-card::part(body) {
+        padding: 12px;
+        padding-top: 8px;
+      }
+
+      md-card::part(footer) {
+        padding: 8px 12px;
+      }
+
       .boosted-by {
         flex: 2;
       }
 
       .boosted-by span {
-        font-size: 12px;
+        font-size: var(--md-sys-typescale-body-small-font-size);
 
         margin-bottom: 6px;
         display: block;
@@ -115,7 +119,7 @@ export class TimelineItem extends LitElement {
       }
 
       .link-card img {
-        min-height: 140px;
+        min-height: 120px;
         border-radius: 6px;
         width: 100%;
         object-fit: cover;
@@ -152,7 +156,7 @@ export class TimelineItem extends LitElement {
 
       .header-actions-block span {
         color: #878792;
-        font-size: 14px;
+        font-size: var(--md-sys-typescale-body-medium-font-size);
       }
 
       img[data-src] {
@@ -212,10 +216,6 @@ export class TimelineItem extends LitElement {
 
       md-card a {
         color: var(--sl-color-secondary-700);
-      }
-
-      md-card::part(body) {
-        padding-top: 0;
       }
 
       md-card img {
@@ -279,7 +279,7 @@ export class TimelineItem extends LitElement {
         color: var(--primary-color);
         margin-top: 6px;
 
-        font-size: 14px;
+        font-size: var(--md-sys-typescale-body-medium-font-size);
         gap: 8px;
       }
 
@@ -301,9 +301,16 @@ export class TimelineItem extends LitElement {
         height: 16px;
       }
 
-            @media (max-width: 820px) {
+      @media (max-width: 820px) {
         .timeline-item {
           border-radius: 0;
+        }
+
+        .actions {
+          width: 100%;
+          justify-content: space-between;
+        }
+      }
 
       @media (prefers-color-scheme: light) {
         #reply-to {
@@ -619,403 +626,51 @@ export class TimelineItem extends LitElement {
     }
   }
 
+  getHandlers(): TimelineItemHandlers {
+    return {
+      viewSensitive: () => this.viewSensitive(),
+      replies: () => this.replies(),
+      bookmark: (id: string) => this.bookmark(id),
+      favorite: (id: string) => this.favorite(id),
+      reblog: (id: string) => this.reblog(id),
+      translatePost: (content: string | null) => this.translatePost(content),
+      shareStatus: (tweet: Post | null) => this.shareStatus(tweet),
+      deleteStatus: () => this.deleteStatus(),
+      initEditStatus: () => this.initEditStatus(),
+      openPost: () => this.openPost(),
+      openLinkCard: (url: string) => this.openLinkCard(url),
+      showThread: () => this.showThread(),
+    };
+  }
+
+  getState(): TimelineItemState {
+    return {
+      tweet: this.tweet,
+      show: this.show,
+      currentUser: this.currentUser,
+      settings: this.settings,
+      isBookmarked: this.isBookmarked,
+      isBoosted: this.isBoosted,
+      isReblogged: this.isReblogged,
+      loadingThread: this.loadingThread,
+      threadExpanded: this.threadExpanded,
+      threadPosts: this.threadPosts,
+    };
+  }
+
   render() {
+    if (!this.tweet) return html``;
+
+    const state = this.getState();
+    const handlers = this.getHandlers();
+
+    if (this.tweet.sensitive) {
+      return renderSensitive(state, handlers);
+    }
+
     return html`
-      ${this.tweet && this.tweet.sensitive === true
-        ? html`
-            <div class="sensitive">
-              <span>Sensitive Content</span>
-              <p>${this.tweet.spoiler_text || 'No spoiler text provided'}</p>
-
-              <md-button
-                variant="text"
-                pill
-                @click="${() => this.viewSensitive()}"
-              >
-                View
-                <md-icon slot="suffix" name="eye"></md-icon>
-              </md-button>
-            </div>
-          `
-        : html`
-            ${this.tweet?.reblog === null || this.tweet?.reblog === undefined
-            ? html`
-                  ${this.tweet?.reply_to !== null &&
-                this.tweet?.reply_to !== undefined &&
-                this.show === true
-                ? html`
-                        <div id="reply-to">
-                          <md-icon name="chatbox"></md-icon>
-                          Thread
-                        </div>
-
-                        <md-card part="card">
-                          <user-profile
-                            .account="${this.tweet?.reply_to.account}"
-                          ></user-profile>
-                          <div
-                            .innerHTML="${this.tweet?.reply_to.content}"
-                          ></div>
-
-                          <div class="actions" slot="footer">
-                            ${this.show === true
-                    ? html`<md-button
-                                  variant="text"
-                                  pill
-                                  @click="${() => this.replies()}"
-                                >
-                                  <md-icon
-                                    slot="suffix"
-                                    name="chatbox"
-                                  ></md-icon>
-                                </md-button>`
-                    : null}
-
-                            <md-button
-                              variant="text"
-                              ?disabled=${this.isBookmarked ||
-                  this.tweet?.reply_to.bookmarked}
-                              pill
-                              @click="${() =>
-                    this.bookmark(this.tweet?.reply_to.id || '')}"
-                              ><md-icon slot="suffix" name="bookmark"></md-icon
-                            ></md-button>
-                            ${this.settings && this.settings.wellness === false
-                    ? html`<md-button
-                                  variant="text"
-                                  ?disabled=${this.isBoosted ||
-                      this.tweet?.reply_to.favourited}
-                                  pill
-                                  @click="${() =>
-                        this.favorite(
-                          this.tweet?.reply_to.id || ''
-                        )}"
-                                  >${this.tweet?.reply_to.favourites_count}
-                                  <md-icon slot="suffix" name="heart"></md-icon
-                                ></md-button>`
-                    : null}
-                            ${this.settings && this.settings.wellness === false
-                    ? html`<md-button
-                                  variant="text"
-                                  ?disabled=${this.isReblogged ||
-                      this.tweet?.reply_to.reblogged}
-                                  pill
-                                  @click="${() =>
-                        this.reblog(this.tweet?.reply_to.id || '')}"
-                                  >${this.tweet?.reply_to.reblogs_count}
-                                  <md-icon slot="suffix" name="repeat"></md-icon
-                                ></md-button>`
-                    : null}
-                          </div>
-                        </md-card>
-                      `
-                : null}
-
-                  <md-card
-                    part="card"
-                    class="${classMap({
-                  replyCard: this.tweet?.reply_to ? true : false,
-                })}"
-                  >
-                    ${this.tweet && this.tweet.media_attachments.length > 0
-                ? html`
-                          <image-carousel
-                            .images="${this.tweet.media_attachments}"
-                            slot="image"
-                          >
-                          </image-carousel>
-                        `
-                : html``}
-
-                    <div class="header-actions-block" slot="header">
-                      <div>
-                        <md-icon-button
-                          size="small"
-                          @click="${() =>
-                this.translatePost(this.tweet?.content || null)}"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M48 112h288M192 64v48M272 448l96-224 96 224M301.5 384h133M281.3 112S257 206 199 277 80 384 80 384"/><path d="M256 336s-35-27-72-75-56-85-56-85" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/></svg>
-                          </md-icon-button
-                        >
-
-                        <md-icon-button
-                          @click="${() => this.shareStatus(this.tweet || null)}"
-                          name="share"
-                          label="Share"
-                        >
-                        </md-icon-button>
-
-                        ${this.tweet?.account.acct === this.currentUser?.acct
-                ? html`
-                              <md-icon-button
-                                @click="${() => this.deleteStatus()}"
-                                name="trash"
-                                label="Delete"
-                              >
-                              </md-icon-button>
-
-                              <md-icon-button
-                                @click="${() => this.initEditStatus()}"
-                                name="brush"
-                                label="Edit"
-                              >
-                              </md-icon-button>
-                            `
-                : null}
-                      </div>
-
-                      <span>
-                        ${new Intl.RelativeTimeFormat('en', {
-                  numeric: 'auto',
-                }).format(
-                  Math.floor(
-                    -(
-                      (new Date() as any) -
-                      (new Date(this.tweet?.created_at || '') as any)
-                    ) /
-                    1000 /
-                    60
-                  ),
-                  'minutes'
-                )}
-                      </span>
-                    </div>
-
-                    <user-profile
-                      .account="${this.tweet?.account}"
-                    ></user-profile>
-
-                    ${this.tweet?.in_reply_to_id && !this.threadExpanded
-                ? html`
-                          <md-button
-                            variant="text"
-                            size="small"
-                            ?disabled=${this.loadingThread}
-                            @click=${this.showThread}
-                            style="margin-bottom: 8px; padding: 4px 8px;"
-                          >
-                            <md-icon
-                              slot="prefix"
-                              name="chatbox"
-                              style="width: 14px; height: 14px;"
-                            ></md-icon>
-                            ${this.loadingThread
-                    ? 'Loading thread...'
-                    : 'Show this thread'}
-                          </md-button>
-                        `
-                : null}
-
-                    <div
-                      @click="${this.openPost}"
-                      .innerHTML="${this.tweet?.content || ''}"
-                    ></div>
-
-                    ${this.tweet && this.tweet.card
-                ? html`
-                          <div
-                            @click="${() =>
-                    this.openLinkCard(this.tweet?.card?.url || '')}"
-                            class="link-card"
-                          >
-                            <img
-                              src="${this.tweet.card.image ||
-                  '/assets/bookmark-outline.svg'}"
-                              alt="${this.tweet.card.title}"
-                            />
-
-                            <div class="link-card-content">
-                              <h4>${this.tweet.card.title}</h4>
-                              <p>${this.tweet.card.description}</p>
-                            </div>
-                          </div>
-                        `
-                : null}
-
-                    <div class="actions" slot="footer">
-                      ${this.show === true
-                ? html`<md-button
-                            variant="text"
-                            pill
-                            @click="${() => this.replies()}"
-                          >
-                            <md-icon
-                              slot="suffix"
-                              src="/assets/chatbox-outline.svg"
-                            ></md-icon>
-                          </md-button>`
-                : null}
-                      <md-button
-                        variant="text"
-                        ?disabled=${this.isBookmarked || this.tweet?.bookmarked}
-                        pill
-                        @click="${() => this.bookmark(this.tweet?.id || '')}"
-                        ><md-icon
-                          slot="suffix"
-                          src="/assets/bookmark-outline.svg"
-                        ></md-icon
-                      ></md-button>
-                      ${this.settings && this.settings.wellness === false
-                ? html`<md-button
-                            variant="text"
-                            ?disabled=${this.isBoosted ||
-                  this.tweet?.favourited}
-                            pill
-                            @click="${() =>
-                    this.favorite(this.tweet?.id || '')}"
-                            >${this.tweet?.favourites_count}
-                            <md-icon slot="suffix" name="heart"></md-icon
-                          ></md-button>`
-                : null}
-                      ${this.settings && this.settings.wellness === false
-                ? html`<md-button
-                            variant="text"
-                            ?disabled=${this.isReblogged ||
-                  this.tweet?.reblogged}
-                            pill
-                            @click="${() => this.reblog(this.tweet?.id || '')}"
-                            >${this.tweet?.reblogs_count}
-                            <md-icon slot="suffix" name="repeat"></md-icon
-                          ></md-button>`
-                : null}
-                    </div>
-                  </md-card>
-                `
-            : html`
-                  <md-card slot="card">
-                    ${this.tweet.reblog &&
-                this.tweet.reblog.media_attachments.length > 0
-                ? html`
-                          <image-carousel
-                            .images="${this.tweet.reblog.media_attachments}"
-                            slot="image"
-                          >
-                          </image-carousel>
-                        `
-                : html``}
-
-                    <div class="header-block reblog-header" slot="header">
-                      <user-profile
-                        ?small="${true}"
-                        .account="${this.tweet?.reblog.account}"
-                      ></user-profile>
-
-                      <div class="boosted-by">
-                        <span>Boosted by</span>
-                        <user-profile
-                          boosted
-                          class="smaller-profile"
-                          ?small="${true}"
-                          .account="${this.tweet?.account}"
-                        ></user-profile>
-                      </div>
-                      <md-icon-button
-                        @click="${() => this.shareStatus(this.tweet || null)}"
-                        name="share"
-                        label="Share"
-                      >
-                      </md-icon-button>
-                    </div>
-                    <h5>${this.tweet?.reblog.account.acct} posted</h5>
-
-                    <div
-                      @click="${() => this.openPost()}"
-                      .innerHTML="${this.tweet?.reblog.content}"
-                    ></div>
-
-                    <div class="actions" slot="footer">
-                      ${this.show === true
-                ? html`<md-button
-                            variant="text"
-                            pill
-                            @click="${() => this.replies()}"
-                          >
-                            <md-icon slot="suffix" name="chatbox"></md-icon>
-                          </md-button>`
-                : null}
-                      <md-button
-                        variant="text"
-                        ?disabled=${this.isBookmarked}
-                        pill
-                        @click="${() => this.bookmark(this.tweet?.id || '')}"
-                        ><md-icon slot="suffix" name="bookmark"></md-icon
-                      ></md-button>
-                      ${this.settings && this.settings.wellness === false
-                ? html`<md-button
-                            variant="text"
-                            ?disabled=${this.isBoosted ||
-                  this.tweet?.favourited}
-                            pill
-                            @click="${() =>
-                    this.favorite(this.tweet?.id || '')}"
-                            >${this.tweet?.reblog.favourites_count}
-                            <md-icon slot="suffix" name="heart"></md-icon
-                          ></md-button>`
-                : null}
-                      ${this.settings && this.settings.wellness === false
-                ? html`<md-button
-                            variant="text"
-                            ?disabled=${this.isReblogged ||
-                  this.tweet?.reblogged}
-                            pill
-                            @click="${() => this.reblog(this.tweet?.id || '')}"
-                            >${this.tweet?.reblog.reblogs_count}
-                            <md-icon slot="suffix" name="repeat"></md-icon
-                          ></md-button>`
-                : null}
-                    </div>
-                  </md-card>
-                `}
-            ${this.threadExpanded && this.threadPosts.length > 0
-            ? html`
-                  <div class="thread-line"></div>
-                  <div class="thread-continuation">
-                    ${this.threadPosts.map(
-              (threadPost: Post) => html`
-                        <md-card>
-                          <div class="header-block" slot="header">
-                            <user-profile
-                              ?small="${true}"
-                              .account="${threadPost.account}"
-                            ></user-profile>
-                          </div>
-                          <div .innerHTML="${threadPost.content}"></div>
-                          <div class="actions" slot="footer">
-                            <md-button
-                              variant="text"
-                              ?disabled=${threadPost.bookmarked}
-                              pill
-                              @click="${() => this.bookmark(threadPost.id)}"
-                              ><md-icon slot="suffix" name="bookmark"></md-icon
-                            ></md-button>
-                            ${this.settings && this.settings.wellness === false
-                  ? html`<md-button
-                                  variant="text"
-                                  ?disabled=${threadPost.favourited}
-                                  pill
-                                  @click="${() => this.favorite(threadPost.id)}"
-                                  >${threadPost.favourites_count}
-                                  <md-icon slot="suffix" name="heart"></md-icon
-                                ></md-button>`
-                  : null}
-                            ${this.settings && this.settings.wellness === false
-                  ? html`<md-button
-                                  variant="text"
-                                  ?disabled=${threadPost.reblogged}
-                                  pill
-                                  @click="${() => this.reblog(threadPost.id)}"
-                                  >${threadPost.reblogs_count}
-                                  <md-icon slot="suffix" name="repeat"></md-icon
-                                ></md-button>`
-                  : null}
-                          </div>
-                        </md-card>
-                      `
-            )}
-                  </div>
-                `
-            : null}
-          `}
+      ${this.tweet.reblog ? renderReblog(state, handlers) : renderRegularTweet(state, handlers)}
+      ${renderThread(state, handlers)}
     `;
   }
 }

@@ -27,7 +27,7 @@ export class MdMenuItem extends LitElement {
         system-ui,
         -apple-system,
         sans-serif;
-      font-size: 14px;
+      font-size: var(--md-sys-typescale-label-large-font-size);
       font-weight: 400;
       line-height: 20px;
       letter-spacing: 0.25px;

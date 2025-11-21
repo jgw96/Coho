@@ -24,7 +24,7 @@ export class UserProfile extends LitElement {
       h4 {
         overflow: hidden;
         text-overflow: ellipsis;
-        max-width: 220px;
+        max-width: 196px;
         white-space: nowrap;
       }
 
@@ -75,12 +75,18 @@ export class UserProfile extends LitElement {
       }
 
       .boosted h4 {
-        font-size: 12px;
+        font-size: var(--md-sys-typescale-body-small-font-size);
       }
 
       .boosted img#avatar {
         width: 20px;
         height: 20px;
+      }
+
+      @media (max-width: 500px) {
+        p, h4 {
+          max-width: 40vw;
+        }
       }
     `,
   ];

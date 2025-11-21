@@ -89,7 +89,7 @@ export class MdToast extends LitElement {
         system-ui,
         -apple-system,
         sans-serif;
-      font-size: 14px;
+      font-size: var(--md-sys-typescale-body-medium-font-size);
       line-height: 20px;
       font-weight: 400;
       opacity: 0;
@@ -178,7 +178,7 @@ export class MdToast extends LitElement {
       border: none;
       color: #d0bcff;
       font-family: inherit;
-      font-size: 14px;
+      font-size: var(--md-sys-typescale-label-large-font-size);
       font-weight: 500;
       letter-spacing: 0.1px;
       padding: 8px 12px;
@@ -310,10 +310,10 @@ export class MdToast extends LitElement {
       <div class="toast-container" role="status" aria-live="polite">
         <div class="message">${this.message}</div>
         ${this.actionLabel || this.closable
-          ? html`
+        ? html`
               <div class="actions">
                 ${this.actionLabel
-                  ? html`
+            ? html`
                       <button
                         class="action-button"
                         @click=${this.handleActionClick}
@@ -322,9 +322,9 @@ export class MdToast extends LitElement {
                         ${this.actionLabel}
                       </button>
                     `
-                  : ''}
+            : ''}
                 ${this.closable
-                  ? html`
+            ? html`
                       <button
                         class="close-button"
                         @click=${this.handleCloseClick}
@@ -333,10 +333,10 @@ export class MdToast extends LitElement {
                         ✕
                       </button>
                     `
-                  : ''}
+            : ''}
               </div>
             `
-          : ''}
+        : ''}
       </div>
     `;
   }

@@ -7,11 +7,14 @@ import './md-text-field.js';
 import './md-text-area.js';
 import './md-icon.js';
 import './md-icon-button.js';
+import './media-edit-dialog.js';
 import '@shoelace-style/shoelace/dist/components/skeleton/skeleton.js';
 import {
   publishPost,
-  uploadImageAsFormData,
   uploadImageFromBlob,
+  updateMedia,
+  pickMedia,
+  uploadMediaFile
 } from '../services/posts';
 import { createAPost, createImage } from '../services/ai';
 
@@ -21,13 +24,22 @@ import { createGesture } from 'https://cdn.jsdelivr.net/npm/@ionic/core@latest/d
 // @ts-ignore
 import MarkdownWorker from '../utils/markdown-worker?worker';
 
+interface LocalAttachment {
+  id: string;
+  preview_url: string;
+  description: string | null;
+  pending?: boolean;
+}
+
 @customElement('post-dialog')
 export class PostDialog extends LitElement {
   @state() attachmentPreview: string | undefined;
   @state() attachmentID: string | undefined;
 
-  @state() attachmentIDs: Array<string> = [];
-  @state() attachmentPreviews: Array<string> = [];
+  @state() attachments: Array<LocalAttachment> = [];
+
+  @state() editDialogOpen = false;
+  @state() activeAttachment: LocalAttachment | null = null;
 
   @state() attaching: boolean = false;
 
@@ -60,16 +72,20 @@ export class PostDialog extends LitElement {
       #markdown-support {
         margin: 0;
         padding-top: 4px;
-        font-size: 11px;
+        font-size: var(--md-sys-typescale-label-small-font-size);
+      }
+
+      .preview-actions {
+            width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
       }
 
       md-dialog::part(dialog) {
         z-index: 99999;
         min-width: 60vw;
         min-height: 60vh;
-
-        content-visibility: auto;
-        contain: layout style paint;
       }
 
       .dialog-footer-actions {
@@ -96,7 +112,7 @@ export class PostDialog extends LitElement {
       }
 
       #post-copilot span {
-        font-size: 12px;
+        font-size: var(--md-sys-typescale-body-small-font-size);
       }
 
       #post-copilot md-button {
@@ -328,28 +344,86 @@ export class PostDialog extends LitElement {
 
       this.attaching = false;
 
-      this.attachmentID = data.id;
-      this.attachmentPreview = data.preview_url;
+      const newAttachment = {
+        id: data.id,
+        preview_url: data.preview_url,
+        description: data.description
+      };
+
+      this.attachments = [...this.attachments, newAttachment];
+      this.openEditDialog(newAttachment);
     }
   }
 
   async attachFile() {
-    this.attaching = true;
-    const attachmentData = await uploadImageAsFormData();
-    console.log('attachmentData', attachmentData);
+    const files = await pickMedia();
+    if (!files || files.length === 0) return;
 
-    const ids: Array<any> = [];
-    const previews: Array<any> = [];
+    for (const file of files) {
+      const tempId = `temp-${Date.now()}-${Math.random()}`;
+      const previewUrl = URL.createObjectURL(file);
 
-    attachmentData.forEach((attachment) => {
-      ids.push(attachment.id);
-      previews.push(attachment.preview_url);
-    });
+      const newAttachment: LocalAttachment = {
+        id: tempId,
+        preview_url: previewUrl,
+        description: null,
+        pending: true
+      };
 
-    this.attachmentIDs = [...ids];
-    this.attachmentPreviews = [...previews];
+      this.attachments = [...this.attachments, newAttachment];
 
-    this.attaching = false;
+      // Open dialog for the first file immediately
+      if (files.indexOf(file) === 0) {
+        this.openEditDialog(newAttachment);
+      }
+
+      // Start upload in background
+      this.uploadFile(file, tempId);
+    }
+  }
+
+  async uploadFile(file: File, tempId: string) {
+    try {
+      const data = await uploadMediaFile(file);
+
+      // Find the attachment to check if description was updated locally
+      const currentAttachment = this.attachments.find(a => a.id === tempId);
+      const descriptionToSave = currentAttachment?.description;
+
+      // Update with real data
+      this.attachments = this.attachments.map(a =>
+        a.id === tempId ? {
+          ...a,
+          id: data.id,
+          preview_url: data.preview_url, // Use remote URL
+          pending: false
+        } : a
+      );
+
+      // If this was the active attachment in the dialog, update the dialog's active attachment
+      if (this.activeAttachment?.id === tempId) {
+        this.activeAttachment = {
+          ...this.activeAttachment,
+          id: data.id,
+          preview_url: data.preview_url,
+          pending: false
+        };
+      }
+
+      // If description was set while pending, update it on server
+      if (descriptionToSave) {
+        await updateMedia(data.id, descriptionToSave);
+      }
+
+    } catch (err) {
+      console.error("Upload failed", err);
+      // Remove failed attachment
+      this.attachments = this.attachments.filter(a => a.id !== tempId);
+      if (this.activeAttachment?.id === tempId) {
+        this.editDialogOpen = false;
+        this.activeAttachment = null;
+      }
+    }
   }
 
   async addAIImageToPost() {
@@ -359,32 +433,25 @@ export class PostDialog extends LitElement {
       this.attaching = true;
       const attachmentData = await uploadImageFromBlob(this.aiBlob);
 
-      this.attachmentIDs = [...this.attachmentIDs, attachmentData.id];
-      this.attachmentPreviews = [
-        ...this.attachmentPreviews,
-        attachmentData.preview_url,
-      ];
+      const newAttachment = {
+        id: attachmentData.id,
+        preview_url: attachmentData.preview_url,
+        description: attachmentData.description
+      };
+
+      this.attachments = [...this.attachments, newAttachment];
 
       this.attaching = false;
 
       this.generatedImage = undefined;
       this.aiBlob = undefined;
+
+      this.openEditDialog(newAttachment);
     }
   }
 
-  removeImage(preview: string) {
-    const index = this.attachmentPreviews.indexOf(preview);
-    if (index > -1) {
-      this.attachmentPreviews.splice(index, 1);
-      this.attachmentIDs.splice(index, 1);
-
-      this.requestUpdate();
-    }
-
-    if (this.attachmentPreviews.length === 0) {
-      this.attachmentPreviews = [];
-      this.attachmentIDs = [];
-    }
+  removeImage(id: string) {
+    this.attachments = this.attachments.filter(a => a.id !== id);
   }
 
   async publish() {
@@ -401,7 +468,7 @@ export class PostDialog extends LitElement {
         const html = e.data;
         console.log(html);
 
-        if (this.attachmentIDs) {
+        if (this.attachments.length > 0) {
           if (this.sensitive === true) {
             const sensitiveInput = this.shadowRoot?.getElementById(
               'sensitive-input'
@@ -411,13 +478,12 @@ export class PostDialog extends LitElement {
 
           await publishPost(
             status,
-            this.attachmentIDs,
+            this.attachments.map(att => att.id),
             this.sensitive,
             spoilerText
           );
 
-          this.attachmentIDs = [];
-          this.attachmentPreviews = [];
+          this.attachments = [];
           this.generatedImage = undefined;
           this.aiBlob = undefined;
 
@@ -432,8 +498,7 @@ export class PostDialog extends LitElement {
 
           await publishPost(status, undefined, this.sensitive, spoilerText);
 
-          this.attachmentIDs = [];
-          this.attachmentPreviews = [];
+          this.attachments = [];
           this.generatedImage = undefined;
           this.aiBlob = undefined;
 
@@ -519,7 +584,34 @@ export class PostDialog extends LitElement {
     this.sensitive = !this.sensitive;
   }
 
-  render() {
+  openEditDialog(attachment: LocalAttachment) {
+    this.activeAttachment = attachment;
+    this.editDialogOpen = true;
+  }
+
+  async handleMediaSave(e: CustomEvent) {
+    const { id, description } = e.detail;
+
+    // Optimistic update
+    this.attachments = this.attachments.map(a =>
+      a.id === id ? { ...a, description } : a
+    );
+
+    // If active attachment is the one being saved, update it too
+    if (this.activeAttachment?.id === id) {
+      this.activeAttachment = { ...this.activeAttachment, description } as LocalAttachment;
+    }
+
+    // Only send update if not pending (uploading)
+    const attachment = this.attachments.find(a => a.id === id);
+    if (attachment && !attachment.pending) {
+      try {
+        await updateMedia(id, description);
+      } catch (err) {
+        console.error('Failed to update media description', err);
+      }
+    }
+  } render() {
     return html`
       <md-dialog
         id="notify-dialog"
@@ -544,27 +636,7 @@ export class PostDialog extends LitElement {
         : null}
 
         <div slot="footer" class="dialog-footer-actions">
-          ${this.attaching === false
-        ? html`
-                <ul>
-                  ${this.attachmentPreviews.map((preview) => {
-          return html`
-                      <div class="img-preview">
-                        <md-button
-                          size="small"
-                          @click="${() => this.removeImage(preview)}"
-                        >
-                          <md-icon src="/assets/close-outline.svg"></md-icon>
-                        </md-button>
-                        <img src="${preview}" />
-                      </div>
-                    `;
-        })}
-                </ul>
-              `
-        : html`<div id="attachment-loading">
-                <sl-skeleton effect="sheen"></sl-skeleton>
-              </div>`}
+
           ${this.showPrompt
         ? html`<div id="ai-image">
                 ${this.showPrompt && this.generatedImage
@@ -642,7 +714,49 @@ export class PostDialog extends LitElement {
             >Publish</md-button
           >
         </div>
+
+                          ${this.attaching === false
+        ? html`
+                <ul>
+                  ${this.attachments.map((attachment) => {
+          return html`
+                      <div class="img-preview">
+                        <div class="preview-actions">
+                          <md-icon-button
+                            size="small"
+                            @click="${() => this.removeImage(attachment.id)}"
+                          >
+                            <md-icon src="/assets/close-outline.svg"></md-icon>
+                          </md-icon-button>
+                          <md-icon-button
+                            size="small"
+                            @click="${() => this.openEditDialog(attachment)}"
+                          >
+                            <md-icon src="/assets/brush-outline.svg"></md-icon>
+                          </md-icon-button>
+                        </div>
+                        <img src="${attachment.preview_url}" alt="${attachment.description || ''}" />
+                      </div>
+                    `;
+        })}
+                </ul>
+              `
+        : html`<div id="attachment-loading">
+                <sl-skeleton effect="sheen"></sl-skeleton>
+              </div>`}
       </md-dialog>
+
+      <media-edit-dialog
+        .open="${this.editDialogOpen}"
+        .imageSrc="${this.activeAttachment?.preview_url || ''}"
+        .description="${this.activeAttachment?.description || ''}"
+        .mediaId="${this.activeAttachment?.id || ''}"
+        @close="${() => {
+        this.editDialogOpen = false;
+        this.activeAttachment = null;
+      }}"
+        @save="${this.handleMediaSave}"
+      ></media-edit-dialog>
     `;
   }
 }

@@ -18,6 +18,10 @@ export class ImageCarousel extends LitElement {
         width: 100%;
       }
 
+      img {
+        border-radius: 12px;
+      }
+
       .image-container {
         position: relative;
         overflow: hidden;
@@ -26,6 +30,7 @@ export class ImageCarousel extends LitElement {
         display: flex;
         align-items: center;
         justify-content: center;
+        border-radius: 12px;
       }
 
       @media (prefers-color-scheme: dark) {
@@ -70,6 +75,8 @@ export class ImageCarousel extends LitElement {
         scroll-snap-type: x mandatory;
         overflow-x: scroll;
         scroll-behavior: smooth;
+
+        align-items: center;
       }
 
       #list div {

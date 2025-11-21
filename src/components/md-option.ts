@@ -30,7 +30,7 @@ export class MdOption extends LitElement {
         system-ui,
         -apple-system,
         sans-serif;
-      font-size: 16px;
+      font-size: var(--md-sys-typescale-body-large-font-size);
       font-weight: 400;
       line-height: 24px;
       letter-spacing: 0.5px;
@@ -177,8 +177,8 @@ export class MdOption extends LitElement {
     return html`
       <div
         class="option ${this.selected ? 'selected' : ''} ${this.disabled
-          ? 'disabled'
-          : ''}"
+        ? 'disabled'
+        : ''}"
         role="option"
         aria-selected="${this.selected}"
         aria-disabled="${this.disabled}"
