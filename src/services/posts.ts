@@ -62,11 +62,13 @@ export async function publishPost(
   post: string,
   ids?: Array<string>,
   sensitive: boolean = false,
-  spoilerText: string = ''
+  spoilerText: string = '',
+  visibility: string = 'public'
 ) {
   const formData = new FormData();
 
   formData.append('status', post && post.length > 0 ? post : '');
+  formData.append('visibility', visibility);
 
   if (ids && ids.length > 0) {
     for (const id of ids) {

@@ -432,7 +432,19 @@ export class TimelineItem extends LitElement {
   }
 
   async replies() {
-    await this.openPost();
+    const event = new CustomEvent('reply-clicked', {
+      detail: {
+        tweet: this.tweet,
+      },
+      bubbles: true,
+      composed: true,
+      cancelable: true,
+    });
+    const dispatched = this.dispatchEvent(event);
+
+    if (dispatched) {
+      await this.openPost();
+    }
   }
 
   // async analyzeStatus(tweet: Post | null) {

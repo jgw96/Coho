@@ -7,6 +7,8 @@ import './md-text-field.js';
 import './md-text-area.js';
 import './md-icon.js';
 import './md-icon-button.js';
+import './md-select.js';
+import './md-option.js';
 import './media-edit-dialog.js';
 import '@shoelace-style/shoelace/dist/components/skeleton/skeleton.js';
 import {
@@ -53,6 +55,7 @@ export class PostDialog extends LitElement {
 
   @state() hasStatus: boolean = false;
   @state() sensitive: boolean = false;
+  @state() visibility: string = 'public';
   @state() isMobile: boolean = false;
 
   @state() maxChars: number = 500;
@@ -491,7 +494,8 @@ export class PostDialog extends LitElement {
             status,
             this.attachments.map(att => att.id),
             this.sensitive,
-            spoilerText
+            spoilerText,
+            this.visibility
           );
 
           this.attachments = [];
@@ -507,7 +511,7 @@ export class PostDialog extends LitElement {
             spoilerText = sensitiveInput.value;
           }
 
-          await publishPost(status, undefined, this.sensitive, spoilerText);
+          await publishPost(status, undefined, this.sensitive, spoilerText, this.visibility);
 
           this.attachments = [];
           this.generatedImage = undefined;
@@ -687,12 +691,24 @@ export class PostDialog extends LitElement {
         : null}
 
           <!-- Desktop buttons with text -->
+          <md-select
+            .value=${this.visibility}
+            @change=${(e: any) => this.visibility = e.detail.value}
+            style="width: 140px; min-width: 140px;"
+            pill
+          >
+            <md-option value="public">Public</md-option>
+            <md-option value="unlisted">Unlisted</md-option>
+            <md-option value="private">Followers Only</md-option>
+            <md-option value="direct">Direct</md-option>
+          </md-select>
+
           <md-button
             class="desktop-button"
             variant="text"
             @click="${() => this.markAsSensitive()}"
           >
-            Set Visibility
+            Content Warning
             <md-icon src="/assets/eye-outline.svg"></md-icon>
           </md-button>
 
@@ -709,7 +725,7 @@ export class PostDialog extends LitElement {
           <!-- Mobile icon buttons -->
           <md-icon-button
             class="mobile-icon-button"
-            label="Set Visibility"
+            label="Content Warning"
             src="/assets/eye-outline.svg"
             @click="${() => this.markAsSensitive()}"
           ></md-icon-button>

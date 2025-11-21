@@ -4,6 +4,7 @@ import { customElement, property, state } from 'lit/decorators.js';
 import '../components/header';
 import '../components/timeline-item';
 import '../components/md-icon';
+import '../components/md-icon-button';
 import '../components/md-text-area';
 import { Post } from '../interfaces/Post';
 import { getReplies } from '../services/timeline';
@@ -15,8 +16,9 @@ import { classMap } from 'lit/directives/class-map.js';
 export class PostDetail extends LitElement {
   @state() tweet: Post | null = null;
   @state() replies: any[] = [];
+  @state() replyingTo: Post | null = null;
 
-  @property() passed_tweet: Post | null = null;
+  @property({ type: Object }) passed_tweet: Post | null = null;
 
   static styles = [
     css`
@@ -72,6 +74,18 @@ export class PostDetail extends LitElement {
         justify-content: flex-end;
         gap: 6px;
         flex-direction: column;
+      }
+
+      #replying-to-indicator {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 12px;
+        color: var(--md-sys-color-on-surface-variant);
+        padding: 4px 8px;
+        background: var(--md-sys-color-surface-container-high);
+        border-radius: 8px;
+        margin-bottom: 8px;
       }
 
       #replies {
@@ -222,15 +236,27 @@ export class PostDetail extends LitElement {
 
   async handleReply() {
     const textArea = this.shadowRoot?.querySelector('md-text-area') as any;
+    const tweetToReplyTo = this.replyingTo || this.tweet;
 
-    if (textArea.value && this.tweet && this.tweet.id) {
-      await replyToPost(this.tweet.id, textArea.value);
+    if (textArea.value && tweetToReplyTo && tweetToReplyTo.id) {
+      await replyToPost(tweetToReplyTo.id, textArea.value);
 
       await this.loadReplies();
 
       this.replies = [...this.replies];
 
       textArea.value = '';
+      this.replyingTo = null;
+    }
+  }
+
+  handleReplyClick(e: CustomEvent) {
+    e.preventDefault();
+    this.replyingTo = e.detail.tweet;
+
+    const textArea = this.shadowRoot?.querySelector('md-text-area') as any;
+    if (textArea) {
+      textArea.focus();
     }
   }
 
@@ -244,6 +270,17 @@ export class PostDetail extends LitElement {
         <div id="main-block">
           <timeline-item id="main" .tweet="${this.tweet!}"></timeline-item>
           <div id="post-actions">
+            ${this.replyingTo
+        ? html`
+                  <div id="replying-to-indicator">
+                    <span>Replying to @${this.replyingTo.account.acct}</span>
+                    <md-icon-button
+                      name="close"
+                      @click=${() => (this.replyingTo = null)}
+                    ></md-icon-button>
+                  </div>
+                `
+        : nothing}
             <md-text-area
               variant="outlined"
               placeholder="Reply to this post..."
@@ -266,7 +303,11 @@ export class PostDetail extends LitElement {
           <ul>
             ${this.replies.map(
           (reply) => html`
-                <timeline-item .tweet="${reply}"></timeline-item>
+                <timeline-item
+                  .tweet="${reply}"
+                  ?show="${true}"
+                  @reply-clicked="${(e: CustomEvent) => this.handleReplyClick(e)}"
+                ></timeline-item>
               `
         )}
           </ul>

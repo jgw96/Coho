@@ -208,6 +208,10 @@ export class MdTextArea extends LitElement {
     );
   }
 
+  focus() {
+    this._textarea.focus();
+  }
+
   render() {
     return html`
       <div class="text-area-container">
