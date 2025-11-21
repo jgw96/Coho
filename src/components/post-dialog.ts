@@ -16,6 +16,7 @@ import {
   pickMedia,
   uploadMediaFile
 } from '../services/posts';
+import { getInstanceInfo } from '../services/account';
 import { createAPost, createImage } from '../services/ai';
 
 // @ts-ignore
@@ -53,6 +54,9 @@ export class PostDialog extends LitElement {
   @state() hasStatus: boolean = false;
   @state() sensitive: boolean = false;
   @state() isMobile: boolean = false;
+
+  @state() maxChars: number = 500;
+  @state() charCount: number = 0;
 
   aiBlob: Blob | undefined;
 
@@ -266,6 +270,13 @@ export class PostDialog extends LitElement {
     window.matchMedia('(max-width: 820px)').addEventListener('change', (e) => {
       this.isMobile = e.matches;
     });
+
+    const instance = await getInstanceInfo();
+    if (instance.configuration?.statuses?.max_characters) {
+      this.maxChars = instance.configuration.statuses.max_characters;
+    } else if (instance.max_toot_chars) {
+      this.maxChars = instance.max_toot_chars;
+    }
 
     setTimeout(() => {
       const dialog: any = this.shadowRoot?.querySelector('md-dialog');
@@ -575,8 +586,11 @@ export class PostDialog extends LitElement {
   }
 
   handleStatus(ev: any) {
+    this.charCount = ev.target.value.length;
     if (ev.target.value.length > 0) {
       this.hasStatus = true;
+    } else {
+      this.hasStatus = false;
     }
   }
 
@@ -621,9 +635,11 @@ export class PostDialog extends LitElement {
       >
         <md-text-area
           @change="${($event: any) => this.handleStatus($event)}"
+          @input="${($event: any) => this.handleStatus($event)}"
           autofocus
           placeholder="What's on your mind?"
           rows="6"
+          maxlength="${this.maxChars}"
         ></md-text-area>
 
         ${this.sensitive
