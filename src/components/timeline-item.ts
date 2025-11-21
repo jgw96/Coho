@@ -428,26 +428,6 @@ export class TimelineItem extends LitElement {
     await this.openPost();
   }
 
-  async openInBox(imageURL: string) {
-    console.log('show image', imageURL);
-
-    if ('startViewTransition' in document) {
-      // @ts-ignore
-      this.style.viewTransitionName = 'image-preview';
-
-      //@ts-ignore
-      await document.startViewTransition();
-      router.navigate(`/imagepreview?src=${imageURL}`);
-
-      setTimeout(() => {
-        // @ts-ignore
-        this.style.viewTransitionName = '';
-      }, 800);
-    } else {
-      router.navigate(`/imagepreview?src=${imageURL}`);
-    }
-  }
-
   // async analyzeStatus(tweet: Post | null) {
   //     if (tweet) {
   //         const { analyzeStatusText, analyzeStatusImage } = await import('../services/ai');
@@ -749,14 +729,13 @@ export class TimelineItem extends LitElement {
 
                     <div class="header-actions-block" slot="header">
                       <div>
-                        <md-button
-                          pill
-                          variant="outlined"
+                        <md-icon-button
                           size="small"
                           @click="${() =>
                 this.translatePost(this.tweet?.content || null)}"
-                          pill
-                          >Translate</md-button
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M48 112h288M192 64v48M272 448l96-224 96 224M301.5 384h133M281.3 112S257 206 199 277 80 384 80 384"/><path d="M256 336s-35-27-72-75-56-85-56-85" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/></svg>
+                          </md-icon-button
                         >
 
                         <md-icon-button

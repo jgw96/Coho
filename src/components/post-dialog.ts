@@ -535,20 +535,20 @@ export class PostDialog extends LitElement {
         ></md-text-area>
 
         ${this.sensitive
-          ? html`<div id="sensitive-warning">
+        ? html`<div id="sensitive-warning">
               <md-text-field
                 id="sensitive-input"
                 placeholder="Write your warning here"
               ></md-text-field>
             </div>`
-          : null}
+        : null}
 
         <div slot="footer" class="dialog-footer-actions">
           ${this.attaching === false
-            ? html`
+        ? html`
                 <ul>
                   ${this.attachmentPreviews.map((preview) => {
-                    return html`
+          return html`
                       <div class="img-preview">
                         <md-button
                           size="small"
@@ -559,30 +559,30 @@ export class PostDialog extends LitElement {
                         <img src="${preview}" />
                       </div>
                     `;
-                  })}
+        })}
                 </ul>
               `
-            : html`<div id="attachment-loading">
+        : html`<div id="attachment-loading">
                 <sl-skeleton effect="sheen"></sl-skeleton>
               </div>`}
           ${this.showPrompt
-            ? html`<div id="ai-image">
+        ? html`<div id="ai-image">
                 ${this.showPrompt && this.generatedImage
-                  ? html` <img src="${this.generatedImage}" /> `
-                  : this.showPrompt && this.generatingImage === false
-                    ? html`<div id="ai-preview-block">
+            ? html` <img src="${this.generatedImage}" /> `
+            : this.showPrompt && this.generatingImage === false
+              ? html`<div id="ai-preview-block">
                         <p>Enter a prompt to generate an image with AI!</p>
                       </div>`
-                    : html`<div id="ai-preview-block">
+              : html`<div id="ai-preview-block">
                         <sl-skeleton effect="sheen"></sl-skeleton>
                       </div>`}
                 ${this.showPrompt
-                  ? html`
+            ? html`
                       <div id="ai-input-block">
                         <sl-input
                           placeholder="A picture of an orange cat"
                           @sl-change="${(e: any) =>
-                            this.doAIImage(e.target.value)}"
+                this.doAIImage(e.target.value)}"
                         ></sl-input>
 
                         <md-button
@@ -594,9 +594,9 @@ export class PostDialog extends LitElement {
                         >
                       </div>
                     `
-                  : null}
-              </div>`
             : null}
+              </div>`
+        : null}
 
           <!-- Desktop buttons with text -->
           <md-button
@@ -607,16 +607,6 @@ export class PostDialog extends LitElement {
             Set Visibility
             <md-icon src="/assets/eye-outline.svg"></md-icon>
           </md-button>
-
-          ${this.showPrompt === false
-            ? html`<md-button
-                class="desktop-button"
-                size="small"
-                pill
-                @click="${() => this.openAIPrompt()}"
-                >AI: Generate Image</md-button
-              >`
-            : null}
 
           <md-button
             class="desktop-button"
@@ -635,15 +625,6 @@ export class PostDialog extends LitElement {
             src="/assets/eye-outline.svg"
             @click="${() => this.markAsSensitive()}"
           ></md-icon-button>
-
-          ${this.showPrompt === false
-            ? html`<md-icon-button
-                class="mobile-icon-button"
-                label="AI: Generate Image"
-                src="/assets/sparkles-outline.svg"
-                @click="${() => this.openAIPrompt()}"
-              ></md-icon-button>`
-            : null}
 
           <md-icon-button
             class="mobile-icon-button"

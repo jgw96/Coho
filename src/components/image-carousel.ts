@@ -1,6 +1,5 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import { router } from '../utils/router';
 import { getBlurhashWorker } from '../services/blurhash-worker';
 
 @customElement('image-carousel')
@@ -171,25 +170,16 @@ export class ImageCarousel extends LitElement {
   async openInBox(image: any) {
     console.log('show image', image);
 
-    if ('startViewTransition' in document) {
-      // @ts-ignore
-      this.style.viewTransitionName = 'image-preview';
-
-      //@ts-ignore
-      await document.startViewTransition();
-      router.navigate(
-        `/imagepreview?src=${image.url}&desc=${image.description}`
-      );
-
-      setTimeout(() => {
-        // @ts-ignore
-        this.style.viewTransitionName = '';
-      }, 800);
-    } else {
-      router.navigate(
-        `/imagepreview?src=${image.url}&desc=${image.description}`
-      );
-    }
+    window.dispatchEvent(new CustomEvent('preview-image', {
+      detail: {
+        src: image.url,
+        alt: image.description,
+        width: image.meta?.original?.width,
+        height: image.meta?.original?.height
+      },
+      bubbles: true,
+      composed: true
+    }));
   }
 
   generateTemplateBasedOnType(image: any) {
@@ -204,12 +194,12 @@ export class ImageCarousel extends LitElement {
             @click="${() => this.openInBox(image)}"
           >
             ${blurhashUrl
-              ? html`<img
+            ? html`<img
                   class="blurhash-canvas"
                   src="${blurhashUrl}"
                   aria-hidden="true"
                 />`
-              : null}
+            : null}
             <!-- <img
               loading="lazy"
               src="${image.preview_url}"
@@ -232,22 +222,22 @@ export class ImageCarousel extends LitElement {
     return html`
       <div id="list">
         ${this.images.map((image) => {
-          if (image.type === 'image') {
-            const height = this.calculateImageHeight(image);
-            const blurhashUrl = this.blurhashUrls.get(image.id);
-            return html`
+      if (image.type === 'image') {
+        const height = this.calculateImageHeight(image);
+        const blurhashUrl = this.blurhashUrls.get(image.id);
+        return html`
               <div
                 class="image-container"
                 style="height: ${height}"
                 @click="${() => this.openInBox(image)}"
               >
                 ${blurhashUrl
-                  ? html`<img
+            ? html`<img
                       class="blurhash-canvas"
                       src="${blurhashUrl}"
                       aria-hidden="true"
                     />`
-                  : null}
+            : null}
                 <img
                   src="${image.preview_url}"
                   alt="${image.description || 'Image'}"
@@ -256,21 +246,21 @@ export class ImageCarousel extends LitElement {
                 />
               </div>
             `;
-          } else if (image.type === 'video') {
-            return html`
+      } else if (image.type === 'video') {
+        return html`
               <div>
                 <video controls src="${image.url}"></video>
               </div>
             `;
-          } else if (image.type === 'gifv') {
-            return html`
+      } else if (image.type === 'gifv') {
+        return html`
               <div>
                 <video autoplay loop src="${image.url}"></video>
               </div>
             `;
-          }
-          return null;
-        })}
+      }
+      return null;
+    })}
       </div>
     `;
   }

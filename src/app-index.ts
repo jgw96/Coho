@@ -1,10 +1,11 @@
-import { LitElement, css } from 'lit';
+import { LitElement, css, html } from 'lit';
 import { customElement } from 'lit/decorators.js';
 
 import { router } from './utils/router';
 
 import './pages/app-login';
 import './components/header';
+import './components/image-preview-dialog';
 import { getSettings } from './services/settings';
 
 @customElement('app-index')
@@ -189,6 +190,9 @@ export class AppIndex extends LitElement {
   }
 
   render() {
-    return router.render();
+    return html`
+      ${router.render()}
+      <image-preview-dialog></image-preview-dialog>
+    `;
   }
 }

@@ -77,12 +77,6 @@ export const router = new Router({
       render: () => html`<post-detail></post-detail>`,
     },
     {
-      path: '/imagepreview',
-      title: 'image preview',
-      plugins: [lazy(() => import('../pages/image-preview.js'))],
-      render: () => html`<image-preview></image-preview>`,
-    },
-    {
       path: '/editaccount',
       title: 'edit account',
       plugins: [lazy(() => import('../pages/edit-page.js'))],
