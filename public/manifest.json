@@ -95,50 +95,50 @@
   ],
   "screenshots": [
     {
-      "src": "assets/screenshots/new-screens/mobile-one.png",
+      "src": "assets/screenshots/mobile/home-mobile-dark.png",
       "sizes": "1082x2402",
       "type": "image/png",
       "form_factor": "narrow"
     },
     {
-      "src": "assets/screenshots/new-screens/mobile-two.png",
+      "src": "assets/screenshots/mobile/home-mobile-light.png",
       "sizes": "1082x2402",
       "type": "image/png",
       "form_factor": "narrow"
     },
     {
-      "src": "assets/screenshots/new-screens/mobile-three.png",
+      "src": "assets/screenshots/mobile/theme-mobile-light.png",
       "sizes": "1082x2402",
       "type": "image/png",
       "form_factor": "narrow"
     },
     {
-      "src": "assets/screenshots/new-screens/mobile-four.png",
+      "src": "assets/screenshots/mobile/trending-mobile-dark.png",
       "sizes": "1082x2402",
       "type": "image/png",
       "form_factor": "narrow"
     },
     {
-      "src": "assets/screenshots/new-screens/desktop-one.png",
-      "sizes": "2360x1640",
+      "src": "assets/screenshots/desktop/home-desktop-dark.png",
+      "sizes": "2736x1824",
       "type": "image/png",
       "form_factor": "wide"
     },
     {
-      "src": "assets/screenshots/new-screens/desktop-two.png",
-      "sizes": "2360x1640",
+      "src": "assets/screenshots/desktop/home-desktop-light.png",
+      "sizes": "2736x1824",
       "type": "image/png",
       "form_factor": "wide"
     },
     {
-      "src": "assets/screenshots/new-screens/desktop-three.png",
-      "sizes": "2360x1640",
+      "src": "assets/screenshots/desktop/theme-desktop-dark.png",
+      "sizes": "2736x1824",
       "type": "image/png",
       "form_factor": "wide"
     },
     {
-      "src": "assets/screenshots/new-screens/desktop-four.png",
-      "sizes": "2360x1640",
+      "src": "assets/screenshots/desktop/trending-desktop-dark.png",
+      "sizes": "2736x1824",
       "type": "image/png",
       "form_factor": "wide"
     }
@@ -226,32 +226,6 @@
           "type": "image/png"
         }
       ]
-    }
-  ],
-  "widgets": [
-    {
-      "name": "Otter",
-      "description": "Widget for Otter, the Mastodon app",
-      "tag": "Otter",
-      "template": "Otter-template",
-      "ms_ac_template": "widgets/widget-template.json",
-      "data": "widgets/widget-data.json",
-      "type": "application/json",
-      "screenshots": [
-        {
-          "src": "assets/screenshots/new/desktop-one.png",
-          "sizes": "2732x2048",
-          "label": "The widget for Otter"
-        }
-      ],
-      "icons": [
-        {
-          "src": "assets/icons/favicon.ico",
-          "sizes": "16x16"
-        }
-      ],
-      "auth": false,
-      "update": 86400
     }
   ]
 }

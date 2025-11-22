@@ -5,13 +5,14 @@
 ## Status: Currently In Public Alpha
 
 <div>
-  <img height="400px" src="/public/assets/screenshots/new-screens/desktop-one.png" />
-  <img height="400px" src="/public/assets/screenshots/new-screens/mobile-one.png" />
+  <img height="400px" src="/public/assets/screenshots/desktop/home-desktop-dark.png" />
+  <img height="400px" src="/public/assets/screenshots/desktop/home-desktop-light.png" />
 </div>
 
 <div>
-  <img height="400px" src="/public/assets/screenshots/new-screens/desktop-three.png" />
-  <img height="400px" src="/public/assets/screenshots/new-screens/mobile-two.png" />
+  <img height="600px" src="/public/assets/screenshots/mobile/home-mobile-dark.png" />
+  <img height="600px" src="/public/assets/screenshots/mobile/home-mobile-light.png" />
+  <img height="600px" src="/public/assets/screenshots/mobile/trending-mobile-dark.png" />
 </div>
 
 ## Features
