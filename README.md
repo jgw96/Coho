@@ -8,9 +8,9 @@ Coho is a Progressive Web App (PWA) client for Mastodon. It emphasizes offline c
 
 [**Get the App**](https://coho-mastodon.web.app)
 
-<div align="center">
-  <img src="/public/assets/screenshots/desktop/cross-platform.png" alt="Desktop Screenshot" width="45%" />
-  <img src="/public/assets/screenshots/mobile/fast-reliable.png" alt="Mobile Screenshot" width="45%" />
+<div>
+  <img src="/public/assets/screenshots/desktop/cross-platform.png" alt="Desktop Screenshot" width="400px" />
+  <img src="/public/assets/screenshots/mobile/fast-reliable.png" alt="Mobile Screenshot" width="400px" />
 </div>
 
 ## Features
@@ -71,7 +71,7 @@ npm run build
 
 This command includes our custom image optimization script which significantly reduces bundle size.
 
-## 📂 Project Structure
+## Project Structure
 
 - `src/components/`: Reusable Lit web components (MD3 & others).
 - `src/pages/`: Top-level application pages.
@@ -80,10 +80,10 @@ This command includes our custom image optimization script which significantly r
 - `functions/`: Firebase Cloud Functions for backend logic.
 - `public/`: Static assets, service worker, and manifest.
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
-## 📄 License
+## License
 
 This project is licensed under the MPL License.
