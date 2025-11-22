@@ -1,5 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
+import { router } from '../utils/router';
 
 import './user-profile';
 import './timeline-item';
@@ -25,7 +26,6 @@ provideFluentDesignSystem().register(fluentTabPanel());
 export class Notifications extends LitElement {
   @state() notifications = [];
   @state() subbed: boolean = false;
-  @state() openTweet: Post | null = null;
 
   static styles = [
     css`
@@ -252,29 +252,13 @@ export class Notifications extends LitElement {
     }
   }
 
-  async handleOpen(tweet: Post) {
-    this.dispatchEvent(
-      new CustomEvent('open', {
-        detail: {
-          tweet,
-        },
-      })
-    );
+  async openPost(tweet: Post) {
+    const serialized = encodeURIComponent(JSON.stringify(tweet));
+    await router.navigate(`/home/post?${serialized}`);
   }
 
   render() {
     return html`
-      <md-dialog
-        id="open-tweet-dialog"
-        label="Post Details"
-        .open="${!!this.openTweet}"
-        @md-dialog-hide="${() => (this.openTweet = null)}"
-      >
-        ${this.openTweet
-        ? html`<post-detail .passed_tweet="${this.openTweet}"></post-detail>`
-        : null}
-      </md-dialog>
-
       <div id="notify-actions">
         <div id="notify-inner">
           <md-switch
@@ -318,7 +302,11 @@ export class Notifications extends LitElement {
               : null}
                     ${notification.type === 'reblog'
               ? html`
-                          <li class="reblog">
+                          <li
+                            class="reblog"
+                            @click="${() =>
+                  this.openPost(notification.status)}"
+                          >
                             <div>
                               <user-profile
                                 small
@@ -328,12 +316,6 @@ export class Notifications extends LitElement {
                               <p>boosted your post</p>
                             </div>
 
-                            <!-- <timeline-item @open="${(
-                $event: CustomEvent
-              ) =>
-                  this.handleOpen(
-                    $event.detail.tweet
-                  )}" .tweet=${notification.status}></timeline-item> -->
                             <div
                               class="content-item"
                               .innerHTML="${notification.status.content}"
@@ -343,7 +325,11 @@ export class Notifications extends LitElement {
               : null}
                     ${notification.type === 'favourite'
               ? html`
-                          <li class="favourite">
+                          <li
+                            class="favourite"
+                            @click="${() =>
+                  this.openPost(notification.status)}"
+                          >
                             <div>
                               <user-profile
                                 small
@@ -362,7 +348,11 @@ export class Notifications extends LitElement {
               : null}
                     ${notification.type === 'mention'
               ? html`
-                          <li class="mention">
+                          <li
+                            class="mention"
+                            @click="${() =>
+                  this.openPost(notification.status)}"
+                          >
                             <div>
                               <user-profile
                                 small
@@ -381,7 +371,11 @@ export class Notifications extends LitElement {
               : null}
                     ${notification.type === 'update'
               ? html`
-                          <li class="edit">
+                          <li
+                            class="edit"
+                            @click="${() =>
+                  this.openPost(notification.status)}"
+                          >
                             <div>
                               <user-profile
                                 small
@@ -416,7 +410,11 @@ export class Notifications extends LitElement {
           return html`
                     ${notification.type === 'mention'
               ? html`
-                          <li class="mention">
+                          <li
+                            class="mention"
+                            @click="${() =>
+                  this.openPost(notification.status)}"
+                          >
                             <div>
                               <user-profile
                                 small

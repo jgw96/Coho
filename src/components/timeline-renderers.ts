@@ -76,6 +76,7 @@ export function renderReplyContext(state: TimelineItemState, handlers: TimelineI
               variant="text"
               pill
               size="small"
+              style="--md-sys-color-primary: #878792"
               @click="${() => handlers.replies()}"
             >
               <md-icon slot="suffix" name="chatbox"></md-icon>
@@ -84,7 +85,7 @@ export function renderReplyContext(state: TimelineItemState, handlers: TimelineI
 
         <md-button
           variant="text"
-          ?disabled=${state.isBookmarked || state.tweet?.reply_to.bookmarked}
+          style="--md-sys-color-primary: ${state.isBookmarked || state.tweet?.reply_to.bookmarked ? 'var(--sl-color-primary-600)' : '#878792'}"
           pill
           size="small"
           @click="${() => handlers.bookmark(state.tweet?.reply_to.id || '')}"
@@ -93,7 +94,7 @@ export function renderReplyContext(state: TimelineItemState, handlers: TimelineI
         ${state.settings && state.settings.wellness === false
             ? html`<md-button
               variant="text"
-              ?disabled=${state.isBoosted || state.tweet?.reply_to.favourited}
+              style="--md-sys-color-primary: ${state.isBoosted || state.tweet?.reply_to.favourited ? 'var(--sl-color-primary-600)' : '#878792'}"
               pill
               size="small"
               @click="${() => handlers.favorite(state.tweet?.reply_to.id || '')}"
@@ -104,7 +105,7 @@ export function renderReplyContext(state: TimelineItemState, handlers: TimelineI
         ${state.settings && state.settings.wellness === false
             ? html`<md-button
               variant="text"
-              ?disabled=${state.isReblogged || state.tweet?.reply_to.reblogged}
+              style="--md-sys-color-primary: ${state.isReblogged || state.tweet?.reply_to.reblogged ? 'var(--sl-color-primary-600)' : '#878792'}"
               pill
               @click="${() => handlers.reblog(state.tweet?.reply_to.id || '')}"
               >${state.tweet?.reply_to.reblogs_count}
@@ -221,6 +222,7 @@ export function renderRegularTweet(state: TimelineItemState, handlers: TimelineI
               variant="text"
               pill
               size="small"
+              style="--md-sys-color-primary: #878792"
               @click="${() => handlers.replies()}"
             >
               <md-icon
@@ -231,7 +233,7 @@ export function renderRegularTweet(state: TimelineItemState, handlers: TimelineI
             : null}
         <md-button
           variant="text"
-          ?disabled=${state.isBookmarked || state.tweet?.bookmarked}
+          style="--md-sys-color-primary: ${state.isBookmarked || state.tweet?.bookmarked ? 'var(--sl-color-primary-600)' : '#878792'}"
           pill
           size="small"
           @click="${() => handlers.bookmark(state.tweet?.id || '')}"
@@ -240,7 +242,7 @@ export function renderRegularTweet(state: TimelineItemState, handlers: TimelineI
         ${state.settings && state.settings.wellness === false
             ? html`<md-button
               variant="text"
-              ?disabled=${state.isBoosted || state.tweet?.favourited}
+              style="--md-sys-color-primary: ${state.isBoosted || state.tweet?.favourited ? 'var(--sl-color-primary-600)' : '#878792'}"
               pill
               size="small"
               @click="${() => handlers.favorite(state.tweet?.id || '')}"
@@ -251,7 +253,7 @@ export function renderRegularTweet(state: TimelineItemState, handlers: TimelineI
         ${state.settings && state.settings.wellness === false
             ? html`<md-button
               variant="text"
-              ?disabled=${state.isReblogged || state.tweet?.reblogged}
+              style="--md-sys-color-primary: ${state.isReblogged || state.tweet?.reblogged ? 'var(--sl-color-primary-600)' : '#878792'}"
               pill
               size="small"
               @click="${() => handlers.reblog(state.tweet?.id || '')}"
@@ -313,6 +315,7 @@ export function renderReblog(state: TimelineItemState, handlers: TimelineItemHan
               variant="text"
               pill
               size="small"
+              style="--md-sys-color-primary: #878792"
               @click="${() => handlers.replies()}"
             >
               <md-icon slot="suffix" name="chatbox"></md-icon>
@@ -320,7 +323,7 @@ export function renderReblog(state: TimelineItemState, handlers: TimelineItemHan
             : null}
         <md-button
           variant="text"
-          ?disabled=${state.isBookmarked}
+          style="--md-sys-color-primary: ${state.isBookmarked ? 'var(--sl-color-primary-600)' : '#878792'}"
           pill
           size="small"
           @click="${() => handlers.bookmark(state.tweet?.id || '')}"
@@ -329,7 +332,7 @@ export function renderReblog(state: TimelineItemState, handlers: TimelineItemHan
         ${state.settings && state.settings.wellness === false
             ? html`<md-button
               variant="text"
-              ?disabled=${state.isBoosted || state.tweet?.favourited}
+              style="--md-sys-color-primary: ${state.isBoosted || state.tweet?.favourited ? 'var(--sl-color-primary-600)' : '#878792'}"
               pill
               size="small"
               @click="${() => handlers.favorite(state.tweet?.id || '')}"
@@ -340,7 +343,7 @@ export function renderReblog(state: TimelineItemState, handlers: TimelineItemHan
         ${state.settings && state.settings.wellness === false
             ? html`<md-button
               variant="text"
-              ?disabled=${state.isReblogged || state.tweet?.reblogged}
+              style="--md-sys-color-primary: ${state.isReblogged || state.tweet?.reblogged ? 'var(--sl-color-primary-600)' : '#878792'}"
               pill
               size="small"
               @click="${() => handlers.reblog(state.tweet?.id || '')}"
@@ -372,7 +375,7 @@ export function renderThread(state: TimelineItemState, handlers: TimelineItemHan
             <div class="actions" slot="footer">
               <md-button
                 variant="text"
-                ?disabled=${threadPost.bookmarked}
+                style="--md-sys-color-primary: ${threadPost.bookmarked ? 'var(--sl-color-primary-600)' : '#878792'}"
                 pill
                 size="small"
                 @click="${() => handlers.bookmark(threadPost.id)}"
@@ -381,7 +384,7 @@ export function renderThread(state: TimelineItemState, handlers: TimelineItemHan
               ${state.settings && state.settings.wellness === false
                 ? html`<md-button
                     variant="text"
-                    ?disabled=${threadPost.favourited}
+                    style="--md-sys-color-primary: ${threadPost.favourited ? 'var(--sl-color-primary-600)' : '#878792'}"
                     pill
                     size="small"
                     @click="${() => handlers.favorite(threadPost.id)}"
@@ -392,7 +395,7 @@ export function renderThread(state: TimelineItemState, handlers: TimelineItemHan
               ${state.settings && state.settings.wellness === false
                 ? html`<md-button
                     variant="text"
-                    ?disabled=${threadPost.reblogged}
+                    style="--md-sys-color-primary: ${threadPost.reblogged ? 'var(--sl-color-primary-600)' : '#878792'}"
                     pill
                     size="small"
                     @click="${() => handlers.reblog(threadPost.id)}"

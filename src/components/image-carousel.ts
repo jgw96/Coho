@@ -182,7 +182,8 @@ export class ImageCarousel extends LitElement {
         src: image.url,
         alt: image.description,
         width: image.meta?.original?.width,
-        height: image.meta?.original?.height
+        height: image.meta?.original?.height,
+        blurhash: image.blurhash
       },
       bubbles: true,
       composed: true

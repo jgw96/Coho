@@ -52,6 +52,8 @@ export class TimelineItem extends LitElement {
 
         border-bottom: solid 1px;
         border-color: #6767679e;
+
+        cursor: pointer;
       }
 
       md-card::part(header) {

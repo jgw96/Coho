@@ -138,6 +138,7 @@ export class AppExplore extends LitElement {
             <md-text-field
               id="server-input"
               placeholder="https://tech.lgbt"
+              pill
             ></md-text-field>
             <md-button id="login-button" variant="filled" @click="${this.login}"
               >Login</md-button

@@ -2,7 +2,8 @@
 :host,
 .sl-theme-light {
   /* MD3 Color Tokens - Light Mode */
-  --md-sys-color-background: #fef7ff;
+  --md-sys-color-background: color-mix(in srgb, var(--md-sys-color-primary) 10%, white);
+  --md-sys-color-surface: color-mix(in srgb, var(--md-sys-color-primary) 10%, white);
   --md-sys-color-on-background: #1d1b20;
 
   --sl-color-gray-50: hsl(0 0% 97.5%);

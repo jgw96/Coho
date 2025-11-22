@@ -13,6 +13,7 @@ export class MdTextField extends LitElement {
   @property({ type: Boolean }) disabled = false;
   @property({ type: Boolean }) autofocus = false;
   @property({ type: String }) variant: 'filled' | 'outlined' = 'filled';
+  @property({ type: Boolean }) pill = false;
   @property({ type: String }) type:
     | 'text'
     | 'email'
@@ -99,6 +100,15 @@ export class MdTextField extends LitElement {
     input.outlined:hover:not(:disabled) {
       border-color: var(--md-sys-color-on-surface, #1d1b20);
       background-color: transparent;
+    }
+
+    input.pill {
+      border-radius: 9999px;
+      border-bottom: none;
+    }
+
+    input.pill.outlined {
+      border-radius: 9999px;
     }
 
     input.outlined:focus {
@@ -204,7 +214,7 @@ export class MdTextField extends LitElement {
           .value="${this.value}"
           placeholder="${this.placeholder}"
           ?disabled="${this.disabled}"
-          class="${this.variant}"
+          class="${this.variant} ${this.pill ? 'pill' : ''}"
           @input="${this._handleInput}"
           @change="${this._handleChange}"
         />

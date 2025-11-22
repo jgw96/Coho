@@ -106,6 +106,7 @@ export class Search extends LitElement {
         @change="${($event: any) => this.handleSearch($event.target.value)}"
         placeholder="Search"
         type="search"
+        pill
         .value=${this.searchData?.query || ''}
       >
       </md-text-field>
