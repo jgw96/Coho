@@ -309,9 +309,9 @@ export class MdSelect extends LitElement {
       <div class="select-container">
         <div
           class="select-input ${this.variant} ${this._open ? 'open' : ''} ${this
-        .disabled
-        ? 'disabled'
-        : ''} ${this.pill ? 'pill' : ''}"
+            .disabled
+            ? 'disabled'
+            : ''} ${this.pill ? 'pill' : ''}"
           @click=${this._handleInputClick}
           tabindex="${this.disabled ? -1 : 0}"
           role="combobox"

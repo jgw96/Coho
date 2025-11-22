@@ -38,8 +38,8 @@ export class ImagePreviewDialog extends LitElement {
     }
 
     dialog::backdrop {
-          background-color: rgb(0 0 0 / 0%);
-    backdrop-filter: blur(36px);
+      background-color: rgb(0 0 0 / 0%);
+      backdrop-filter: blur(36px);
     }
 
     .container {
@@ -97,12 +97,16 @@ export class ImagePreviewDialog extends LitElement {
       margin-top: 16px;
       color: #e6e1e5;
       text-align: center;
-          max-height: 10vh;
-    overflow-y: auto;
-      font-family: var(--md-sys-typescale-body-large-font-family-name, Roboto, sans-serif);
+      max-height: 10vh;
+      overflow-y: auto;
+      font-family: var(
+        --md-sys-typescale-body-large-font-family-name,
+        Roboto,
+        sans-serif
+      );
       font-size: var(--md-sys-typescale-body-large-font-size, 16px);
       max-width: 800px;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0, 0, 0, 0.6);
       padding: 8px 16px;
       border-radius: 24px;
     }
@@ -114,23 +118,29 @@ export class ImagePreviewDialog extends LitElement {
       z-index: 10;
       color: white;
       --md-sys-color-on-surface-variant: white;
-      background: rgba(0,0,0,0.3);
+      background: rgba(0, 0, 0, 0.3);
       border-radius: 50%;
     }
 
     .close-button:hover {
-      background: rgba(0,0,0,0.5);
+      background: rgba(0, 0, 0, 0.5);
     }
   `;
 
   connectedCallback() {
     super.connectedCallback();
-    window.addEventListener('preview-image', this.handlePreviewImage as EventListener);
+    window.addEventListener(
+      'preview-image',
+      this.handlePreviewImage as EventListener
+    );
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
-    window.removeEventListener('preview-image', this.handlePreviewImage as EventListener);
+    window.removeEventListener(
+      'preview-image',
+      this.handlePreviewImage as EventListener
+    );
   }
 
   updated(changedProperties: Map<string, any>) {
@@ -150,7 +160,7 @@ export class ImagePreviewDialog extends LitElement {
     this.height = e.detail.height;
     this.loaded = false;
     this.open = true;
-  }
+  };
 
   private close() {
     this.open = false;
@@ -168,7 +178,11 @@ export class ImagePreviewDialog extends LitElement {
     // Close if clicking on the container or image wrapper (backdrop area)
     // But not if clicking on the image itself or caption
     const target = e.target as HTMLElement;
-    if (target === this.dialog || target.classList.contains('container') || target.classList.contains('image-wrapper')) {
+    if (
+      target === this.dialog ||
+      target.classList.contains('container') ||
+      target.classList.contains('image-wrapper')
+    ) {
       this.close();
     }
   }
@@ -177,8 +191,8 @@ export class ImagePreviewDialog extends LitElement {
     return html`
       <dialog @close="${this.close}" @click="${this.handleBackdropClick}">
         <md-icon-button class="close-button" @click="${this.close}">
-            <md-icon>
-              <svg
+          <md-icon>
+            <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -191,25 +205,32 @@ export class ImagePreviewDialog extends LitElement {
                 d="M6 18L18 6M6 6l12 12"
               />
             </svg>
-            </md-icon>
+          </md-icon>
         </md-icon-button>
 
-                <div class="container">
-            <div class="image-wrapper">
-                <md-skeleton
-                    class="${this.loaded ? 'hidden' : ''}"
-                    style="width: 100%; height: 280px;"
-                ></md-skeleton>
-                <img
-                  class="${this.loaded ? 'loaded' : ''}"
-                  src="${this.src}"
-                  alt="${this.alt}"
-                  width="${ifDefined(this.width || undefined)}"
-                  @click="${(e: Event) => e.stopPropagation()}"
-                  @load="${() => this.loaded = true}"
-                />
-            </div>
-            ${this.alt ? html`<div class="caption" @click="${(e: Event) => e.stopPropagation()}">${this.alt}</div>` : ''}
+        <div class="container">
+          <div class="image-wrapper">
+            <md-skeleton
+              class="${this.loaded ? 'hidden' : ''}"
+              style="width: 100%; height: 280px;"
+            ></md-skeleton>
+            <img
+              class="${this.loaded ? 'loaded' : ''}"
+              src="${this.src}"
+              alt="${this.alt}"
+              width="${ifDefined(this.width || undefined)}"
+              @click="${(e: Event) => e.stopPropagation()}"
+              @load="${() => (this.loaded = true)}"
+            />
+          </div>
+          ${this.alt
+            ? html`<div
+                class="caption"
+                @click="${(e: Event) => e.stopPropagation()}"
+              >
+                ${this.alt}
+              </div>`
+            : ''}
         </div>
       </dialog>
     `;

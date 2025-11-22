@@ -85,28 +85,38 @@
       "sizes": "512x512",
       "type": "image/webp",
       "purpose": "any"
+    },
+    {
+      "src": "assets/icons/new-icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
     }
   ],
   "screenshots": [
     {
       "src": "assets/screenshots/new-screens/mobile-one.png",
       "sizes": "1082x2402",
-      "type": "image/png"
+      "type": "image/png",
+      "form_factor": "narrow"
     },
     {
       "src": "assets/screenshots/new-screens/mobile-two.png",
       "sizes": "1082x2402",
-      "type": "image/png"
+      "type": "image/png",
+      "form_factor": "narrow"
     },
     {
       "src": "assets/screenshots/new-screens/mobile-three.png",
       "sizes": "1082x2402",
-      "type": "image/png"
+      "type": "image/png",
+      "form_factor": "narrow"
     },
     {
       "src": "assets/screenshots/new-screens/mobile-four.png",
       "sizes": "1082x2402",
-      "type": "image/png"
+      "type": "image/png",
+      "form_factor": "narrow"
     },
     {
       "src": "assets/screenshots/new-screens/desktop-one.png",

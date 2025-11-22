@@ -16,7 +16,7 @@ import {
   uploadImageFromBlob,
   updateMedia,
   pickMedia,
-  uploadMediaFile
+  uploadMediaFile,
 } from '../services/posts';
 import { getInstanceInfo } from '../services/account';
 import { createAPost, createImage } from '../services/ai';
@@ -83,10 +83,10 @@ export class PostDialog extends LitElement {
       }
 
       .preview-actions {
-            width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
 
       md-dialog::part(dialog) {
@@ -361,7 +361,7 @@ export class PostDialog extends LitElement {
       const newAttachment = {
         id: data.id,
         preview_url: data.preview_url,
-        description: data.description
+        description: data.description,
       };
 
       this.attachments = [...this.attachments, newAttachment];
@@ -381,7 +381,7 @@ export class PostDialog extends LitElement {
         id: tempId,
         preview_url: previewUrl,
         description: null,
-        pending: true
+        pending: true,
       };
 
       this.attachments = [...this.attachments, newAttachment];
@@ -401,17 +401,19 @@ export class PostDialog extends LitElement {
       const data = await uploadMediaFile(file);
 
       // Find the attachment to check if description was updated locally
-      const currentAttachment = this.attachments.find(a => a.id === tempId);
+      const currentAttachment = this.attachments.find((a) => a.id === tempId);
       const descriptionToSave = currentAttachment?.description;
 
       // Update with real data
-      this.attachments = this.attachments.map(a =>
-        a.id === tempId ? {
-          ...a,
-          id: data.id,
-          preview_url: data.preview_url, // Use remote URL
-          pending: false
-        } : a
+      this.attachments = this.attachments.map((a) =>
+        a.id === tempId
+          ? {
+              ...a,
+              id: data.id,
+              preview_url: data.preview_url, // Use remote URL
+              pending: false,
+            }
+          : a
       );
 
       // If this was the active attachment in the dialog, update the dialog's active attachment
@@ -420,7 +422,7 @@ export class PostDialog extends LitElement {
           ...this.activeAttachment,
           id: data.id,
           preview_url: data.preview_url,
-          pending: false
+          pending: false,
         };
       }
 
@@ -428,11 +430,10 @@ export class PostDialog extends LitElement {
       if (descriptionToSave) {
         await updateMedia(data.id, descriptionToSave);
       }
-
     } catch (err) {
-      console.error("Upload failed", err);
+      console.error('Upload failed', err);
       // Remove failed attachment
-      this.attachments = this.attachments.filter(a => a.id !== tempId);
+      this.attachments = this.attachments.filter((a) => a.id !== tempId);
       if (this.activeAttachment?.id === tempId) {
         this.editDialogOpen = false;
         this.activeAttachment = null;
@@ -450,7 +451,7 @@ export class PostDialog extends LitElement {
       const newAttachment = {
         id: attachmentData.id,
         preview_url: attachmentData.preview_url,
-        description: attachmentData.description
+        description: attachmentData.description,
       };
 
       this.attachments = [...this.attachments, newAttachment];
@@ -465,7 +466,7 @@ export class PostDialog extends LitElement {
   }
 
   removeImage(id: string) {
-    this.attachments = this.attachments.filter(a => a.id !== id);
+    this.attachments = this.attachments.filter((a) => a.id !== id);
   }
 
   async publish() {
@@ -492,7 +493,7 @@ export class PostDialog extends LitElement {
 
           await publishPost(
             status,
-            this.attachments.map(att => att.id),
+            this.attachments.map((att) => att.id),
             this.sensitive,
             spoilerText,
             this.visibility
@@ -511,7 +512,13 @@ export class PostDialog extends LitElement {
             spoilerText = sensitiveInput.value;
           }
 
-          await publishPost(status, undefined, this.sensitive, spoilerText, this.visibility);
+          await publishPost(
+            status,
+            undefined,
+            this.sensitive,
+            spoilerText,
+            this.visibility
+          );
 
           this.attachments = [];
           this.generatedImage = undefined;
@@ -611,17 +618,20 @@ export class PostDialog extends LitElement {
     const { id, description } = e.detail;
 
     // Optimistic update
-    this.attachments = this.attachments.map(a =>
+    this.attachments = this.attachments.map((a) =>
       a.id === id ? { ...a, description } : a
     );
 
     // If active attachment is the one being saved, update it too
     if (this.activeAttachment?.id === id) {
-      this.activeAttachment = { ...this.activeAttachment, description } as LocalAttachment;
+      this.activeAttachment = {
+        ...this.activeAttachment,
+        description,
+      } as LocalAttachment;
     }
 
     // Only send update if not pending (uploading)
-    const attachment = this.attachments.find(a => a.id === id);
+    const attachment = this.attachments.find((a) => a.id === id);
     if (attachment && !attachment.pending) {
       try {
         await updateMedia(id, description);
@@ -629,7 +639,8 @@ export class PostDialog extends LitElement {
         console.error('Failed to update media description', err);
       }
     }
-  } render() {
+  }
+  render() {
     return html`
       <md-dialog
         id="notify-dialog"
@@ -647,34 +658,33 @@ export class PostDialog extends LitElement {
         ></md-text-area>
 
         ${this.sensitive
-        ? html`<div id="sensitive-warning">
+          ? html`<div id="sensitive-warning">
               <md-text-field
                 id="sensitive-input"
                 placeholder="Write your warning here"
               ></md-text-field>
             </div>`
-        : null}
+          : null}
 
         <div slot="footer" class="dialog-footer-actions">
-
           ${this.showPrompt
-        ? html`<div id="ai-image">
+            ? html`<div id="ai-image">
                 ${this.showPrompt && this.generatedImage
-            ? html` <img src="${this.generatedImage}" /> `
-            : this.showPrompt && this.generatingImage === false
-              ? html`<div id="ai-preview-block">
+                  ? html` <img src="${this.generatedImage}" /> `
+                  : this.showPrompt && this.generatingImage === false
+                    ? html`<div id="ai-preview-block">
                         <p>Enter a prompt to generate an image with AI!</p>
                       </div>`
-              : html`<div id="ai-preview-block">
+                    : html`<div id="ai-preview-block">
                         <sl-skeleton effect="sheen"></sl-skeleton>
                       </div>`}
                 ${this.showPrompt
-            ? html`
+                  ? html`
                       <div id="ai-input-block">
                         <sl-input
                           placeholder="A picture of an orange cat"
                           @sl-change="${(e: any) =>
-                this.doAIImage(e.target.value)}"
+                            this.doAIImage(e.target.value)}"
                         ></sl-input>
 
                         <md-button
@@ -686,14 +696,14 @@ export class PostDialog extends LitElement {
                         >
                       </div>
                     `
-            : null}
+                  : null}
               </div>`
-        : null}
+            : null}
 
           <!-- Desktop buttons with text -->
           <md-select
             .value=${this.visibility}
-            @change=${(e: any) => this.visibility = e.detail.value}
+            @change=${(e: any) => (this.visibility = e.detail.value)}
             style="width: 140px; min-width: 140px;"
             pill
           >
@@ -747,35 +757,38 @@ export class PostDialog extends LitElement {
           >
         </div>
 
-                          ${this.attaching === false
-        ? html`
-                <ul>
-                  ${this.attachments.map((attachment) => {
-          return html`
-                      <div class="img-preview">
-                        <div class="preview-actions">
-                          <md-icon-button
-                            size="small"
-                            @click="${() => this.removeImage(attachment.id)}"
-                          >
-                            <md-icon src="/assets/close-outline.svg"></md-icon>
-                          </md-icon-button>
-                          <md-icon-button
-                            size="small"
-                            @click="${() => this.openEditDialog(attachment)}"
-                          >
-                            <md-icon src="/assets/brush-outline.svg"></md-icon>
-                          </md-icon-button>
-                        </div>
-                        <img src="${attachment.preview_url}" alt="${attachment.description || ''}" />
+        ${this.attaching === false
+          ? html`
+              <ul>
+                ${this.attachments.map((attachment) => {
+                  return html`
+                    <div class="img-preview">
+                      <div class="preview-actions">
+                        <md-icon-button
+                          size="small"
+                          @click="${() => this.removeImage(attachment.id)}"
+                        >
+                          <md-icon src="/assets/close-outline.svg"></md-icon>
+                        </md-icon-button>
+                        <md-icon-button
+                          size="small"
+                          @click="${() => this.openEditDialog(attachment)}"
+                        >
+                          <md-icon src="/assets/brush-outline.svg"></md-icon>
+                        </md-icon-button>
                       </div>
-                    `;
-        })}
-                </ul>
-              `
-        : html`<div id="attachment-loading">
-                <sl-skeleton effect="sheen"></sl-skeleton>
-              </div>`}
+                      <img
+                        src="${attachment.preview_url}"
+                        alt="${attachment.description || ''}"
+                      />
+                    </div>
+                  `;
+                })}
+              </ul>
+            `
+          : html`<div id="attachment-loading">
+              <sl-skeleton effect="sheen"></sl-skeleton>
+            </div>`}
       </md-dialog>
 
       <media-edit-dialog
@@ -784,9 +797,9 @@ export class PostDialog extends LitElement {
         .description="${this.activeAttachment?.description || ''}"
         .mediaId="${this.activeAttachment?.id || ''}"
         @close="${() => {
-        this.editDialogOpen = false;
-        this.activeAttachment = null;
-      }}"
+          this.editDialogOpen = false;
+          this.activeAttachment = null;
+        }}"
         @save="${this.handleMediaSave}"
       ></media-edit-dialog>
     `;

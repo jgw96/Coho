@@ -49,7 +49,11 @@ export class AppLogin extends LitElement {
         left: -50%;
         width: 200%;
         height: 200%;
-        background: radial-gradient(circle at center, var(--md-sys-color-primary-container, #eaddff) 0%, transparent 50%);
+        background: radial-gradient(
+          circle at center,
+          var(--md-sys-color-primary-container, #eaddff) 0%,
+          transparent 50%
+        );
         opacity: 0.3;
         z-index: 0;
         pointer-events: none;
@@ -75,7 +79,7 @@ export class AppLogin extends LitElement {
         height: 80px;
         margin-bottom: 16px;
         border-radius: 16px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       }
 
       h1 {
@@ -385,7 +389,11 @@ export class AppLogin extends LitElement {
 
         <md-card class="login-card" variant="elevated">
           <div class="login-header">
-            <img src="/assets/icons/new-icons/icon-144x144.webp" alt="Coho Logo" class="logo" />
+            <img
+              src="/assets/icons/new-icons/icon-144x144.webp"
+              alt="Coho Logo"
+              class="logo"
+            />
             <h1>Welcome to Coho</h1>
             <p class="subtitle">Your modern Mastodon client</p>
           </div>
@@ -400,7 +408,11 @@ export class AppLogin extends LitElement {
             >
             </md-text-field>
 
-            <md-button @click="${() => this.login()}" variant="filled" class="login-button">
+            <md-button
+              @click="${() => this.login()}"
+              variant="filled"
+              class="login-button"
+            >
               Login
             </md-button>
           </div>

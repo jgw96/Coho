@@ -179,7 +179,7 @@ export class CreateAccount extends LitElement {
 
         <ul>
           ${this.servers.map((server) => {
-      return html`
+            return html`
               <li>
                 <img src="${server.thumbnail}" alt="${server.name} thumbnail" />
                 <div class="info">
@@ -198,7 +198,7 @@ export class CreateAccount extends LitElement {
                 >
               </li>
             `;
-    })}
+          })}
         </ul>
       </main>
     `;

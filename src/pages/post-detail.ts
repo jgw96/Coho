@@ -271,7 +271,7 @@ export class PostDetail extends LitElement {
           <timeline-item id="main" .tweet="${this.tweet!}"></timeline-item>
           <div id="post-actions">
             ${this.replyingTo
-        ? html`
+              ? html`
                   <div id="replying-to-indicator">
                     <span>Replying to @${this.replyingTo.account.acct}</span>
                     <md-icon-button
@@ -280,7 +280,7 @@ export class PostDetail extends LitElement {
                     ></md-icon-button>
                   </div>
                 `
-        : nothing}
+              : nothing}
             <md-text-area
               variant="outlined"
               placeholder="Reply to this post..."
@@ -302,14 +302,15 @@ export class PostDetail extends LitElement {
 
           <ul>
             ${this.replies.map(
-          (reply) => html`
+              (reply) => html`
                 <timeline-item
                   .tweet="${reply}"
                   ?show="${true}"
-                  @reply-clicked="${(e: CustomEvent) => this.handleReplyClick(e)}"
+                  @reply-clicked="${(e: CustomEvent) =>
+                    this.handleReplyClick(e)}"
                 ></timeline-item>
               `
-        )}
+            )}
           </ul>
         </div>
       </main>

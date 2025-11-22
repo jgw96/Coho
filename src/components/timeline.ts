@@ -783,11 +783,11 @@ export class Timeline extends LitElement {
         label="Image Preview"
       >
         ${this.imgPreview
-        ? html`<img
+          ? html`<img
               src="${this.imgPreview}"
               style="width:100%;border-radius:6px;"
             />`
-        : null}
+          : null}
       </md-dialog>
 
       <div id="timeline-header">
@@ -795,7 +795,7 @@ export class Timeline extends LitElement {
           pill
           .value="${this.timelineType}"
           @change="${($event: any) =>
-        this.changeTimelineType($event.detail.value)}"
+            this.changeTimelineType($event.detail.value)}"
           placeholder="home"
         >
           <md-option value="for you">for you</md-option>
@@ -809,9 +809,9 @@ export class Timeline extends LitElement {
         <md-icon-button
           circle
           @click="${() => {
-        clearTimelineCache(this.timelineType);
-        this.refreshTimeline(true);
-      }}"
+            clearTimelineCache(this.timelineType);
+            this.refreshTimeline(true);
+          }}"
         >
           <md-icon src="/assets/refresh-circle-outline.svg"></md-icon>
         </md-icon-button>
@@ -819,61 +819,61 @@ export class Timeline extends LitElement {
 
       <ul id="mainList" part="list" class="scrollbar-hidden">
         <div id="refresh-indicator">
-           <md-icon src="/assets/refresh-circle-outline.svg"></md-icon>
+          <md-icon src="/assets/refresh-circle-outline.svg"></md-icon>
         </div>
         <!-- ${guard([this.timeline.length, this.timelineType], () =>
-        this.timeline.map(
-          (tweet: Post) => html`
+          this.timeline.map(
+            (tweet: Post) => html`
               <li class="timeline-list-item">
                 <timeline-item
                   @summarize="${($event: any) => this.handleSummary($event)}"
                   tweetID="${tweet.id}"
                   @delete="${() => this.refreshTimeline()}"
                   @analyze="${($event: any) =>
-              this.showAnalyze(
-                $event.detail.data,
-                $event.detail.imageData,
-                $event.detail.tweet
-              )}"
+                    this.showAnalyze(
+                      $event.detail.data,
+                      $event.detail.imageData,
+                      $event.detail.tweet
+                    )}"
                   @openimage="${($event: any) =>
-              this.showImage($event.detail.imageURL)}"
+                    this.showImage($event.detail.imageURL)}"
                   ?show="${true}"
                   @replies="${($event: any) =>
-              this.handleReplies($event.detail.data)}"
+                    this.handleReplies($event.detail.data)}"
                   .tweet="${tweet}"
                 ></timeline-item>
               </li>
             `
-        )
-      )} -->
+          )
+        )} -->
 
         ${this.loadingData && this.timeline.length === 0
-        ? html`<md-skeleton-card count="5"></md-skeleton-card>`
-        : html`
+          ? html`<md-skeleton-card count="5"></md-skeleton-card>`
+          : html`
               <lit-virtualizer
                 .items=${this.timeline}
                 .renderItem=${(tweet: Post) =>
-            html`<li class="timeline-list-item">
+                  html`<li class="timeline-list-item">
                     <timeline-item
                       @open="${($event: CustomEvent) =>
-                this.handleOpen($event.detail.tweet)}"
+                        this.handleOpen($event.detail.tweet)}"
                       @summarize="${($event: any) =>
-                this.handleSummary($event)}"
+                        this.handleSummary($event)}"
                       @translating="${($event: any) =>
-                this.handleTranslating($event)}"
+                        this.handleTranslating($event)}"
                       tweetID="${tweet.id}"
                       @delete="${() => this.refreshTimeline()}"
                       @analyze="${($event: any) =>
-                this.showAnalyze(
-                  $event.detail.data,
-                  $event.detail.imageData,
-                  $event.detail.tweet
-                )}"
+                        this.showAnalyze(
+                          $event.detail.data,
+                          $event.detail.imageData,
+                          $event.detail.tweet
+                        )}"
                       @openimage="${($event: any) =>
-                this.showImage($event.detail.imageURL)}"
+                        this.showImage($event.detail.imageURL)}"
                       ?show="${true}"
                       @replies="${($event: any) =>
-                this.handleReplies($event.detail.data)}"
+                        this.handleReplies($event.detail.data)}"
                       .tweet="${tweet}"
                     ></timeline-item>
                   </li>`}

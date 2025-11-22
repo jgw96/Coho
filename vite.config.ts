@@ -132,9 +132,7 @@ export default defineConfig({
         swSrc: 'public/sw.js',
         swDest: 'dist/sw.js',
         globDirectory: 'dist',
-        globPatterns: [
-          '**/*.{js,css,html}'
-        ],
+        globPatterns: ['**/*.{js,css,html}'],
         // Don't include these in the precache
         globIgnores: ['**/node_modules/**/*'],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB

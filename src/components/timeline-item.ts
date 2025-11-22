@@ -11,7 +11,7 @@ import {
   renderReblog,
   renderThread,
   TimelineItemHandlers,
-  TimelineItemState
+  TimelineItemState,
 } from './timeline-renderers';
 
 @customElement('timeline-item')
@@ -683,7 +683,9 @@ export class TimelineItem extends LitElement {
     }
 
     return html`
-      ${this.tweet.reblog ? renderReblog(state, handlers) : renderRegularTweet(state, handlers)}
+      ${this.tweet.reblog
+        ? renderReblog(state, handlers)
+        : renderRegularTweet(state, handlers)}
       ${renderThread(state, handlers)}
     `;
   }

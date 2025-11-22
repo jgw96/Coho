@@ -84,7 +84,8 @@ export class UserProfile extends LitElement {
       }
 
       @media (max-width: 500px) {
-        p, h4 {
+        p,
+        h4 {
           max-width: 40vw;
         }
       }
@@ -156,10 +157,10 @@ export class UserProfile extends LitElement {
       <div
         @click="${() => this.openUser()}"
         class=${classMap({
-      small: this.small === true,
-      headerBlock: true,
-      boosted: this.boosted,
-    })}
+          small: this.small === true,
+          headerBlock: true,
+          boosted: this.boosted,
+        })}
         slot="header"
       >
         <img

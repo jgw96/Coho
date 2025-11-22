@@ -310,10 +310,10 @@ export class MdToast extends LitElement {
       <div class="toast-container" role="status" aria-live="polite">
         <div class="message">${this.message}</div>
         ${this.actionLabel || this.closable
-        ? html`
+          ? html`
               <div class="actions">
                 ${this.actionLabel
-            ? html`
+                  ? html`
                       <button
                         class="action-button"
                         @click=${this.handleActionClick}
@@ -322,9 +322,9 @@ export class MdToast extends LitElement {
                         ${this.actionLabel}
                       </button>
                     `
-            : ''}
+                  : ''}
                 ${this.closable
-            ? html`
+                  ? html`
                       <button
                         class="close-button"
                         @click=${this.handleCloseClick}
@@ -333,10 +333,10 @@ export class MdToast extends LitElement {
                         ✕
                       </button>
                     `
-            : ''}
+                  : ''}
               </div>
             `
-        : ''}
+          : ''}
       </div>
     `;
   }
