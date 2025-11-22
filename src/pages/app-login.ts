@@ -3,6 +3,7 @@ import { customElement, state } from 'lit/decorators.js';
 
 import '../components/md-text-field';
 import '../components/md-button';
+import '../components/md-card';
 
 import { router } from '../utils/router';
 import { enableVibrate } from '../utils/handle-vibrate';
@@ -19,10 +20,13 @@ export class AppLogin extends LitElement {
     css`
       :host {
         display: block;
+        --md-sys-color-surface-container: #f0f4f8;
       }
 
-      md-dialog::part(base) {
-        z-index: 99999;
+      @media (prefers-color-scheme: dark) {
+        :host {
+          --md-sys-color-surface-container: #1a1c1e;
+        }
       }
 
       main {
@@ -30,114 +34,149 @@ export class AppLogin extends LitElement {
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 20px;
-        position: fixed;
-        inset: 0px;
-        height: 100vh;
-        width: 100vw;
-      }
-
-      @media (prefers-color-scheme: dark) {
-        fluent-combobox::part(control) {
-          background: #242428;
-          color: white;
-        }
-
-        fluent-option {
-          background: #242428;
-          color: white;
-        }
-
-        fluent-combobox::part(listbox) {
-          background: #242428;
-          color: white;
-        }
-      }
-
-      #intro-carousel {
-        display: grid;
-        grid-template-columns: 100% 100% 100%;
-        overflow-x: auto;
-        overflow-y: hidden;
+        min-height: 100vh;
         width: 100%;
-        height: 100%;
-        scroll-snap-type: x mandatory;
+        background-color: var(--md-sys-color-surface-container);
+        padding: 20px;
+        box-sizing: border-box;
+        position: relative;
+        overflow: hidden;
       }
 
-      .scroll-item {
-        scroll-snap-align: center;
+      .background-decoration {
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle at center, var(--md-sys-color-primary-container, #eaddff) 0%, transparent 50%);
+        opacity: 0.3;
+        z-index: 0;
+        pointer-events: none;
+      }
+
+      md-card {
+        max-width: 400px;
+        width: 100%;
+        z-index: 1;
+        --md-card-padding: 32px;
+      }
+
+      .login-header {
         display: flex;
         flex-direction: column;
-        justify-content: flex-start;
-        align-content: center;
-        flex-wrap: wrap;
-        padding-left: 100px;
-        padding-right: 100px;
+        align-items: center;
+        text-align: center;
+        margin-bottom: 24px;
       }
 
-      .scroll-item md-button {
-        width: 100px;
-        align-self: center;
+      .logo {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 16px;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 500;
+        color: var(--md-sys-color-on-surface);
+      }
+
+      .subtitle {
+        margin: 8px 0 0;
+        font-size: 14px;
+        color: var(--md-sys-color-on-surface-variant);
+      }
+
+      .login-form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin-bottom: 24px;
+        align-items: center;
+      }
+
+      md-text-field {
+        width: 100%;
+      }
+
+      .login-button {
+        --md-button-height: 48px;
+      }
+
+      .login-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: center;
+        width: 100%;
+      }
+
+      .app-footer {
+        margin-top: 24px;
+        font-size: 12px;
+        color: var(--md-sys-color-on-surface-variant);
+        z-index: 1;
+      }
+
+      .app-footer a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .app-footer a:hover {
+        text-decoration: underline;
+      }
+
+      md-dialog::part(base) {
+        z-index: 99999;
+      }
+
+      md-dialog::part(panel) {
+        backdrop-filter: blur(80px);
+        width: min(600px, 90vw);
+        max-height: 85vh;
       }
 
       md-dialog a {
         color: var(--sl-color-primary-600);
       }
 
-      main md-text-field {
-        width: 20em;
+      #intro-carousel {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        gap: 0;
+        width: 100%;
       }
 
-      #login-block {
+      .scroll-item {
+        flex: 0 0 100%;
+        scroll-snap-align: center;
+        padding: 0 4px;
+        box-sizing: border-box;
         display: flex;
         flex-direction: column;
-        gap: 10px;
-        align-items: center;
       }
 
-      main p {
-        font-size: var(--md-sys-typescale-body-small-font-size);
-        position: fixed;
-        bottom: 10px;
-        text-align: center;
-        justify-content: center;
-      }
-
-      md-dialog::part(panel) {
-        backdrop-filter: blur(80px);
-
-        height: 80vh;
-        width: 80vw;
+      .scroll-item md-button {
+        align-self: center;
+        margin-top: 16px;
       }
 
       @media (max-width: 820px) {
-        md-dialog::part(panel) {
-          height: 100vh;
-          width: 100vw;
-          max-height: 100vh;
-          max-width: 100vw;
-          min-height: 100vh;
-          min-width: 100vw;
+        md-card {
+          box-shadow: none;
+          background: transparent;
+          border: none;
         }
 
-        #intro-carousel {
-          overflow-y: auto;
-          overflow-x: hidden;
-          scroll-snap-type: y;
-          display: flex;
-          flex-direction: column;
-        }
-
-        .scroll-item md-button {
-          display: none;
-        }
-
-        .scroll-item {
-          display: flex;
-          flex-flow: column;
-          padding: 0px;
-          height: 100vh;
-          scroll-snap-align: start;
+        main {
+          justify-content: flex-start;
+          padding-top: 40px;
         }
       }
     `,
@@ -342,36 +381,48 @@ export class AppLogin extends LitElement {
         : null}
 
       <main>
-        <img src="/assets/icons/new-icons/icon-144x144.webp" alt="Coho Logo" />
+        <div class="background-decoration"></div>
 
-        <div id="login-block">
-          <md-text-field
-            placeholder="mastodon.social"
-            .value="${this.chosenServer}"
-            @input="${this.handleServerInput}"
-          >
-          </md-text-field>
+        <md-card class="login-card" variant="elevated">
+          <div class="login-header">
+            <img src="/assets/icons/new-icons/icon-144x144.webp" alt="Coho Logo" class="logo" />
+            <h1>Welcome to Coho</h1>
+            <p class="subtitle">Your modern Mastodon client</p>
+          </div>
 
-          <md-button @click="${() => this.login()}" variant="filled"
-            >Login</md-button
-          >
-          <md-button @click="${() => this.joinMastodon()}" variant="text"
-            >Sign up for Mastodon Account</md-button
-          >
+          <div class="login-form">
+            <md-text-field
+              placeholder="mastodon.social"
+              .value="${this.chosenServer}"
+              @input="${this.handleServerInput}"
+              @change="${this.handleServerInput}"
+              type="url"
+            >
+            </md-text-field>
+
+            <md-button @click="${() => this.login()}" variant="filled" class="login-button">
+              Login
+            </md-button>
+          </div>
+
+          <div slot="footer" class="login-actions">
+            <md-button @click="${() => this.joinMastodon()}" variant="text">
+              Sign up for Mastodon Account
+            </md-button>
+            <md-button @click="${() => this.openIntro()}" variant="text">
+              Intro To Mastodon
+            </md-button>
+            <md-button @click="${() => this.explore()}" variant="text">
+              Explore without an account
+            </md-button>
+          </div>
+        </md-card>
+
+        <div class="app-footer">
+          <a href="https://github.com/jgw96/mammoth-app#readme" target="_blank">
+            Learn More about Coho
+          </a>
         </div>
-
-        <md-button @click="${() => this.openIntro()}" variant="text"
-          >Intro To Mastodon</md-button
-        >
-        <md-button @click="${() => this.explore()}" variant="text"
-          >Explore without an account</md-button
-        >
-
-        <p>Welcome To Coho, your Mastodon Client</p>
-
-        <a href="https://github.com/jgw96/mammoth-app#readme" target="_blank"
-          >Learn More</a
-        >
       </main>
     `;
   }

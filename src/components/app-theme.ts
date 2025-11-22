@@ -223,6 +223,57 @@ export class AppTheme extends LitElement {
     document.body.style.setProperty('--sl-color-primary-600', color);
     document.body.style.setProperty('--md-sys-color-primary', color);
     document.body.style.setProperty('--md-sys-color-outline', color);
+
+    // Update theme-color meta tags
+    const metaThemeColorLight = document.querySelector(
+      'meta[name="theme-color"][media="(prefers-color-scheme: light)"]'
+    );
+    const metaThemeColorDark = document.querySelector(
+      'meta[name="theme-color"][media="(prefers-color-scheme: dark)"]'
+    );
+
+    if (metaThemeColorLight) {
+      const lightBg = this.mixColors(color, '#ffffff', 10);
+      metaThemeColorLight.setAttribute('content', lightBg);
+    }
+
+    if (metaThemeColorDark) {
+      const darkBg = this.mixColors(color, '#121212', 8);
+      metaThemeColorDark.setAttribute('content', darkBg);
+    }
+  }
+
+  private mixColors(color1: string, color2: string, weight: number) {
+    const parseHex = (hex: string) => {
+      let c = hex.substring(1);
+      if (c.length === 3)
+        c = c
+          .split('')
+          .map((i) => i + i)
+          .join('');
+      return [
+        parseInt(c.substr(0, 2), 16),
+        parseInt(c.substr(2, 2), 16),
+        parseInt(c.substr(4, 2), 16),
+      ];
+    };
+
+    const [r1, g1, b1] = parseHex(color1);
+    const [r2, g2, b2] = parseHex(color2);
+
+    const w1 = weight / 100;
+    const w2 = 1 - w1;
+
+    const r = Math.round(r1 * w1 + r2 * w2);
+    const g = Math.round(g1 * w1 + g2 * w2);
+    const b = Math.round(b1 * w1 + b2 * w2);
+
+    const toHex = (n: number) => {
+      const h = n.toString(16);
+      return h.length === 1 ? '0' + h : h;
+    };
+
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
   }
 
   LightenDarkenColor(col: string, amt: number) {

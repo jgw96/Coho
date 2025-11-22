@@ -133,9 +133,7 @@ export default defineConfig({
         swDest: 'dist/sw.js',
         globDirectory: 'dist',
         globPatterns: [
-          '**/*.{js,css,html,svg,png,jpg,jpeg,gif,webp,woff,woff2}',
-          'assets/**/*',
-          'widgets/**/*',
+          '**/*.{js,css,html}'
         ],
         // Don't include these in the precache
         globIgnores: ['**/node_modules/**/*'],
