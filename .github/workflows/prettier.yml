@@ -1,4 +1,7 @@
 name: Code Formatting Check
+permissions:
+  contents: read
+  issues: write
 
 on:
   pull_request:
