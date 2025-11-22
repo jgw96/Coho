@@ -4,6 +4,10 @@
 
 ## Status: Currently In Public Alpha
 
+## Get the app
+
+- [PWA](https://wonderful-glacier-07b022d1e.2.azurestaticapps.net/home)
+
 <div>
   <img height="400px" src="/public/assets/screenshots/desktop/home-desktop-dark.png" />
   <img height="400px" src="/public/assets/screenshots/desktop/home-desktop-light.png" />
@@ -29,10 +33,6 @@
 
 - Cross Platform
 - Fast
-
-## Get the app
-
-- [PWA](https://wonderful-glacier-07b022d1e.2.azurestaticapps.net/home)
 
 ## Development
 
