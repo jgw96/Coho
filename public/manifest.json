@@ -95,6 +95,18 @@
   ],
   "screenshots": [
     {
+      "src": "assets/screenshots/mobile/fast-reliable.png",
+      "sizes": "1376x3072",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "assets/screenshots/mobile/open-source.png",
+      "sizes": "1376x3072",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
       "src": "assets/screenshots/mobile/home-mobile-dark.png",
       "sizes": "1082x2402",
       "type": "image/png",
@@ -117,6 +129,12 @@
       "sizes": "1082x2402",
       "type": "image/png",
       "form_factor": "narrow"
+    },
+    {
+      "src": "assets/screenshots/desktop/cross-platform.png",
+      "sizes": "2528x1696",
+      "type": "image/png",
+      "form_factor": "wide"
     },
     {
       "src": "assets/screenshots/desktop/home-desktop-dark.png",
