@@ -1,4 +1,4 @@
-# Coho: Your Mastodon App
+# Coho: A Mastodon App
 
 **Not familiar with Mastodon? [Learn More](https://joinmastodon.org/)**
 
@@ -13,11 +13,6 @@
   <img height="400px" src="/public/assets/screenshots/new-screens/desktop-three.png" />
   <img height="400px" src="/public/assets/screenshots/new-screens/mobile-two.png" />
 </div>
-
-## Demos
-
-- [Create a Post with AI](https://youtu.be/WqDzQR3tG-g)
-- [Theming](https://youtu.be/D2qNMS9Lusw)
 
 ## Features
 
@@ -36,9 +31,7 @@
 
 ## Get the app
 
-- [PWA (cross-platform, works on Android, Windows, macOS, iOS, ipadOS, Linux and any other operating system with a modern browser)](https://wonderful-glacier-07b022d1e.2.azurestaticapps.net/home)
-- [Google Play](https://play.google.com/store/apps/details?id=com.mammoth.pwa)
-- [Microsoft Store](https://www.microsoft.com/store/apps/9NRFT6SLGBMK)
+- [PWA](https://wonderful-glacier-07b022d1e.2.azurestaticapps.net/home)
 
 ## Development
 
