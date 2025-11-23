@@ -49,11 +49,6 @@ export class AppLogin extends LitElement {
         left: -50%;
         width: 200%;
         height: 200%;
-        background: radial-gradient(
-          circle at center,
-          var(--md-sys-color-primary-container, #eaddff) 0%,
-          transparent 50%
-        );
         opacity: 0.3;
         z-index: 0;
         pointer-events: none;

@@ -70,27 +70,28 @@ export const translate = async (prompt: string, language: string = 'en-us') => {
   // Use Chrome's built-in Translator API
   try {
     // Check if the API is available
-    if (!('translation' in window)) {
+    if (!('Translator' in window)) {
       throw new Error('Translator API not available');
     }
 
     // Detect source language using Language Detector API
     let sourceLanguage = 'en';
-    if ('translation' in window && 'canDetect' in (window as any).translation) {
+
+    if ('Translator' in window && "LanguageDetector" in window) {
       try {
-        const canDetect = await (window as any).translation.canDetect();
-        if (canDetect !== 'no') {
-          const detector = await (window as any).translation.createDetector();
-          const results = await detector.detect(prompt);
-          if (results && results.length > 0 && results[0].confidence > 0.5) {
-            sourceLanguage = results[0].detectedLanguage;
-          }
-          detector.destroy();
+        console.log('Attempting language detection for prompt:', prompt);
+        const detector = await (window as any).LanguageDetector.create();
+        const results = await detector.detect(prompt);
+        console.log('Language detection results:', results);
+        if (results && results.length > 0 && results[0].confidence > 0.5) {
+          sourceLanguage = results[0].detectedLanguage;
         }
-      } catch (detectorError) {
+        detector.destroy();
+      }
+      catch (err) {
         console.warn(
           'Language detection failed, defaulting to English:',
-          detectorError
+          err
         );
       }
     }
@@ -102,40 +103,36 @@ export const translate = async (prompt: string, language: string = 'en-us') => {
     if (sourceLanguage === targetLanguage) {
       return { translation: prompt };
     }
-
-    // Check if translation is available for this language pair
-    const canTranslate = await (window as any).translation.canTranslate({
+    console.log("Checking translator capabilities for", sourceLanguage, "to", targetLanguage);
+    const translatorCapabilities = await (window as any).Translator.availability({
       sourceLanguage,
-      targetLanguage,
+      targetLanguage
     });
 
-    if (canTranslate === 'no') {
+    const canTranslate = translatorCapabilities;
+    console.log('canTranslate', canTranslate);
+
+    if (canTranslate !== 'available' && canTranslate !== "downloadable") {
       throw new Error(
         `Translation from ${sourceLanguage} to ${targetLanguage} not available`
       );
     }
 
     // Create translator session
-    const translator = await (window as any).translation.createTranslator({
+    const translator = await (window as any).Translator.create({
       sourceLanguage,
       targetLanguage,
     });
 
-    // If the model needs to be downloaded, wait for it
-    if (canTranslate === 'after-download') {
-      translator.addEventListener('downloadprogress', (e: any) => {
-        console.log(`Translation model download: ${e.loaded}/${e.total}`);
-      });
-      await translator.ready;
-    }
 
     // Translate the text
     const translatedText = await translator.translate(prompt);
+    console.log('Translated text:', translatedText);
 
     // Clean up
     translator.destroy();
 
-    return { translation: translatedText };
+    return translatedText;
   } catch (error) {
     console.error('Translator API error:', error);
 
