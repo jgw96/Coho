@@ -50,9 +50,6 @@ export class TimelineItem extends LitElement {
         animation-duration: 0.3s;
         animation-fill-mode: forwards;
 
-        border-bottom: solid 1px;
-        border-color: #6767679e;
-
         cursor: pointer;
       }
 

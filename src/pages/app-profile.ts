@@ -55,6 +55,11 @@ export class AppProfile extends LitElement {
         gap: 10px;
       }
 
+      a {
+        color: var(--md-sys-color-primary);
+        text-decoration: none;
+      }
+
       #edit-input-block md-text-area::part(textarea) {
         height: 200px;
       }
@@ -314,6 +319,18 @@ export class AppProfile extends LitElement {
       #user-url {
         margin-top: 4px;
         font-size: var(--md-sys-typescale-body-small-font-size);
+      }
+
+      @media (min-width: 1250px) {
+        main {
+          padding-left: 26vw;
+          padding-right: 26vw;
+        }
+
+        #mini-profile {
+          left: 26vw;
+          right: 26vw;
+        }
       }
 
       @media (max-width: 820px) {

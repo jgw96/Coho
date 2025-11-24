@@ -1,32 +1,16 @@
 /* MD3 Global Color Tokens */
 :root {
   /* Light mode by default */
-  --md-sys-color-background: color-mix(
-    in srgb,
-    var(--md-sys-color-primary) 10%,
-    white
-  );
-  --md-sys-color-surface: color-mix(
-    in srgb,
-    var(--md-sys-color-primary) 10%,
-    white
-  );
+  --md-sys-color-background: #ffffff;
+  --md-sys-color-surface: #ffffff;
   --md-sys-color-on-background: #1d1b20;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     /* Dark mode overrides */
-    --md-sys-color-background: color-mix(
-      in srgb,
-      var(--md-sys-color-primary) 8%,
-      #121212
-    );
-    --md-sys-color-surface: color-mix(
-      in srgb,
-      var(--md-sys-color-primary) 8%,
-      #121212
-    );
+    --md-sys-color-background: #202124;
+    --md-sys-color-surface: #202124;
     --md-sys-color-on-background: #e6e1e5;
   }
 }

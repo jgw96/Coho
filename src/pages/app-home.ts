@@ -575,7 +575,7 @@ export class AppHome extends LitElement {
           left: 12px;
         }
 
-        @media (min-width: 1300px) {
+        @media (min-width: 1250px) {
           app-timeline,
           app-bookmarks,
           app-notifications,
@@ -587,7 +587,7 @@ export class AppHome extends LitElement {
           }
 
           main {
-            grid-template-columns: 65vw 35vw;
+            grid-template-columns: 61vw 39vw;
           }
         }
 

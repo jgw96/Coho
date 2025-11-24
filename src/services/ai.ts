@@ -77,7 +77,7 @@ export const translate = async (prompt: string, language: string = 'en-us') => {
     // Detect source language using Language Detector API
     let sourceLanguage = 'en';
 
-    if ('Translator' in window && "LanguageDetector" in window) {
+    if ('Translator' in window && 'LanguageDetector' in window) {
       try {
         console.log('Attempting language detection for prompt:', prompt);
         const detector = await (window as any).LanguageDetector.create();
@@ -87,12 +87,8 @@ export const translate = async (prompt: string, language: string = 'en-us') => {
           sourceLanguage = results[0].detectedLanguage;
         }
         detector.destroy();
-      }
-      catch (err) {
-        console.warn(
-          'Language detection failed, defaulting to English:',
-          err
-        );
+      } catch (err) {
+        console.warn('Language detection failed, defaulting to English:', err);
       }
     }
 
@@ -103,16 +99,23 @@ export const translate = async (prompt: string, language: string = 'en-us') => {
     if (sourceLanguage === targetLanguage) {
       return { translation: prompt };
     }
-    console.log("Checking translator capabilities for", sourceLanguage, "to", targetLanguage);
-    const translatorCapabilities = await (window as any).Translator.availability({
+    console.log(
+      'Checking translator capabilities for',
       sourceLanguage,
+      'to',
       targetLanguage
+    );
+    const translatorCapabilities = await (
+      window as any
+    ).Translator.availability({
+      sourceLanguage,
+      targetLanguage,
     });
 
     const canTranslate = translatorCapabilities;
     console.log('canTranslate', canTranslate);
 
-    if (canTranslate !== 'available' && canTranslate !== "downloadable") {
+    if (canTranslate !== 'available' && canTranslate !== 'downloadable') {
       throw new Error(
         `Translation from ${sourceLanguage} to ${targetLanguage} not available`
       );
@@ -123,7 +126,6 @@ export const translate = async (prompt: string, language: string = 'en-us') => {
       sourceLanguage,
       targetLanguage,
     });
-
 
     // Translate the text
     const translatedText = await translator.translate(prompt);

@@ -168,6 +168,18 @@ export class MdDialog extends LitElement {
       animation: dialog-show 0.3s cubic-bezier(0.2, 0, 0, 1);
     }
 
+    dialog.closing {
+      animation: dialog-hide 0.2s cubic-bezier(0.2, 0, 0, 1) forwards;
+    }
+
+    dialog[open]::backdrop {
+      animation: backdrop-show 0.3s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    dialog.closing::backdrop {
+      animation: backdrop-hide 0.2s cubic-bezier(0.2, 0, 0, 1) forwards;
+    }
+
     @keyframes dialog-show {
       from {
         opacity: 0;
@@ -178,6 +190,35 @@ export class MdDialog extends LitElement {
         transform: scale(1);
       }
     }
+
+    @keyframes dialog-hide {
+      from {
+        opacity: 1;
+        transform: scale(1);
+      }
+      to {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+    }
+
+    @keyframes backdrop-show {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes backdrop-hide {
+      from {
+        opacity: 1;
+      }
+      to {
+        opacity: 0;
+      }
+    }
   `;
 
   render() {
@@ -186,6 +227,7 @@ export class MdDialog extends LitElement {
         part="dialog"
         class="${this.fullscreen ? 'fullscreen' : ''}"
         @close="${this._handleClose}"
+        @cancel="${this._handleCancel}"
         @click="${this._handleBackdropClick}"
       >
         <div class="dialog-header">
@@ -210,12 +252,12 @@ export class MdDialog extends LitElement {
         </div>
 
         ${this._hasFooterSlot()
-          ? html`
+        ? html`
               <div class="dialog-footer">
                 <slot name="footer"></slot>
               </div>
             `
-          : ''}
+        : ''}
       </dialog>
     `;
   }
@@ -231,29 +273,51 @@ export class MdDialog extends LitElement {
   }
 
   show() {
-    if (this.dialog && !this.dialog.open) {
-      this.dialog.showModal();
-      this.open = true;
-      this.dispatchEvent(
-        new CustomEvent('md-dialog-show', {
-          bubbles: true,
-          composed: true,
-        })
-      );
+    if (this.dialog) {
+      if (this.dialog.classList.contains('closing')) {
+        this.dialog.classList.remove('closing');
+        return;
+      }
+
+      if (!this.dialog.open) {
+        this.dialog.showModal();
+        this.open = true;
+        this.dispatchEvent(
+          new CustomEvent('md-dialog-show', {
+            bubbles: true,
+            composed: true,
+          })
+        );
+      }
     }
   }
 
-  hide() {
+  async hide() {
     if (this.dialog && this.dialog.open) {
-      this.dialog.close();
-      this.open = false;
-      this.dispatchEvent(
-        new CustomEvent('md-dialog-hide', {
-          bubbles: true,
-          composed: true,
-        })
-      );
+      if (this.dialog.classList.contains('closing')) {
+        return;
+      }
+
+      this.dialog.classList.add('closing');
+
+      await new Promise<void>((resolve) => {
+        const handler = () => {
+          this.dialog.removeEventListener('animationend', handler);
+          resolve();
+        };
+        this.dialog.addEventListener('animationend', handler);
+      });
+
+      if (this.dialog.classList.contains('closing')) {
+        this.dialog.classList.remove('closing');
+        this.dialog.close();
+      }
     }
+  }
+
+  private _handleCancel(e: Event) {
+    e.preventDefault();
+    this.hide();
   }
 
   private _handleBackdropClick(e: MouseEvent) {

@@ -134,6 +134,13 @@ export class PostDetail extends LitElement {
         }
       }
 
+      @media (min-width: 1250px) {
+        main {
+          padding-left: 26vw;
+          padding-right: 26vw;
+        }
+      }
+
       @media (min-width: 820px) {
         main {
           padding-left: 22vw;

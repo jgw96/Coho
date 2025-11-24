@@ -1,16 +1,8 @@
 :host,
 .sl-theme-dark {
   /* MD3 Color Tokens - Dark Mode */
-  --md-sys-color-background: color-mix(
-    in srgb,
-    var(--md-sys-color-primary) 8%,
-    #121212
-  );
-  --md-sys-color-surface: color-mix(
-    in srgb,
-    var(--md-sys-color-primary) 8%,
-    #121212
-  );
+  --md-sys-color-background: #202124;
+  --md-sys-color-surface: #202124;
   --md-sys-color-on-background: #e6e1e5;
 
   --sl-color-gray-50: hsl(240 5.1% 15%);

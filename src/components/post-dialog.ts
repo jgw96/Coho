@@ -22,9 +22,6 @@ import { getInstanceInfo } from '../services/account';
 import { createAPost, createImage } from '../services/ai';
 
 // @ts-ignore
-import { createGesture } from 'https://cdn.jsdelivr.net/npm/@ionic/core@latest/dist/esm/index.mjs';
-
-// @ts-ignore
 import MarkdownWorker from '../utils/markdown-worker?worker';
 
 interface LocalAttachment {
@@ -92,7 +89,7 @@ export class PostDialog extends LitElement {
       md-dialog::part(dialog) {
         z-index: 99999;
         min-width: 60vw;
-        min-height: 60vh;
+        min-height: 70vh;
       }
 
       .dialog-footer-actions {
@@ -102,6 +99,15 @@ export class PostDialog extends LitElement {
         align-items: center;
 
         margin-bottom: env(keyboard-inset-height, 0px);
+
+        justify-content: space-between;
+        width: 100%;
+      }
+
+      .dialog-footer-actions div {
+        display: flex;
+        align-items: center;
+        gap: 4px;
       }
 
       #post-copilot {
@@ -239,6 +245,13 @@ export class PostDialog extends LitElement {
         --sl-border-radius-default: 4px;
       }
 
+      @media (min-width: 1250px) {
+        md-dialog::part(dialog) {
+          min-width: 50vw;
+          min-height: 60vh;
+        }
+      }
+
       @media (max-width: 820px) {
         md-dialog::part(dialog) {
           min-width: 100vw;
@@ -279,39 +292,6 @@ export class PostDialog extends LitElement {
       this.maxChars = instance.configuration.statuses.max_characters;
     } else if (instance.max_toot_chars) {
       this.maxChars = instance.max_toot_chars;
-    }
-
-    setTimeout(() => {
-      const dialog: any = this.shadowRoot?.querySelector('md-dialog');
-      console.log('dialog', dialog.dialog);
-      const gesture = createGesture({
-        el: dialog.dialog,
-        threshold: 15,
-        direction: 'y',
-        gestureName: 'my-gesture',
-        onMove: (ev: any) => this.onMoveHandler(ev, dialog),
-      });
-
-      gesture.enable();
-    }, 1000);
-  }
-
-  onMoveHandler(ev: any, dialog: any) {
-    // animate dialog to new position
-    dialog!.dialog!.style.transform = `translateY(${ev.deltaY}px)`;
-
-    if (ev.deltaY < -200) {
-      dialog.hide();
-
-      setTimeout(() => {
-        dialog.dialog.style.transform = `translateY(0px)`;
-      }, 500);
-    } else if (ev.deltaY > 200) {
-      dialog.hide();
-
-      setTimeout(() => {
-        dialog.dialog.style.transform = `translateY(0px)`;
-      }, 500);
     }
   }
 
@@ -700,52 +680,54 @@ export class PostDialog extends LitElement {
               </div>`
             : null}
 
-          <!-- Desktop buttons with text -->
-          <md-select
-            .value=${this.visibility}
-            @change=${(e: any) => (this.visibility = e.detail.value)}
-            style="width: 140px; min-width: 140px;"
-            pill
-          >
-            <md-option value="public">Public</md-option>
-            <md-option value="unlisted">Unlisted</md-option>
-            <md-option value="private">Followers Only</md-option>
-            <md-option value="direct">Direct</md-option>
-          </md-select>
+          <div>
+            <!-- Desktop buttons with text -->
+            <md-select
+              .value=${this.visibility}
+              @change=${(e: any) => (this.visibility = e.detail.value)}
+              style="width: 140px; min-width: 140px;"
+              pill
+            >
+              <md-option value="public">Public</md-option>
+              <md-option value="unlisted">Unlisted</md-option>
+              <md-option value="private">Followers Only</md-option>
+              <md-option value="direct">Direct</md-option>
+            </md-select>
 
-          <md-button
-            class="desktop-button"
-            variant="text"
-            @click="${() => this.markAsSensitive()}"
-          >
-            Content Warning
-            <md-icon src="/assets/eye-outline.svg"></md-icon>
-          </md-button>
+            <md-button
+              class="desktop-button"
+              variant="text"
+              @click="${() => this.markAsSensitive()}"
+            >
+              Content Warning
+              <md-icon src="/assets/eye-outline.svg"></md-icon>
+            </md-button>
 
-          <md-button
-            class="desktop-button"
-            pill
-            variant="outlined"
-            @click="${() => this.attachFile()}"
-          >
-            Attach Media
-            <md-icon src="/assets/attach-outline.svg"></md-icon>
-          </md-button>
+            <md-button
+              class="desktop-button"
+              pill
+              variant="outlined"
+              @click="${() => this.attachFile()}"
+            >
+              Attach Media
+              <md-icon src="/assets/attach-outline.svg"></md-icon>
+            </md-button>
 
-          <!-- Mobile icon buttons -->
-          <md-icon-button
-            class="mobile-icon-button"
-            label="Content Warning"
-            src="/assets/eye-outline.svg"
-            @click="${() => this.markAsSensitive()}"
-          ></md-icon-button>
+            <!-- Mobile icon buttons -->
+            <md-icon-button
+              class="mobile-icon-button"
+              label="Content Warning"
+              src="/assets/eye-outline.svg"
+              @click="${() => this.markAsSensitive()}"
+            ></md-icon-button>
 
-          <md-icon-button
-            class="mobile-icon-button"
-            label="Attach Media"
-            src="/assets/attach-outline.svg"
-            @click="${() => this.attachFile()}"
-          ></md-icon-button>
+            <md-icon-button
+              class="mobile-icon-button"
+              label="Attach Media"
+              src="/assets/attach-outline.svg"
+              @click="${() => this.attachFile()}"
+            ></md-icon-button>
+          </div>
 
           <!-- Publish button (same for both) -->
           <md-button
