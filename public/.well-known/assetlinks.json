@@ -1,14 +1,11 @@
 [
-      {
-            "relation": [
-                  "delegate_permission/common.handle_all_urls"
-            ],
-            "target": {
-                  "namespace": "android_app",
-                  "package_name": "com.mammoth.pwa",
-                  "sha256_cert_fingerprints": [
-                        "19:5B:D1:9C:82:D6:A6:D2:72:1F:B9:80:E4:74:0F:80:3A:8A:14:88:A2:67:27:14:9D:5F:5F:17:58:EE:3E:DF"
-                  ]
-            }
-      }
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.coho.twa",
+      "sha256_cert_fingerprints":
+        ["E6:53:65:08:9F:16:65:47:F8:C8:BC:8E:87:00:B4:74:37:07:37:74:44:F4:14:99:B4:1A:DE:51:BD:B7:F9:DD"]
+    }
+  }
 ]

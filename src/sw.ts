@@ -1,52 +1,85 @@
+/// <reference lib="webworker" />
 
-const VERSION = 1;
-
-// import * as navigationPreload from 'workbox-navigation-preload';
 import { NetworkOnly, CacheFirst, NetworkFirst } from 'workbox-strategies';
 import { ExpirationPlugin } from 'workbox-expiration';
 import { registerRoute, NavigationRoute } from 'workbox-routing';
 import { precacheAndRoute } from 'workbox-precaching';
 import { BackgroundSyncPlugin } from 'workbox-background-sync';
 import * as navigationPreload from 'workbox-navigation-preload';
+import { get, set } from 'idb-keyval';
 
-// importScripts(
-//     'https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-sw.js'
-// );
+// Type augmentation for Service Worker
+declare const self: ServiceWorkerGlobalScope & {
+    __WB_MANIFEST: any;
+    idbKeyval: {
+        get: typeof get;
+        set: typeof set;
+    };
+    widgets?: {
+        updateByTag: (tag: string, payload: { template: string; data: string }) => Promise<void>;
+    };
+};
+
+// Make idb-keyval available on self for backwards compatibility
+self.idbKeyval = { get, set };
+
+interface WidgetDefinition {
+    msAcTemplate: string;
+    data: string;
+    tag: string;
+}
+
+interface Widget {
+    definition: WidgetDefinition;
+}
+
+interface WidgetInstallEvent extends ExtendableEvent {
+    widget: Widget;
+}
+
+interface NotificationData {
+    type: 'mention' | 'reblog' | 'favourite' | 'follow';
+    account: {
+        id: string;
+        display_name: string;
+        url: string;
+    };
+    status?: {
+        content: string;
+    };
+}
 
 // Enable navigation preload for supporting browsers
 navigationPreload.enable();
 
-const navigationRoute = new NavigationRoute(new NetworkFirst({
-    cacheName: 'navigations'
-}));
+const navigationRoute = new NavigationRoute(
+    new NetworkFirst({
+        cacheName: 'navigations',
+    })
+);
 
 registerRoute(navigationRoute);
 
-importScripts(
-    // idb-keyval
-    'https://cdn.jsdelivr.net/npm/idb-keyval@6/dist/umd.js'
-)
-
 addEventListener('message', (event) => {
     if (event.data && event.data.type === 'SKIP_WAITING') {
-        // @ts-ignore
         self.skipWaiting();
     }
 
     if (event.data && event.data.type === 'WARM_CACHE') {
         // Warm cache on app boot if network conditions are good
-        event.waitUntil(warmCache());
+        (event as any).waitUntil(warmCache());
     }
 });
 
 // Listen to the widgetinstall event.
-self.addEventListener("widgetinstall", (event) => {
+self.addEventListener('widgetinstall', (event: Event) => {
+    const widgetEvent = event as WidgetInstallEvent;
     // The widget just got installed, render it using renderWidget.
     // Pass the event.widget object to the function.
-    event.waitUntil(renderWidget(event.widget));
+    widgetEvent.waitUntil(renderWidget(widgetEvent.widget));
 });
 
-const renderWidget = async (widget) => {
+const renderWidget = async (widget: Widget): Promise<void> => {
     // Get the template and data URLs from the widget definition.
     const templateUrl = widget.definition.msAcTemplate;
     const dataUrl = widget.definition.data;
@@ -56,8 +89,10 @@ const renderWidget = async (widget) => {
     const data = await (await fetch(dataUrl)).text();
 
     // Render the widget with the template and data.
-    await self.widgets.updateByTag(widget.definition.tag, { template, data });
-}
+    if (self.widgets) {
+        await self.widgets.updateByTag(widget.definition.tag, { template, data });
+    }
+};
 
 // This is your Service Worker, you can put any of your custom Service Worker
 // code in this file, above the `precacheAndRoute` line.
@@ -65,201 +100,187 @@ const bgSyncPlugin = new BackgroundSyncPlugin('retryqueue', {
     maxRetentionTime: 48 * 60,
 });
 
-const followAUser = async (id) => {
+const followAUser = async (id: string): Promise<void> => {
     // follow a user with the mastodon api
-    const accessToken = await self.idbKeyval.get('accessToken');
-    const server = await self.idbKeyval.get('server');
+    const accessToken = (await get('accessToken')) as string;
+    const server = (await get('server')) as string;
 
     await fetch(`https://${server}/api/v1/accounts/${id}/follow`, {
         method: 'POST',
         headers: new Headers({
-            "Authorization": `Bearer ${accessToken}`
-        })
+            Authorization: `Bearer ${accessToken}`,
+        }),
     });
-}
+};
 
-const timelineSync = async () => {
-    return new Promise(async (resolve) => {
-        const accessToken = await self.idbKeyval.get('accessToken');
-        const server = await self.idbKeyval.get('server');
+const timelineSync = async (): Promise<void> => {
+    const accessToken = (await get('accessToken')) as string;
+    const server = (await get('server')) as string;
 
-        const timelineResponse = await fetch(`https://${server}/api/v1/timelines/home`, {
-            method: 'GET',
-            headers: new Headers({
-                "Authorization": `Bearer ${accessToken}`
-            })
-        });
-
-        const data = await timelineResponse.json();
-
-        // store timeline in idb
-        await self.idbKeyval.set('timeline-cache', data);
-
-        resolve();
+    const timelineResponse = await fetch(`https://${server}/api/v1/timelines/home`, {
+        method: 'GET',
+        headers: new Headers({
+            Authorization: `Bearer ${accessToken}`,
+        }),
     });
-}
 
-const getNotifications = async () => {
+    const data = await timelineResponse.json();
+
+    // store timeline in idb
+    await set('timeline-cache', data);
+};
+
+const getNotifications = async (): Promise<void> => {
     // get access token from idb
-    const accessToken = await self.idbKeyval.get('accessToken');
-    const server = await self.idbKeyval.get('server');
+    const accessToken = (await get('accessToken')) as string;
+    const server = (await get('server')) as string;
 
     const notifyResponse = await fetch(`https://${server}/api/v1/notifications`, {
         method: 'GET',
         headers: new Headers({
-            "Authorization": `Bearer ${accessToken}`
-        })
+            Authorization: `Bearer ${accessToken}`,
+        }),
     });
 
-    const data = await notifyResponse.json();
+    const data = (await notifyResponse.json()) as NotificationData[];
 
-    const notifyCheck = data.length > 0 ? true : false;
+    const notifyCheck = data.length > 0;
 
-    return new Promise((resolve) => {
-        if (notifyCheck) {
-            // show badge
-            navigator.setAppBadge(data.length);
-
-            // build message for notification
-            let message = '';
-            let actions = [];
-            let title = 'Coho';
-            // if data[0].type === 'mention' || 'reblog' || 'favourite'
-            switch (data[0].type) {
-                case 'mention':
-                    message = `${data[0].status.content}`;
-                    title = `${data[0].account.display_name} mentioned you`
-
-                    break;
-                case 'reblog':
-                    message = `${data[0].account.display_name} boosted your post`;
-
-                    break;
-                case 'favourite':
-                    message = `${data[0].account.display_name} favorited your post`;
-
-                    break;
-
-                case 'follow':
-                    message = `${data[0].account.display_name} followed you`;
-                    title = 'New Follower';
-                    actions = [{
-                        action: 'follow',
-                        title: 'Follow back'
-                    }];
-
-                    break;
-
-                default:
-                    message = `You have ${data.length} new notifications`;
-                    break;
-            }
-
-
-            // show notification
-            const notify = self.registration.showNotification('Coho', {
-                body: message,
-                icon: '/assets/icons/Android/256-icon.png',
-                tag: 'coho',
-                renotify: false,
-                actions: actions,
-                data: {
-                    url: data[0].account.url
-                }
-            });
-
-            notify.addEventListener('click', event => {
-                event.notification.close();
-                navigator.clearAppBadge();
-
-                // if event.action === 'follow'
-                if (event.action === 'follow') {
-                    followAUser(data[0].account.id);
-                }
-
-                clients.openWindow("/home?tab=notifications");
-            });
-
-            resolve();
-
+    if (notifyCheck) {
+        // show badge
+        if ('setAppBadge' in navigator) {
+            (navigator as any).setAppBadge(data.length);
         }
-    })
 
-}
+        // build message for notification
+        let message = '';
+        let actions: NotificationData[] = [];
+        let title = 'Coho';
 
-self.addEventListener('push', async (event) => {
-    const data = event.data.json();
+        // if data[0].type === 'mention' || 'reblog' || 'favourite'
+        switch (data[0].type) {
+            case 'mention':
+                message = `${data[0].status?.content || ''}`;
+                title = `${data[0].account.display_name} mentioned you`;
+                break;
+            case 'reblog':
+                message = `${data[0].account.display_name} boosted your post`;
+                break;
+            case 'favourite':
+                message = `${data[0].account.display_name} favorited your post`;
+                break;
+            case 'follow':
+                message = `${data[0].account.display_name} followed you`;
+                title = 'New Follower';
+                actions = [
+                    {
+                        // @ts-ignore
+                        action: 'follow',
+                        title: 'Follow back',
+                    },
+                ];
+                break;
+            default:
+                message = `You have ${data.length} new notifications`;
+                break;
+        }
+
+        // show notification
+        await self.registration.showNotification(title, {
+            body: message,
+            icon: '/assets/icons/new-icons/icon-256x256.webp',
+            tag: 'coho',
+            // @ts-ignore
+            renotify: false,
+            actions: actions,
+            data: {
+                url: data[0].account.url,
+                accountId: data[0].account.id,
+            },
+        });
+    }
+};
+
+self.addEventListener('notificationclick', (event: NotificationEvent) => {
+    event.notification.close();
+
+    if ('clearAppBadge' in navigator) {
+        (navigator as any).clearAppBadge();
+    }
+
+    // if event.action === 'follow'
+    if (event.action === 'follow' && event.notification.data?.accountId) {
+        event.waitUntil(followAUser(event.notification.data.accountId));
+    }
+
+    event.waitUntil(
+        self.clients.openWindow('/home?tab=notifications')
+    );
+});
+
+self.addEventListener('push', async (event: PushEvent) => {
+    const data = event.data?.json() as NotificationData[];
 
     // show badge
-    navigator.setAppBadge(data.length);
+    if ('setAppBadge' in navigator) {
+        (navigator as any).setAppBadge(data.length);
+    }
 
     // build message for notification
     let message = '';
-    let actions = [];
+    let actions: NotificationData[] = [];
     let title = 'Coho';
+
     // if data[0].type === 'mention' || 'reblog' || 'favourite'
     switch (data[0].type) {
         case 'mention':
-            message = `${data[0].status.content}`;
-            title = `${data[0].account.display_name} mentioned you`
-
+            message = `${data[0].status?.content || ''}`;
+            title = `${data[0].account.display_name} mentioned you`;
             break;
         case 'reblog':
             message = `${data[0].account.display_name} boosted your post`;
-
             break;
         case 'favourite':
             message = `${data[0].account.display_name} favorited your post`;
-
             break;
-
         case 'follow':
             message = `${data[0].account.display_name} followed you`;
             title = 'New Follower';
-            actions = [{
-                action: 'follow',
-                title: 'Follow back'
-            }];
-
+            actions = [
+                {
+                    // @ts-ignore
+                    action: 'follow',
+                    title: 'Follow back',
+                },
+            ];
             break;
-
         default:
             message = `You have ${data.length} new notifications`;
             break;
-    };
-
-    const newNotification = new Notification(title, {
-        body: message,
-        icon: '/assets/icons/Android/256-icon.png',
-        tag: 'coho',
-        renotify: false,
-        actions: actions,
-        data: {
-            url: data[0].account.url
-        }
-    });
-
-    newNotification.addEventListener('click', event => {
-        event.notification.close();
-        navigator.clearAppBadge();
-
-        // if event.action === 'follow'
-        if (event.action === 'follow') {
-            followAUser(data[0].account.id);
-        }
-
-        clients.openWindow("/home?tab=notifications");
-    });
+    }
 
     // show notification
-    self.registration.showNotification(newNotification);
-})
+    event.waitUntil(
+        self.registration.showNotification(title, {
+            body: message,
+            icon: '/assets/icons/new-icons/icon-256x256.webp',
+            tag: 'coho',
+            // @ts-ignore
+            renotify: false,
+            actions: actions,
+            data: {
+                url: data[0].account.url,
+                accountId: data[0].account.id,
+            },
+        })
+    );
+});
 
 // Cache warming functions for better UX
-const warmNotificationsCache = async () => {
+const warmNotificationsCache = async (): Promise<void> => {
     try {
-        const accessToken = await self.idbKeyval.get('accessToken');
-        const server = await self.idbKeyval.get('server');
+        const accessToken = (await get('accessToken')) as string;
+        const server = (await get('server')) as string;
 
         if (!accessToken || !server) {
             console.log('[SW] Cache warming skipped: No auth credentials');
@@ -269,8 +290,8 @@ const warmNotificationsCache = async () => {
         const response = await fetch(`https://${server}/api/v1/notifications`, {
             method: 'GET',
             headers: new Headers({
-                "Authorization": `Bearer ${accessToken}`
-            })
+                Authorization: `Bearer ${accessToken}`,
+            }),
         });
 
         if (response.ok) {
@@ -281,10 +302,10 @@ const warmNotificationsCache = async () => {
     }
 };
 
-const warmBookmarksCache = async () => {
+const warmBookmarksCache = async (): Promise<void> => {
     try {
-        const accessToken = await self.idbKeyval.get('accessToken');
-        const server = await self.idbKeyval.get('server');
+        const accessToken = (await get('accessToken')) as string;
+        const server = (await get('server')) as string;
 
         if (!accessToken || !server) {
             console.log('[SW] Cache warming skipped: No auth credentials');
@@ -294,7 +315,7 @@ const warmBookmarksCache = async () => {
         const response = await fetch(
             `https://us-central1-coho-mastodon.cloudfunctions.net/getBookmarks?code=${accessToken}&server=${server}`,
             {
-                method: 'GET'
+                method: 'GET',
             }
         );
 
@@ -306,10 +327,10 @@ const warmBookmarksCache = async () => {
     }
 };
 
-const warmFavoritesCache = async () => {
+const warmFavoritesCache = async (): Promise<void> => {
     try {
-        const accessToken = await self.idbKeyval.get('accessToken');
-        const server = await self.idbKeyval.get('server');
+        const accessToken = (await get('accessToken')) as string;
+        const server = (await get('server')) as string;
 
         if (!accessToken || !server) {
             console.log('[SW] Cache warming skipped: No auth credentials');
@@ -319,7 +340,7 @@ const warmFavoritesCache = async () => {
         const response = await fetch(
             `https://us-central1-coho-mastodon.cloudfunctions.net/getFavorites?code=${accessToken}&server=${server}`,
             {
-                method: 'GET'
+                method: 'GET',
             }
         );
 
@@ -331,40 +352,43 @@ const warmFavoritesCache = async () => {
     }
 };
 
-const warmCache = async () => {
+const warmCache = async (): Promise<void> => {
     console.log('[SW] Starting cache warming...');
 
     // Run all cache warming operations in parallel for better performance
     await Promise.all([
         warmNotificationsCache(),
         warmBookmarksCache(),
-        warmFavoritesCache()
+        warmFavoritesCache(),
     ]);
 
     console.log('[SW] Cache warming completed');
 };
 
 // periodic background sync
-self.addEventListener('periodicsync', async (event) => {
-    switch (event.tag) {
+self.addEventListener('periodicsync', async (event: Event) => {
+    const periodicSyncEvent = event as any; // PeriodicSyncEvent not yet in TypeScript lib
+
+    switch (periodicSyncEvent.tag) {
         case 'get-notifications':
-            event.waitUntil(getNotifications());
+            periodicSyncEvent.waitUntil(getNotifications());
             break;
-
         case 'timeline-sync':
-            event.waitUntil(timelineSync());
+            periodicSyncEvent.waitUntil(timelineSync());
             break;
-
         default:
             break;
     }
 });
 
-async function shareTargetHandler({ event }) {
-    const formData = await event.request.formData();
-    const mediaFiles = formData.getAll("image");
-    const cache = await caches.open("shareTarget");
+interface ShareTargetHandlerEvent {
+    event: FetchEvent;
+}
 
+async function shareTargetHandler({ event }: ShareTargetHandlerEvent): Promise<Response> {
+    const formData = await event.request.formData();
+    const mediaFiles = formData.getAll('image') as File[];
+    const cache = await caches.open('shareTarget');
 
     for (const mediaFile of mediaFiles) {
         await cache.put(
@@ -373,22 +397,17 @@ async function shareTargetHandler({ event }) {
             mediaFile.name,
             new Response(mediaFile, {
                 headers: {
-                    "content-length": mediaFile.size,
-                    "content-type": mediaFile.type,
+                    'content-length': mediaFile.size.toString(),
+                    'content-type': mediaFile.type,
                 },
             })
         );
     }
 
     return Response.redirect(`/home?name=${mediaFiles[0].name}`, 303);
-
 }
 
-registerRoute(
-    '/share',
-    shareTargetHandler,
-    'POST'
-);
+registerRoute('/share', shareTargetHandler as any, 'POST');
 
 // register a route for /
 registerRoute(
@@ -499,7 +518,8 @@ registerRoute(
 );
 
 registerRoute(
-    ({ request }) => request.url.includes('https://us-central1-coho-mastodon.cloudfunctions.net/search'),
+    ({ request }) =>
+        request.url.includes('https://us-central1-coho-mastodon.cloudfunctions.net/search'),
     new NetworkFirst({
         cacheName: 'search',
         plugins: [
@@ -515,7 +535,8 @@ registerRoute(
 
 // for bookmarks https://us-central1-coho-mastodon.cloudfunctions.net/getBookmarks
 registerRoute(
-    ({ request }) => request.url.includes('https://us-central1-coho-mastodon.cloudfunctions.net/getBookmarks'),
+    ({ request }) =>
+        request.url.includes('https://us-central1-coho-mastodon.cloudfunctions.net/getBookmarks'),
     new NetworkFirst({
         cacheName: 'bookmarks',
         plugins: [
@@ -531,7 +552,8 @@ registerRoute(
 
 // for https://us-central1-coho-mastodon.cloudfunctions.net/getFavorites
 registerRoute(
-    ({ request }) => request.url.includes('https://us-central1-coho-mastodon.cloudfunctions.net/getFavorites'),
+    ({ request }) =>
+        request.url.includes('https://us-central1-coho-mastodon.cloudfunctions.net/getFavorites'),
     new NetworkFirst({
         cacheName: 'favorites',
         plugins: [
@@ -547,7 +569,8 @@ registerRoute(
 
 // cache first for local assets
 registerRoute(
-    ({ request }) => request.destination === 'image' && request.url.includes('/assets/icons/'),
+    ({ request }) =>
+        request.destination === 'image' && request.url.includes('/assets/icons/'),
     new CacheFirst({
         cacheName: 'images',
         plugins: [

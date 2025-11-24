@@ -126,10 +126,10 @@ export default defineConfig({
     ...customPlugins,
     VitePWA({
       strategies: 'injectManifest',
-      srcDir: 'public',
-      filename: 'sw.js',
+      srcDir: 'src',
+      filename: 'sw.ts',
       injectManifest: {
-        swSrc: 'public/sw.js',
+        swSrc: 'src/sw.ts',
         swDest: 'dist/sw.js',
         globDirectory: 'dist',
         globPatterns: ['**/*.{js,css,html}'],
