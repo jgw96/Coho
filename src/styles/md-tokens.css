@@ -87,8 +87,8 @@
     --md-sys-color-on-error-container: #f9dedc;
 
     /* Surface Colors */
-  --md-sys-color-surface: #202124;
-  --md-sys-color-on-surface: #e6e0e9;
+    --md-sys-color-surface: #202124;
+    --md-sys-color-on-surface: #e6e0e9;
     --md-sys-color-surface-variant: #49454f;
     --md-sys-color-on-surface-variant: #cac4d0;
 

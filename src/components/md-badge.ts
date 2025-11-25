@@ -46,9 +46,10 @@ export class MdBadge extends LitElement {
     }
 
     .badge.outlined {
-          background-color: transparent;
-    color: var(--md-sys-color-primary,var(--sl-color-primary-600,#6750a4));
-    border: 1px solid var(--md-sys-color-primary,var(--sl-color-primary-600,#6750a4));
+      background-color: transparent;
+      color: var(--md-sys-color-primary, var(--sl-color-primary-600, #6750a4));
+      border: 1px solid
+        var(--md-sys-color-primary, var(--sl-color-primary-600, #6750a4));
     }
 
     .badge.clickable {

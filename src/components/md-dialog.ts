@@ -252,12 +252,12 @@ export class MdDialog extends LitElement {
         </div>
 
         ${this._hasFooterSlot()
-        ? html`
+          ? html`
               <div class="dialog-footer">
                 <slot name="footer"></slot>
               </div>
             `
-        : ''}
+          : ''}
       </dialog>
     `;
   }
