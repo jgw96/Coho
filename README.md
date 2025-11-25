@@ -10,7 +10,6 @@ Coho is a Progressive Web App (PWA) client for Mastodon. It emphasizes offline c
 
 <div>
   <img src="/public/assets/screenshots/desktop/cross-platform.png" alt="Desktop Screenshot" width="400px" />
-  <img src="/public/assets/screenshots/mobile/fast-reliable.png" alt="Mobile Screenshot" width="400px" />
 </div>
 
 ## Features
@@ -18,12 +17,14 @@ Coho is a Progressive Web App (PWA) client for Mastodon. It emphasizes offline c
 ### Customizable & Modern
 - **Material Design 3**: A fresh, modern look using the latest Material Design principles.
 - **Theming**: Choose your primary color and switch between Dark and Light modes.
-- **Responsive**: Fully responsive design that works great on mobile, tablet, and desktop.
+- **Wellness Mode**: Take control of your digital well-being by hiding likes, boost counts, and other metrics for a calmer experience.
 
 ### Cross-Platform, Fast & Offline
+- **Universal Access**: Fully responsive design that works seamlessly on mobile, tablets, and desktop.
 - **PWA**: Installable on all devices (iOS, Android, Windows, macOS, Linux).
-- **Offline Support**: View cached content and interact with the app even without an internet connection.
-- **Fast**: Built to be fast on any device, with any network connection.
+- **Offline First**: Works exceptionally well offline. View cached content, like posts, and create new content that automatically syncs when you're back online.
+- **On-Device Translations**: Fast, private, and offline-capable translations powered by on-device AI.
+- **Blazing Fast**: Built for speed on any device and network condition.
 
 
 

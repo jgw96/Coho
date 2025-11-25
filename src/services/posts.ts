@@ -1,10 +1,13 @@
 import { fileOpen } from 'browser-fs-access';
 import { addMedia } from './media';
+import { Account } from '../types/interfaces/Account';
+import { Post } from '../interfaces/Post';
+import { MediaAttachment } from '../types/interfaces/MediaAttachment';
 
 const server = localStorage.getItem('server') || '';
 const accessToken = localStorage.getItem('accessToken') || '';
 
-export async function whoBoostedAndFavorited(id: string) {
+export async function whoBoostedAndFavorited(id: string): Promise<Account[]> {
   const response = await fetch(
     `https://${server}/api/v1/statuses/${id}/reactions`,
     {
@@ -19,7 +22,7 @@ export async function whoBoostedAndFavorited(id: string) {
   return data;
 }
 
-export async function editPost(id: string, newContent: string) {
+export async function editPost(id: string, newContent: string): Promise<Post> {
   const formData = new FormData();
   formData.append('status', newContent);
   const response = await fetch(`https://${server}/api/v1/statuses/${id}`, {
@@ -34,7 +37,7 @@ export async function editPost(id: string, newContent: string) {
   return data;
 }
 
-export async function deletePost(id: string) {
+export async function deletePost(id: string): Promise<Post> {
   const response = await fetch(`https://${server}/api/v1/statuses/${id}`, {
     method: 'DELETE',
     headers: new Headers({
@@ -46,7 +49,7 @@ export async function deletePost(id: string) {
   return data;
 }
 
-export async function getPostDetail(id: string) {
+export async function getPostDetail(id: string): Promise<Post> {
   const response = await fetch(`https://${server}/api/v1/statuses/${id}`, {
     method: 'GET',
     headers: new Headers({
@@ -64,7 +67,7 @@ export async function publishPost(
   sensitive: boolean = false,
   spoilerText: string = '',
   visibility: string = 'public'
-) {
+): Promise<Post> {
   const formData = new FormData();
 
   formData.append('status', post && post.length > 0 ? post : '');
@@ -97,7 +100,7 @@ export async function publishPost(
   return data;
 }
 
-export async function replyToPost(id: string, content: string) {
+export async function replyToPost(id: string, content: string): Promise<Post> {
   const formData = new FormData();
 
   formData.append('in_reply_to_id', id);
@@ -117,7 +120,7 @@ export async function replyToPost(id: string, content: string) {
   return data;
 }
 
-export async function uploadImageFromURL(url: string) {
+export async function uploadImageFromURL(url: string): Promise<MediaAttachment> {
   const response = await fetch(`https://${server}/api/v2/media`, {
     method: 'POST',
     headers: new Headers({
@@ -132,7 +135,7 @@ export async function uploadImageFromURL(url: string) {
   return data;
 }
 
-export async function uploadImageFromBlob(blob: Blob) {
+export async function uploadImageFromBlob(blob: Blob): Promise<MediaAttachment> {
   // const formData = new FormData();
   // formData.append('file', blob);
 
@@ -163,7 +166,7 @@ export async function pickMedia(): Promise<File[]> {
   }
 }
 
-export async function uploadMediaFile(file: File): Promise<any> {
+export async function uploadMediaFile(file: File): Promise<MediaAttachment> {
   const formData = new FormData();
   formData.append('file', file);
 
@@ -180,13 +183,13 @@ export async function uploadMediaFile(file: File): Promise<any> {
   return data;
 }
 
-export async function uploadImageAsFormData(): Promise<Array<any>> {
+export async function uploadImageAsFormData(): Promise<MediaAttachment[]> {
   const files = await fileOpen({
     mimeTypes: ['image/*', 'video/*'],
     multiple: true,
   });
 
-  let uploaded: any[] = [];
+  let uploaded: MediaAttachment[] = [];
 
   // loop through the files and upload them
 
@@ -214,7 +217,7 @@ export async function uploadImageAsFormData(): Promise<Array<any>> {
   return uploaded;
 }
 
-export async function updateMedia(id: string, description: string) {
+export async function updateMedia(id: string, description: string): Promise<MediaAttachment> {
   const formData = new FormData();
   formData.append('description', description);
 

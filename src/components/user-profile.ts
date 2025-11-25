@@ -137,7 +137,6 @@ export class UserProfile extends LitElement {
       'profile-image';
 
     if ('startViewTransition' in document) {
-      // @ts-expect-error fix
       await document.startViewTransition();
       router.navigate(`/account?id=${this.account?.id}`);
       setTimeout(() => {
@@ -154,10 +153,10 @@ export class UserProfile extends LitElement {
       <div
         @click="${() => this.openUser()}"
         class=${classMap({
-          small: this.small === true,
-          headerBlock: true,
-          boosted: this.boosted,
-        })}
+      small: this.small === true,
+      headerBlock: true,
+      boosted: this.boosted,
+    })}
         slot="header"
       >
         <img

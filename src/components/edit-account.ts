@@ -172,8 +172,8 @@ export class EditAccount extends LitElement {
       data.note,
       data.locked,
       data.bot,
-      data.avatar,
-      data.header
+      data.avatar || '',
+      data.header || ''
     );
   }
 

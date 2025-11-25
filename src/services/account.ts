@@ -1,5 +1,6 @@
 import { set } from 'idb-keyval';
 import { FIREBASE_FUNCTIONS_BASE_URL } from '../config/firebase';
+import { Account } from '../types/interfaces/Account';
 
 let accessToken = localStorage.getItem('accessToken') || '';
 set('accessToken', accessToken);
@@ -13,8 +14,8 @@ export const editAccount = async (
   note: string,
   locked: string,
   bot: string,
-  avatar: any,
-  header: any
+  avatar: File | string,
+  header: File | string
 ) => {
   const currentUser = await getCurrentUser();
 
@@ -66,7 +67,7 @@ export const checkFollowing = async (id: string) => {
   }
 };
 
-let currentUser: any | null = null;
+let currentUser: Account | null = null;
 
 export const getCurrentUser = async () => {
   try {
@@ -87,7 +88,7 @@ export const getCurrentUser = async () => {
 
     const data = await response.json();
 
-    currentUser = data;
+    currentUser = data as Account;
 
     localStorage.setItem('currentUserID', currentUser.id);
     return data;
@@ -196,7 +197,6 @@ export const initAuth = async (serverURL: string) => {
   return;
 };
 
-// @ts-expect-error fix
 export const authToClient = async (code: string, state: string) => {
   try {
     token = code;

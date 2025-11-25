@@ -1,0 +1,16 @@
+export declare const editAccount: (display_name: string, note: string, locked: string, bot: string, avatar: File | string, header: File | string) => Promise<any>;
+export declare const getPeers: () => Promise<any>;
+export declare const checkFollowing: (id: string) => Promise<any>;
+export declare const getCurrentUser: () => Promise<any>;
+export declare const unfollowUser: (id: string) => Promise<any>;
+export declare const getAccount: (id: string) => Promise<any>;
+export declare const getUsersPosts: (id: string) => Promise<any>;
+export declare const getUsersFollowers: (id: string) => Promise<any>;
+export declare const getFollowing: (id: string) => Promise<any>;
+export declare const followUser: (id: string) => Promise<any>;
+export declare const getInstanceInfo: () => Promise<any>;
+export declare const initAuth: (serverURL: string) => Promise<void>;
+export declare const authToClient: (code: string, state: string) => Promise<any>;
+export declare const registerAccount: (username: string, email: string, password: string, agreement: boolean, locale: string, chosenServer: string) => Promise<any>;
+export declare const getServers: () => Promise<any>;
+export declare const isFollowingMe: (id: string) => Promise<any>;

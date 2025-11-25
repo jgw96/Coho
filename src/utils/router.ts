@@ -1,6 +1,6 @@
 import { html } from 'lit';
 
-if (!(globalThis as any).URLPattern) {
+if (!('URLPattern' in globalThis)) {
   await import('urlpattern-polyfill');
 }
 
@@ -67,7 +67,7 @@ export const router = new Router({
     {
       path: '/hashtag',
       title: 'hashtags',
-      plugins: [lazy(() => import('../pages/app-following.js'))],
+      plugins: [lazy(() => import('../pages/app-hashtags.js'))],
       render: () => html`<app-hashtags></app-hashtags>`,
     },
     {

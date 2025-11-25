@@ -8,7 +8,7 @@ import { FIREBASE_FUNCTIONS_BASE_URL } from '../config/firebase';
 
 export const requestMammothBot = async (
   prompt: string,
-  previousMessages: any[]
+  previousMessages: { role: string; content: string }[]
 ) => {
   // This uses Azure Functions - keep as is for now
   const response = await fetch(`/api/mammothBot?prompt=${prompt}`, {
@@ -33,13 +33,13 @@ export const summarize = async (prompt: string) => {
       throw new Error('Summarizer API not available');
     }
 
-    const canSummarize = await (window as any).summarizer.capabilities();
+    const canSummarize = await window.summarizer.capabilities();
     if (canSummarize.available === 'no') {
       throw new Error('Summarizer not available on this device');
     }
 
     // Create summarizer session
-    const summarizer = await (window as any).summarizer.create({
+    const summarizer = await window.summarizer.create({
       type: 'tl;dr', // or 'key-points', 'teaser', 'headline'
       format: 'plain-text', // or 'markdown'
       length: 'short', // or 'medium', 'long'
@@ -80,7 +80,7 @@ export const translate = async (prompt: string, language: string = 'en-us') => {
     if ('Translator' in window && 'LanguageDetector' in window) {
       try {
         console.log('Attempting language detection for prompt:', prompt);
-        const detector = await (window as any).LanguageDetector.create();
+        const detector = await window.LanguageDetector.create();
         const results = await detector.detect(prompt);
         console.log('Language detection results:', results);
         if (results && results.length > 0 && results[0].confidence > 0.5) {
@@ -105,9 +105,7 @@ export const translate = async (prompt: string, language: string = 'en-us') => {
       'to',
       targetLanguage
     );
-    const translatorCapabilities = await (
-      window as any
-    ).Translator.availability({
+    const translatorCapabilities = await window.Translator.availability({
       sourceLanguage,
       targetLanguage,
     });
@@ -122,7 +120,7 @@ export const translate = async (prompt: string, language: string = 'en-us') => {
     }
 
     // Create translator session
-    const translator = await (window as any).Translator.create({
+    const translator = await window.Translator.create({
       sourceLanguage,
       targetLanguage,
     });

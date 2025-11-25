@@ -1,0 +1,54 @@
+import { LitElement } from 'lit';
+import './md-dialog.js';
+import './md-button.js';
+import './md-text-field.js';
+import './md-text-area.js';
+import './md-icon.js';
+import './md-icon-button.js';
+import './md-select.js';
+import './md-option.js';
+import './media-edit-dialog.js';
+import '@shoelace-style/shoelace/dist/components/skeleton/skeleton.js';
+interface LocalAttachment {
+    id: string;
+    preview_url: string;
+    description: string | null;
+    pending?: boolean;
+}
+export declare class PostDialog extends LitElement {
+    attachmentPreview: string | undefined;
+    attachmentID: string | undefined;
+    attachments: Array<LocalAttachment>;
+    editDialogOpen: boolean;
+    activeAttachment: LocalAttachment | null;
+    attaching: boolean;
+    showPrompt: boolean;
+    generatingImage: boolean;
+    generatingPost: boolean;
+    generatedImage: string | undefined;
+    hasStatus: boolean;
+    sensitive: boolean;
+    visibility: string;
+    isMobile: boolean;
+    maxChars: number;
+    charCount: number;
+    aiBlob: Blob | undefined;
+    static styles: import("lit").CSSResult[];
+    protected firstUpdated(): Promise<void>;
+    openNewDialog(): Promise<void>;
+    shareTarget(name: string): Promise<void>;
+    attachFile(): Promise<void>;
+    uploadFile(file: File, tempId: string): Promise<void>;
+    addAIImageToPost(): Promise<void>;
+    removeImage(id: string): void;
+    publish(): Promise<void>;
+    doAIImage(prompt: string): Promise<void>;
+    openAIPrompt(): Promise<void>;
+    generateStatus(): Promise<void>;
+    handleStatus(ev: any): void;
+    markAsSensitive(): Promise<void>;
+    openEditDialog(attachment: LocalAttachment): void;
+    handleMediaSave(e: CustomEvent): Promise<void>;
+    render(): import("lit-html").TemplateResult<1>;
+}
+export {};

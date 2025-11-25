@@ -1,6 +1,7 @@
 import { set } from 'idb-keyval';
 import { getUsersPosts } from './account';
 import { FIREBASE_FUNCTIONS_BASE_URL } from '../config/firebase';
+import { Post } from '../interfaces/Post';
 
 const token = localStorage.getItem('token') || '';
 const accessToken = localStorage.getItem('accessToken') || '';
@@ -44,7 +45,7 @@ export const savePlace = async (id: string) => {
   console.log('saving place ran');
 };
 
-export const getHomeTimeline = async () => {
+export const getHomeTimeline = async (): Promise<Post[]> => {
   const response = await fetch(
     `${FIREBASE_FUNCTIONS_BASE_URL}/getTimelinePaginated?code=${token}&server=${server}`
   );
@@ -55,7 +56,7 @@ export const getHomeTimeline = async () => {
 let lastPageID = '';
 let lastPreviewPageID = '';
 
-export const mixTimeline = async (type = 'home') => {
+export const mixTimeline = async (type = 'home'): Promise<Post[]> => {
   // const home = await getPaginatedHomeTimeline(type);
   // const trending = await getTrendingStatuses();
 
@@ -114,7 +115,7 @@ export const addSomeInterestFinds = async () => {
   }
 };
 
-export const getPreviewTimeline = async () => {
+export const getPreviewTimeline = async (): Promise<Post[]> => {
   if (lastPreviewPageID && lastPreviewPageID.length > 0) {
     const response = await fetch(
       `https://mastodon.social/api/v1/timelines/public?limit=10&max_id=${lastPreviewPageID}`
@@ -162,7 +163,7 @@ export const resetLastPageID = (): Promise<void> => {
   });
 };
 
-export const getLastPlaceTimeline = async () => {
+export const getLastPlaceTimeline = async (): Promise<Post[] | undefined> => {
   const last_read_id = sessionStorage.getItem('latest-read');
   if (last_read_id && last_read_id.length > 0) {
     const headers = new Headers({
@@ -181,9 +182,10 @@ export const getLastPlaceTimeline = async () => {
 
     return data;
   }
+  return undefined;
 };
 
-export const getPaginatedHomeTimeline = async (type = 'home') => {
+export const getPaginatedHomeTimeline = async (type = 'home'): Promise<Post[]> => {
   console.log('getPaginatedHomeTimeline', type);
   console.log('LOOK HERE', type);
 
@@ -244,7 +246,7 @@ export const getPaginatedHomeTimeline = async (type = 'home') => {
   }
 };
 
-export const getPublicTimeline = async () => {
+export const getPublicTimeline = async (): Promise<Post[]> => {
   // Call Mastodon API directly - public timeline doesn't need proxy
   const response = await fetch(
     `https://${server}/api/v1/timelines/public?limit=40`,
@@ -300,7 +302,7 @@ export const reblogPost = async (id: string) => {
   return data;
 };
 
-export const getReplies = async (id: string) => {
+export const getReplies = async (id: string): Promise<{ ancestors: Post[]; descendants: Post[] }> => {
   const response = await fetch(
     `${FIREBASE_FUNCTIONS_BASE_URL}/getReplies?id=${id}&code=${accessToken}&server=${server}`
   );
@@ -325,7 +327,7 @@ export const reply = async (id: string, reply: string) => {
   return data;
 };
 
-export const mediaTimeline = async () => {
+export const mediaTimeline = async (): Promise<Post[]> => {
   // Call Mastodon API directly
   const currentUser = localStorage.getItem('currentUserID');
   const response = await fetch(
@@ -348,7 +350,7 @@ export const searchTimeline = async (query: string) => {
   return data;
 };
 
-export const getHashtagTimeline = async (hashtag: string) => {
+export const getHashtagTimeline = async (hashtag: string): Promise<Post[]> => {
   // Call Mastodon API directly
   const response = await fetch(
     `https://${server}/api/v1/timelines/tag/${hashtag}`,
@@ -362,7 +364,7 @@ export const getHashtagTimeline = async (hashtag: string) => {
   return data;
 };
 
-export const getAStatus = async (id: string) => {
+export const getAStatus = async (id: string): Promise<Post> => {
   console.log('reply id', id);
   // get a specific status
   const response = await fetch('https://' + server + '/api/v1/statuses/' + id, {
@@ -379,7 +381,7 @@ export const getAStatus = async (id: string) => {
   return data;
 };
 
-export const getTrendingStatuses = async () => {
+export const getTrendingStatuses = async (): Promise<Post[]> => {
   const accessToken = localStorage.getItem('accessToken') || '';
 
   const response = await fetch(`https://${server}/api/v1/trends/statuses`, {
@@ -394,15 +396,15 @@ export const getTrendingStatuses = async () => {
   return data;
 };
 
-async function handlePeriodic(): Promise<any> {
+async function handlePeriodic(): Promise<unknown> {
   const registration: ServiceWorkerRegistration =
     await navigator.serviceWorker.ready;
   if ('periodicSync' in registration) {
     try {
-      const tags = await (registration.periodicSync as any).getTags();
+      const tags = await registration.periodicSync.getTags();
 
       if (tags.includes('timeline-sync') === false) {
-        await (registration.periodicSync as any).register('timeline-sync', {
+        await registration.periodicSync.register('timeline-sync', {
           // An interval of one day.
           minInterval: 24 * 60 * 60 * 1000,
         });

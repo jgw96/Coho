@@ -1,0 +1,35 @@
+import { LitElement } from 'lit';
+import { Post } from '../interfaces/Post';
+import { TimelineItemHandlers, TimelineItemState } from './timeline-renderers';
+export declare class TimelineItem extends LitElement {
+    tweet: Post | undefined;
+    show: boolean;
+    showreply: boolean;
+    isBoosted: boolean;
+    isReblogged: boolean;
+    isBookmarked: boolean;
+    threadExpanded: boolean;
+    threadPosts: Post[];
+    loadingThread: boolean;
+    settings: any | undefined;
+    currentUser: any;
+    device: 'mobile' | 'desktop';
+    static styles: import("lit").CSSResult[];
+    showThread(): Promise<void>;
+    firstUpdated(): Promise<void>;
+    favorite(id: string): Promise<void>;
+    reblog(id: string): Promise<void>;
+    bookmark(id: string): Promise<void>;
+    replies(): Promise<void>;
+    shareStatus(tweet: Post | null): Promise<void>;
+    openPost(): Promise<void>;
+    deleteStatus(): Promise<void>;
+    initEditStatus(): Promise<void>;
+    viewSensitive(): void;
+    openLinkCard(url: string): void;
+    summarizePost(postContent: string | null): Promise<void>;
+    translatePost(postContent: string | null): Promise<void>;
+    getHandlers(): TimelineItemHandlers;
+    getState(): TimelineItemState;
+    render(): import("lit-html").TemplateResult<1>;
+}

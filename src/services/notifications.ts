@@ -175,18 +175,19 @@ export const subToPush = async () => {
       // set minInterval to twice a day
       const minInterval = 12 * 60 * 60 * 1000;
 
-      // @ts-expect-error fix
-      await registration.periodicSync.register('get-notifications', {
-        minInterval,
-      });
+      if (registration) {
+        await registration.periodicSync.register('get-notifications', {
+          minInterval,
+        });
+      }
     } catch {
       console.log('Periodic Sync could not be registered!');
     }
   }
 };
 
-export const modifyPush = async (flags?: any[]) => {
-  let data: any | undefined;
+export const modifyPush = async (flags?: string[]) => {
+  let data: { alerts: Record<string, boolean> } | undefined;
   if (flags) {
     data = {
       alerts: {

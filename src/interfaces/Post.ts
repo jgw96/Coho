@@ -1,3 +1,6 @@
+import { Account, Emoji } from '../types/interfaces/Account';
+import { MediaAttachment } from '../types/interfaces/MediaAttachment';
+
 // create an interface for a post in the mastodon api
 export interface Post {
   id: string;
@@ -23,50 +26,8 @@ export interface Post {
     name: string;
     website: string | null;
   };
-  account: {
-    id: string;
-    username: string;
-    acct: string;
-    display_name: string;
-    locked: boolean;
-    bot: boolean;
-    created_at: string;
-    note: string;
-    url: string;
-    avatar: string;
-    avatar_static: string;
-    header: string;
-    header_static: string;
-    followers_count: number;
-    following_count: number;
-    statuses_count: number;
-    emojis: any[];
-    fields: any[];
-  };
-  media_attachments: {
-    id: string;
-    type: string;
-    url: string;
-    preview_url: string;
-    remote_url: string | null;
-    text_url: string | null;
-    blurhash: string;
-    meta: {
-      small: {
-        width: number;
-        height: number;
-        size: string;
-        aspect: number;
-      };
-      original: {
-        width: number;
-        height: number;
-        size: string;
-        aspect: number;
-      };
-    };
-    description: string | null;
-  }[];
+  account: Account;
+  media_attachments: MediaAttachment[];
   mentions: {
     id: string;
     username: string;
@@ -77,12 +38,7 @@ export interface Post {
     name: string;
     url: string;
   }[];
-  emojis: {
-    shortcode: string;
-    static_url: string;
-    url: string;
-    visible_in_picker: boolean;
-  }[];
+  emojis: Emoji[];
   card: {
     url: string;
     title: string;

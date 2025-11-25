@@ -5,7 +5,6 @@ export async function addMedia(file: File) {
   // write file to private origin storage
   // add file to mediaDir
   const newHandle = await mediaDir.getFileHandle(file.name, { create: true });
-  // @ts-expect-error fix
   const writable = await newHandle.createWritable();
   await writable.write(file);
   await writable.close();
@@ -14,7 +13,6 @@ export async function addMedia(file: File) {
 export async function getMedia(name: string) {
   // get file from mediaDir
   const fileHandle = await mediaDir.getFileHandle(name);
-  // @ts-expect-error fix
   const file = await fileHandle.getFile();
   return file;
 }

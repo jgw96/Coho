@@ -209,7 +209,6 @@ export class Notifications extends LitElement {
           }
 
           if ('clearAppBadge' in navigator) {
-            // @ts-expect-error fix
             navigator.clearAppBadge();
           }
 
@@ -284,10 +283,10 @@ export class Notifications extends LitElement {
         <fluent-tab-panel name="all">
           <ul>
             ${this.notifications && this.notifications.length > 0
-              ? this.notifications.map((notification: any) => {
-                  return html`
+        ? this.notifications.map((notification: any) => {
+          return html`
                     ${notification.type === 'follow'
-                      ? html`
+              ? html`
                           <li class="follow">
                             <div>
                               <user-profile
@@ -299,9 +298,9 @@ export class Notifications extends LitElement {
                             </div>
                           </li>
                         `
-                      : null}
+              : null}
                     ${notification.type === 'reblog'
-                      ? html`
+              ? html`
                           <li
                             class="reblog"
                             @click="${() => this.openPost(notification.status)}"
@@ -321,9 +320,9 @@ export class Notifications extends LitElement {
                             ></div>
                           </li>
                         `
-                      : null}
+              : null}
                     ${notification.type === 'favourite'
-                      ? html`
+              ? html`
                           <li
                             class="favourite"
                             @click="${() => this.openPost(notification.status)}"
@@ -343,9 +342,9 @@ export class Notifications extends LitElement {
                             ></div>
                           </li>
                         `
-                      : null}
+              : null}
                     ${notification.type === 'mention'
-                      ? html`
+              ? html`
                           <li
                             class="mention"
                             @click="${() => this.openPost(notification.status)}"
@@ -365,9 +364,9 @@ export class Notifications extends LitElement {
                             ></div>
                           </li>
                         `
-                      : null}
+              : null}
                     ${notification.type === 'update'
-                      ? html`
+              ? html`
                           <li
                             class="edit"
                             @click="${() => this.openPost(notification.status)}"
@@ -387,10 +386,10 @@ export class Notifications extends LitElement {
                             ></div>
                           </li>
                         `
-                      : null}
+              : null}
                   `;
-                })
-              : html`
+        })
+        : html`
                   <li id="no">
                     <img src="/assets/notify-done.svg" alt="no notifications" />
                     <p>No notifications</p>
@@ -402,10 +401,10 @@ export class Notifications extends LitElement {
         <fluent-tab-panel name="mentions">
           <ul>
             ${this.notifications && this.notifications.length > 0
-              ? this.notifications.map((notification: any) => {
-                  return html`
+        ? this.notifications.map((notification: any) => {
+          return html`
                     ${notification.type === 'mention'
-                      ? html`
+              ? html`
                           <li
                             class="mention"
                             @click="${() => this.openPost(notification.status)}"
@@ -425,10 +424,10 @@ export class Notifications extends LitElement {
                             ></div>
                           </li>
                         `
-                      : null}
+              : null}
                   `;
-                })
-              : html`
+        })
+        : html`
                   <li id="no">
                     <img src="/assets/notify-done.svg" alt="no notifications" />
                     <p>No notifications</p>
@@ -440,10 +439,10 @@ export class Notifications extends LitElement {
         <fluent-tab-panel name="follows">
           <ul>
             ${this.notifications && this.notifications.length > 0
-              ? this.notifications.map((notification: any) => {
-                  return html`
+        ? this.notifications.map((notification: any) => {
+          return html`
                     ${notification.type === 'follow'
-                      ? html`
+              ? html`
                           <li class="follow">
                             <div>
                               <user-profile
@@ -455,10 +454,10 @@ export class Notifications extends LitElement {
                             </div>
                           </li>
                         `
-                      : null}
+              : null}
                   `;
-                })
-              : html`
+        })
+        : html`
                   <li id="no">
                     <img src="/assets/notify-done.svg" alt="no notifications" />
                     <p>No notifications</p>

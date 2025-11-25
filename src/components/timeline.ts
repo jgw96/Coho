@@ -29,7 +29,6 @@ import '../components/md-select';
 import '../components/md-option';
 import { Post } from '../interfaces/Post';
 
-import { guard } from 'lit/directives/guard.js';
 
 import { router } from '../utils/router';
 
@@ -588,11 +587,15 @@ export class Timeline extends LitElement {
           this.timeline = [];
           await this.hasUpdated;
 
-          // Deduplicate by post ID
-          const uniqueLastPlace = Array.from(
-            new Map(timelineData.map((post: Post) => [post.id, post])).values()
-          ) as Post[];
-          this.timeline = uniqueLastPlace;
+          if (timelineData) {
+            // Deduplicate by post ID
+            const uniqueLastPlace = Array.from(
+              new Map(
+                timelineData.map((post: Post) => [post.id, post])
+              ).values()
+            ) as Post[];
+            this.timeline = uniqueLastPlace;
+          }
 
           // Save to cache after successful fetch
           saveTimelineCache(this.timelineType, this.timeline, 0);
