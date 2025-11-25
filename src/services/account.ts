@@ -196,7 +196,7 @@ export const initAuth = async (serverURL: string) => {
   return;
 };
 
-// @ts-ignore
+// @ts-expect-error fix
 export const authToClient = async (code: string, state: string) => {
   try {
     token = code;

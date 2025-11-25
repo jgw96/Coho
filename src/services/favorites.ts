@@ -1,7 +1,7 @@
 import { FIREBASE_FUNCTIONS_BASE_URL } from '../config/firebase';
 
-let server = localStorage.getItem('server') || '';
-let accessToken = localStorage.getItem('accessToken') || '';
+const server = localStorage.getItem('server') || '';
+const accessToken = localStorage.getItem('accessToken') || '';
 
 export const getFavorites = async () => {
   const response = await fetch(

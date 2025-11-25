@@ -132,16 +132,16 @@ export class UserProfile extends LitElement {
   }
 
   async openUser() {
-    // @ts-ignore
+    // @ts-expect-error fix
     this.shadowRoot!.querySelector('.headerBlock')!.viewTransitionName =
       'profile-image';
 
     if ('startViewTransition' in document) {
-      // @ts-ignore
+      // @ts-expect-error fix
       await document.startViewTransition();
       router.navigate(`/account?id=${this.account?.id}`);
       setTimeout(() => {
-        // @ts-ignore
+        // @ts-expect-error fix
         this.shadowRoot!.querySelector('.headerBlock')!.viewTransitionName = '';
       }, 800);
     } else {

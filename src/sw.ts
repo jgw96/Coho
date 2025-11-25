@@ -180,7 +180,7 @@ const getNotifications = async (): Promise<void> => {
         title = 'New Follower';
         actions = [
           {
-            // @ts-ignore
+            // @ts-expect-error fix
             action: 'follow',
             title: 'Follow back',
           },
@@ -196,7 +196,7 @@ const getNotifications = async (): Promise<void> => {
       body: message,
       icon: '/assets/icons/new-icons/icon-256x256.webp',
       tag: 'coho',
-      // @ts-ignore
+      // @ts-expect-error fix
       renotify: false,
       actions: actions,
       data: {
@@ -252,7 +252,7 @@ self.addEventListener('push', async (event: PushEvent) => {
       title = 'New Follower';
       actions = [
         {
-          // @ts-ignore
+          // @ts-expect-error fix
           action: 'follow',
           title: 'Follow back',
         },
@@ -269,7 +269,7 @@ self.addEventListener('push', async (event: PushEvent) => {
       body: message,
       icon: '/assets/icons/new-icons/icon-256x256.webp',
       tag: 'coho',
-      // @ts-ignore
+      // @ts-expect-error fix
       renotify: false,
       actions: actions,
       data: {

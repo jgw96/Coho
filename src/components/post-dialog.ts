@@ -21,7 +21,7 @@ import {
 import { getInstanceInfo } from '../services/account';
 import { createAPost, createImage } from '../services/ai';
 
-// @ts-ignore
+// @ts-expect-error fix
 import MarkdownWorker from '../utils/markdown-worker?worker';
 
 interface LocalAttachment {

@@ -109,7 +109,7 @@ export class CreateAccount extends LitElement {
     this.chosenServer = serverInfo.name;
     this.fullDesc = serverInfo.info.full_description;
     const dialog = this.shadowRoot?.querySelector('#create-dialog');
-    // @ts-ignore
+    // @ts-expect-error fix
     dialog?.show();
   }
 
@@ -117,7 +117,7 @@ export class CreateAccount extends LitElement {
     this.registered = true;
 
     const createDialog = this.shadowRoot?.querySelector('#create-dialog');
-    // @ts-ignore
+    // @ts-expect-error fix
     await createDialog?.hide();
 
     console.log('this.chosenServer', this.chosenServer);

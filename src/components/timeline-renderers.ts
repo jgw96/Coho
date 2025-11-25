@@ -72,7 +72,7 @@ export function renderReplyContext(
 
       <div class="actions" slot="footer">
         ${state.show === true
-          ? html`<md-button
+      ? html`<md-button
               variant="text"
               pill
               size="small"
@@ -81,47 +81,47 @@ export function renderReplyContext(
             >
               <md-icon slot="suffix" name="chatbox"></md-icon>
             </md-button>`
-          : null}
+      : null}
 
         <md-button
           variant="text"
           style="--md-sys-color-primary: ${state.isBookmarked ||
-          state.tweet?.reply_to.bookmarked
-            ? 'var(--sl-color-primary-600)'
-            : '#878792'}"
+      state.tweet?.reply_to.bookmarked
+      ? 'var(--sl-color-primary-600)'
+      : '#878792'}"
           pill
           size="small"
           @click="${() => handlers.bookmark(state.tweet?.reply_to.id || '')}"
           ><md-icon slot="suffix" name="bookmark"></md-icon
         ></md-button>
         ${state.settings && state.settings.wellness === false
-          ? html`<md-button
+      ? html`<md-button
               variant="text"
               style="--md-sys-color-primary: ${state.isBoosted ||
-              state.tweet?.reply_to.favourited
-                ? 'var(--sl-color-primary-600)'
-                : '#878792'}"
+          state.tweet?.reply_to.favourited
+          ? 'var(--sl-color-primary-600)'
+          : '#878792'}"
               pill
               size="small"
               @click="${() =>
-                handlers.favorite(state.tweet?.reply_to.id || '')}"
+          handlers.favorite(state.tweet?.reply_to.id || '')}"
               >${state.tweet?.reply_to.favourites_count}
               <md-icon slot="suffix" name="heart"></md-icon
             ></md-button>`
-          : null}
+      : null}
         ${state.settings && state.settings.wellness === false
-          ? html`<md-button
+      ? html`<md-button
               variant="text"
               style="--md-sys-color-primary: ${state.isReblogged ||
-              state.tweet?.reply_to.reblogged
-                ? 'var(--sl-color-primary-600)'
-                : '#878792'}"
+          state.tweet?.reply_to.reblogged
+          ? 'var(--sl-color-primary-600)'
+          : '#878792'}"
               pill
               @click="${() => handlers.reblog(state.tweet?.reply_to.id || '')}"
               >${state.tweet?.reply_to.reblogs_count}
               <md-icon slot="suffix" name="repeat"></md-icon
             ></md-button>`
-          : null}
+      : null}
       </div>
     </md-card>
   `;
@@ -137,8 +137,8 @@ export function renderRegularTweet(
     <md-card
       part="card"
       class="${classMap({
-        replyCard: state.tweet?.reply_to ? true : false,
-      })}"
+    replyCard: state.tweet?.reply_to ? true : false,
+  })}"
     >
       <div class="header-actions-block" slot="header">
         <user-profile .account="${state.tweet?.account}"></user-profile>
@@ -147,7 +147,7 @@ export function renderRegularTweet(
           <md-icon-button
             size="small"
             @click="${() =>
-              handlers.translatePost(state.tweet?.content || null)}"
+      handlers.translatePost(state.tweet?.content || null)}"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -182,7 +182,7 @@ export function renderRegularTweet(
           </md-icon-button>
 
           ${state.tweet?.account.acct === state.currentUser?.acct
-            ? html`
+      ? html`
                 <md-icon-button
                   @click="${() => handlers.deleteStatus()}"
                   name="trash"
@@ -197,24 +197,11 @@ export function renderRegularTweet(
                 >
                 </md-icon-button>
               `
-            : null}
+      : null}
         </div>
 
-        <!-- <span>
-          ${new Intl.RelativeTimeFormat('en', {
-          numeric: 'auto',
-        }).format(
-          Math.floor(
-            -(
-              (new Date() as any) -
-              (new Date(state.tweet?.created_at || '') as any)
-            ) /
-              1000 /
-              60
-          ),
-          'minutes'
-        )}
-        </span> -->
+        : null}
+        </div>
       </div>
 
       <div
@@ -223,21 +210,21 @@ export function renderRegularTweet(
       ></div>
 
       ${state.tweet && state.tweet.media_attachments.length > 0
-        ? html`
+      ? html`
             <image-carousel .images="${state.tweet.media_attachments}">
             </image-carousel>
           `
-        : html``}
+      : html``}
       ${state.tweet && state.tweet.card
-        ? html`
+      ? html`
             <div
               @click="${() =>
-                handlers.openLinkCard(state.tweet?.card?.url || '')}"
+          handlers.openLinkCard(state.tweet?.card?.url || '')}"
               class="link-card"
             >
               <img
                 src="${state.tweet.card.image ||
-                '/assets/bookmark-outline.svg'}"
+        '/assets/bookmark-outline.svg'}"
                 alt="${state.tweet.card.title}"
               />
 
@@ -247,11 +234,11 @@ export function renderRegularTweet(
               </div>
             </div>
           `
-        : null}
+      : null}
 
       <div class="actions" slot="footer">
         ${state.show === true
-          ? html`<md-button
+      ? html`<md-button
               variant="text"
               pill
               size="small"
@@ -263,46 +250,46 @@ export function renderRegularTweet(
                 src="/assets/chatbox-outline.svg"
               ></md-icon>
             </md-button>`
-          : null}
+      : null}
         <md-button
           variant="text"
           style="--md-sys-color-primary: ${state.isBookmarked ||
-          state.tweet?.bookmarked
-            ? 'var(--sl-color-primary-600)'
-            : '#878792'}"
+      state.tweet?.bookmarked
+      ? 'var(--sl-color-primary-600)'
+      : '#878792'}"
           pill
           size="small"
           @click="${() => handlers.bookmark(state.tweet?.id || '')}"
           ><md-icon slot="suffix" src="/assets/bookmark-outline.svg"></md-icon
         ></md-button>
         ${state.settings && state.settings.wellness === false
-          ? html`<md-button
+      ? html`<md-button
               variant="text"
               style="--md-sys-color-primary: ${state.isBoosted ||
-              state.tweet?.favourited
-                ? 'var(--sl-color-primary-600)'
-                : '#878792'}"
+          state.tweet?.favourited
+          ? 'var(--sl-color-primary-600)'
+          : '#878792'}"
               pill
               size="small"
               @click="${() => handlers.favorite(state.tweet?.id || '')}"
               >${state.tweet?.favourites_count}
               <md-icon slot="suffix" name="heart"></md-icon
             ></md-button>`
-          : null}
+      : null}
         ${state.settings && state.settings.wellness === false
-          ? html`<md-button
+      ? html`<md-button
               variant="text"
               style="--md-sys-color-primary: ${state.isReblogged ||
-              state.tweet?.reblogged
-                ? 'var(--sl-color-primary-600)'
-                : '#878792'}"
+          state.tweet?.reblogged
+          ? 'var(--sl-color-primary-600)'
+          : '#878792'}"
               pill
               size="small"
               @click="${() => handlers.reblog(state.tweet?.id || '')}"
               >${state.tweet?.reblogs_count}
               <md-icon slot="suffix" name="repeat"></md-icon
             ></md-button>`
-          : null}
+      : null}
       </div>
     </md-card>
   `;
@@ -317,14 +304,14 @@ export function renderReblog(
   return html`
     <md-card slot="card">
       ${state.tweet.reblog.media_attachments.length > 0
-        ? html`
+      ? html`
             <image-carousel
               .images="${state.tweet.reblog.media_attachments}"
               slot="image"
             >
             </image-carousel>
           `
-        : html``}
+      : html``}
 
       <div class="header-block reblog-header" slot="header">
         <user-profile
@@ -356,7 +343,7 @@ export function renderReblog(
 
       <div class="actions" slot="footer">
         ${state.show === true
-          ? html`<md-button
+      ? html`<md-button
               variant="text"
               pill
               size="small"
@@ -365,45 +352,45 @@ export function renderReblog(
             >
               <md-icon slot="suffix" name="chatbox"></md-icon>
             </md-button>`
-          : null}
+      : null}
         <md-button
           variant="text"
           style="--md-sys-color-primary: ${state.isBookmarked
-            ? 'var(--sl-color-primary-600)'
-            : '#878792'}"
+      ? 'var(--sl-color-primary-600)'
+      : '#878792'}"
           pill
           size="small"
           @click="${() => handlers.bookmark(state.tweet?.id || '')}"
           ><md-icon slot="suffix" name="bookmark"></md-icon
         ></md-button>
         ${state.settings && state.settings.wellness === false
-          ? html`<md-button
+      ? html`<md-button
               variant="text"
               style="--md-sys-color-primary: ${state.isBoosted ||
-              state.tweet?.favourited
-                ? 'var(--sl-color-primary-600)'
-                : '#878792'}"
+          state.tweet?.favourited
+          ? 'var(--sl-color-primary-600)'
+          : '#878792'}"
               pill
               size="small"
               @click="${() => handlers.favorite(state.tweet?.id || '')}"
               >${state.tweet.reblog.favourites_count}
               <md-icon slot="suffix" name="heart"></md-icon
             ></md-button>`
-          : null}
+      : null}
         ${state.settings && state.settings.wellness === false
-          ? html`<md-button
+      ? html`<md-button
               variant="text"
               style="--md-sys-color-primary: ${state.isReblogged ||
-              state.tweet?.reblogged
-                ? 'var(--sl-color-primary-600)'
-                : '#878792'}"
+          state.tweet?.reblogged
+          ? 'var(--sl-color-primary-600)'
+          : '#878792'}"
               pill
               size="small"
               @click="${() => handlers.reblog(state.tweet?.id || '')}"
               >${state.tweet.reblog.reblogs_count}
               <md-icon slot="suffix" name="repeat"></md-icon
             ></md-button>`
-          : null}
+      : null}
       </div>
     </md-card>
   `;
@@ -419,7 +406,7 @@ export function renderThread(
     <div class="thread-line"></div>
     <div class="thread-continuation">
       ${state.threadPosts.map(
-        (threadPost: Post) => html`
+    (threadPost: Post) => html`
           <md-card>
             <div class="header-block" slot="header">
               <user-profile
@@ -432,43 +419,43 @@ export function renderThread(
               <md-button
                 variant="text"
                 style="--md-sys-color-primary: ${threadPost.bookmarked
-                  ? 'var(--sl-color-primary-600)'
-                  : '#878792'}"
+        ? 'var(--sl-color-primary-600)'
+        : '#878792'}"
                 pill
                 size="small"
                 @click="${() => handlers.bookmark(threadPost.id)}"
                 ><md-icon slot="suffix" name="bookmark"></md-icon
               ></md-button>
               ${state.settings && state.settings.wellness === false
-                ? html`<md-button
+        ? html`<md-button
                     variant="text"
                     style="--md-sys-color-primary: ${threadPost.favourited
-                      ? 'var(--sl-color-primary-600)'
-                      : '#878792'}"
+            ? 'var(--sl-color-primary-600)'
+            : '#878792'}"
                     pill
                     size="small"
                     @click="${() => handlers.favorite(threadPost.id)}"
                     >${threadPost.favourites_count}
                     <md-icon slot="suffix" name="heart"></md-icon
                   ></md-button>`
-                : null}
+        : null}
               ${state.settings && state.settings.wellness === false
-                ? html`<md-button
+        ? html`<md-button
                     variant="text"
                     style="--md-sys-color-primary: ${threadPost.reblogged
-                      ? 'var(--sl-color-primary-600)'
-                      : '#878792'}"
+            ? 'var(--sl-color-primary-600)'
+            : '#878792'}"
                     pill
                     size="small"
                     @click="${() => handlers.reblog(threadPost.id)}"
                     >${threadPost.reblogs_count}
                     <md-icon slot="suffix" name="repeat"></md-icon
                   ></md-button>`
-                : null}
+        : null}
             </div>
           </md-card>
         `
-      )}
+  )}
     </div>
   `;
 }

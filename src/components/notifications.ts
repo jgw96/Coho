@@ -209,7 +209,7 @@ export class Notifications extends LitElement {
           }
 
           if ('clearAppBadge' in navigator) {
-            // @ts-ignore
+            // @ts-expect-error fix
             navigator.clearAppBadge();
           }
 

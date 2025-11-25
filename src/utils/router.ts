@@ -4,11 +4,11 @@ if (!(globalThis as any).URLPattern) {
   await import('urlpattern-polyfill');
 }
 
-// @ts-ignore
+// @ts-expect-error fix
 import { Router } from '@thepassle/app-tools/router.js';
-// @ts-ignore
+// @ts-expect-error fix
 import { lazy } from '@thepassle/app-tools/router/plugins/lazy.js';
-// @ts-ignore
+// @ts-expect-error fix
 import { title } from '@thepassle/app-tools/router/plugins/title.js';
 import { myPlugin } from './transition-plugin.js';
 

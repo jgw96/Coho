@@ -2,7 +2,7 @@ import { decodeBlurHash } from 'fast-blurhash';
 
 console.log('🚀 Worker script loaded at', Date.now());
 
-// @ts-ignore
+// @ts-expect-error fix
 const canvas = new OffscreenCanvas(1, 1);
 const ctx: any = canvas.getContext('2d');
 

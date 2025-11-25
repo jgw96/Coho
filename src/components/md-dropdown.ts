@@ -83,7 +83,11 @@ export class MdDropdown extends LitElement {
   };
 
   private _handleTriggerClick = () => {
-    this.open ? this.hide() : this.show();
+    if (this.open) {
+      this.hide();
+    } else {
+      this.show();
+    }
   };
 
   show() {

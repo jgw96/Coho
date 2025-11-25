@@ -2,9 +2,9 @@ import { set } from 'idb-keyval';
 import { getUsersPosts } from './account';
 import { FIREBASE_FUNCTIONS_BASE_URL } from '../config/firebase';
 
-let token = localStorage.getItem('token') || '';
-let accessToken = localStorage.getItem('accessToken') || '';
-let server = localStorage.getItem('server') || 'mastodon.social';
+const token = localStorage.getItem('token') || '';
+const accessToken = localStorage.getItem('accessToken') || '';
+const server = localStorage.getItem('server') || 'mastodon.social';
 
 // when the app unloads, call savePlace
 window.addEventListener('beforeunload', async () => {
@@ -66,8 +66,8 @@ export const mixTimeline = async (type = 'home') => {
     addSomeInterestFinds(),
   ]);
 
-  let timeline = home.concat(trending);
-  let timeline2 = timeline.concat(searched);
+  const timeline = home.concat(trending);
+  const timeline2 = timeline.concat(searched);
 
   set('latest-mixed-timeline', timeline2);
 
@@ -81,7 +81,7 @@ export const addSomeInterestFinds = async () => {
   if (interests && interests.length > 0) {
     const interest = interests[Math.floor(Math.random() * interests.length)];
 
-    let accessToken = localStorage.getItem('accessToken') || '';
+    const accessToken = localStorage.getItem('accessToken') || '';
     const headers = new Headers({
       Authorization: `Bearer ${accessToken}`,
     });
@@ -137,7 +137,7 @@ export const getPreviewTimeline = async () => {
 };
 
 export const getTrendingLinks = async () => {
-  let accessToken = localStorage.getItem('accessToken') || '';
+  const accessToken = localStorage.getItem('accessToken') || '';
   const headers = new Headers({
     Authorization: `Bearer ${accessToken}`,
   });
@@ -199,7 +199,7 @@ export const getPaginatedHomeTimeline = async (type = 'home') => {
 
   if (lastPageID && lastPageID.length > 0) {
     console.log('LOOK HERE', type);
-    let accessToken = localStorage.getItem('accessToken') || '';
+    const accessToken = localStorage.getItem('accessToken') || '';
 
     if (type === 'for you') {
       type = 'home';
@@ -220,7 +220,7 @@ export const getPaginatedHomeTimeline = async (type = 'home') => {
     return data;
   } else {
     console.log('LOOK HERE', type);
-    let accessToken = localStorage.getItem('accessToken') || '';
+    const accessToken = localStorage.getItem('accessToken') || '';
 
     if (type === 'for you') {
       type = 'home';
@@ -268,7 +268,7 @@ export const boostPost = async (id: string) => {
   // const data = await response.json();
   // return data;
 
-  let accessToken = localStorage.getItem('accessToken') || '';
+  const accessToken = localStorage.getItem('accessToken') || '';
 
   // boost post
   const response = await fetch(
@@ -380,7 +380,7 @@ export const getAStatus = async (id: string) => {
 };
 
 export const getTrendingStatuses = async () => {
-  let accessToken = localStorage.getItem('accessToken') || '';
+  const accessToken = localStorage.getItem('accessToken') || '';
 
   const response = await fetch(`https://${server}/api/v1/trends/statuses`, {
     method: 'GET',

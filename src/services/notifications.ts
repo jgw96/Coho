@@ -1,5 +1,5 @@
-let server = localStorage.getItem('server') || '';
-let accessToken = localStorage.getItem('accessToken') || '';
+const server = localStorage.getItem('server') || '';
+const accessToken = localStorage.getItem('accessToken') || '';
 
 export const getNotifications = async () => {
   // const notifyResponse = await fetch(`http://localhost:8000/notifications?code=${accessToken}&server=${server}`);
@@ -39,7 +39,7 @@ export const clearNotifications = async () => {
 
 function urlBase64ToUint8Array(key: string) {
   const padding = '='.repeat((4 - (key.length % 4)) % 4);
-  const base64 = (key + padding).replace(/\-/g, '+').replace(/_/g, '/');
+  const base64 = (key + padding).replace(/-/g, '+').replace(/_/g, '/');
 
   const rawData = window.atob(base64);
   const outputArray = new Uint8Array(rawData.length);
@@ -175,7 +175,7 @@ export const subToPush = async () => {
       // set minInterval to twice a day
       const minInterval = 12 * 60 * 60 * 1000;
 
-      // @ts-ignore
+      // @ts-expect-error fix
       await registration.periodicSync.register('get-notifications', {
         minInterval,
       });

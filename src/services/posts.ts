@@ -1,8 +1,8 @@
 import { fileOpen } from 'browser-fs-access';
 import { addMedia } from './media';
 
-let server = localStorage.getItem('server') || '';
-let accessToken = localStorage.getItem('accessToken') || '';
+const server = localStorage.getItem('server') || '';
+const accessToken = localStorage.getItem('accessToken') || '';
 
 export async function whoBoostedAndFavorited(id: string) {
   const response = await fetch(
@@ -181,39 +181,37 @@ export async function uploadMediaFile(file: File): Promise<any> {
 }
 
 export async function uploadImageAsFormData(): Promise<Array<any>> {
-  return new Promise(async (resolve) => {
-    const files = await fileOpen({
-      mimeTypes: ['image/*', 'video/*'],
-      multiple: true,
-    });
-    ``;
-    let uploaded: any[] = [];
-
-    // loop through the files and upload them
-
-    for (let i = 0; i < files.length; i++) {
-      const formData = new FormData();
-      formData.append('file', files[i]);
-
-      const response = await fetch(`https://${server}/api/v2/media`, {
-        method: 'POST',
-        headers: new Headers({
-          Authorization: `Bearer ${accessToken}`,
-        }),
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      uploaded = [...uploaded, data];
-
-      await addMedia(files[i]);
-
-      console.log('uploaded', uploaded);
-    }
-
-    resolve(uploaded);
+  const files = await fileOpen({
+    mimeTypes: ['image/*', 'video/*'],
+    multiple: true,
   });
+
+  let uploaded: any[] = [];
+
+  // loop through the files and upload them
+
+  for (let i = 0; i < files.length; i++) {
+    const formData = new FormData();
+    formData.append('file', files[i]);
+
+    const response = await fetch(`https://${server}/api/v2/media`, {
+      method: 'POST',
+      headers: new Headers({
+        Authorization: `Bearer ${accessToken}`,
+      }),
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    uploaded = [...uploaded, data];
+
+    await addMedia(files[i]);
+
+    console.log('uploaded', uploaded);
+  }
+
+  return uploaded;
 }
 
 export async function updateMedia(id: string, description: string) {

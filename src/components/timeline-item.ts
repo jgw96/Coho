@@ -492,12 +492,12 @@ export class TimelineItem extends LitElement {
 
   async openPost() {
     if (this.device === 'mobile') {
-      // @ts-ignore
+      // @ts-expect-error fix
       if ('startViewTransition' in document) {
-        // @ts-ignore
+        // @ts-expect-error fix
         this.style.viewTransitionName = 'card';
 
-        // @ts-ignore
+        // @ts-expect-error fix
         // document.startViewTransition(async () => {
         //     if (this.tweet) {
         //         const serialized = new URLSearchParams(JSON.stringify(this.tweet)).toString();
@@ -505,7 +505,7 @@ export class TimelineItem extends LitElement {
         //         await router.navigate(`/home/post?${serialized}`);
 
         //         setTimeout(() => {
-        //             // @ts-ignore
+        //             // @ts-expect-error fix
         //             this.style.viewTransitionName = '';
         //         }, 800)
         //     }
@@ -520,7 +520,7 @@ export class TimelineItem extends LitElement {
           await router.navigate(`/home/post?${serialized}`);
 
           setTimeout(() => {
-            // @ts-ignore
+            // @ts-expect-error fix
             this.style.viewTransitionName = '';
           }, 800);
         }
