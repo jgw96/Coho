@@ -103,7 +103,6 @@ export class UserProfile extends LitElement {
     const observer = new IntersectionObserver((entries, observer) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          console.log('User profile image in view, loading image');
           this.loadImage();
 
           observer.unobserve(entry.target);
@@ -122,16 +121,14 @@ export class UserProfile extends LitElement {
   }
 
   loadImage() {
-    window.requestIdleCallback(() => {
-      const img = this.shadowRoot?.querySelector('img');
-      if (img) {
-        const src = img.getAttribute('data-src');
-        if (src) {
-          img.setAttribute('src', src);
-          img.removeAttribute('data-src');
-        }
+    const img = this.shadowRoot?.querySelector('img');
+    if (img) {
+      const src = img.getAttribute('data-src');
+      if (src) {
+        img.setAttribute('src', src);
+        img.removeAttribute('data-src');
       }
-    });
+    }
   }
 
   async openUser() {
