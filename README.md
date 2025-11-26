@@ -2,7 +2,7 @@
 
 **A modern, cross-platform Mastodon PWA built for performance and user experience.**
 
-[![Status](https://img.shields.io/badge/Status-Public%20Alpha-orange)]()
+[![Status](https://img.shields.io/badge/Status-Public%20Beta-orange)]()
 
 Coho is a Progressive Web App (PWA) client for Mastodon. It emphasizes offline capabilities with a fast and simple user experience.
 
