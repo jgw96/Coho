@@ -1,14 +1,14 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
-import './md-dialog.js';
-import './md-button.js';
-import './md-text-field.js';
-import './md-text-area.js';
-import './md-icon.js';
-import './md-icon-button.js';
-import './md-select.js';
-import './md-option.js';
+import './md/md-dialog.js';
+import './md/md-button.js';
+import './md/md-text-field.js';
+import './md/md-text-area.js';
+import './md/md-icon.js';
+import './md/md-icon-button.js';
+import './md/md-select.js';
+import './md/md-option.js';
 import './media-edit-dialog.js';
 import '@shoelace-style/shoelace/dist/components/skeleton/skeleton.js';
 import {

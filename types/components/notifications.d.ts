@@ -1,9 +1,9 @@
 import { LitElement } from 'lit';
 import './user-profile';
 import './timeline-item';
-import './md-dialog';
-import './md-switch';
-import './md-button';
+import './md/md-dialog';
+import './md/md-switch';
+import './md/md-button';
 import '@shoelace-style/shoelace/dist/components/divider/divider';
 import { Post } from '../interfaces/Post';
 export declare class Notifications extends LitElement {

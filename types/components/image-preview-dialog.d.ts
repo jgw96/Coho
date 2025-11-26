@@ -1,7 +1,7 @@
 import { LitElement } from 'lit';
-import './md-icon-button';
-import './md-icon';
-import './md-skeleton';
+import './md/md-icon-button';
+import './md/md-icon';
+import './md/md-skeleton';
 export declare class ImagePreviewDialog extends LitElement {
     open: boolean;
     src: string;

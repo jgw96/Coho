@@ -1,5 +1,5 @@
 import { LitElement } from 'lit';
-import './md-toast.js';
+import './md/md-toast.js';
 export declare class OfflineNotify extends LitElement {
     network_status: boolean;
     back_online: boolean;

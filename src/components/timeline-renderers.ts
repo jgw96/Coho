@@ -3,11 +3,11 @@ import { classMap } from 'lit/directives/class-map.js';
 import { Post } from '../interfaces/Post';
 
 import '../components/user-profile';
-import '../components/md-card';
-import '../components/md-icon';
-import '../components/md-icon-button';
+import '../components/md/md-card';
+import '../components/md/md-icon';
+import '../components/md/md-icon-button';
 import '../components/image-carousel';
-import '../components/md-button';
+import '../components/md/md-button';
 
 export interface TimelineItemHandlers {
   viewSensitive: () => void;

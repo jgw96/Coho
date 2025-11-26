@@ -1,6 +1,6 @@
 import { LitElement } from 'lit';
 import './timeline-item';
-import './md-skeleton-card';
+import './md/md-skeleton-card';
 export declare class Bookmarks extends LitElement {
     bookmarks: never[];
     isLoading: boolean;

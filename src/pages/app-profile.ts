@@ -11,13 +11,13 @@ import {
 } from '../services/account';
 
 import '../components/timeline-item';
-import '../components/md-dialog';
-import '../components/md-text-area';
+import '../components/md/md-dialog';
+import '../components/md/md-text-area';
 
 import '@shoelace-style/shoelace/dist/components/skeleton/skeleton.js';
 import '@shoelace-style/shoelace/dist/components/badge/badge.js';
 
-import '../components/md-badge';
+import '../components/md/md-badge';
 import { Post } from '../interfaces/Post';
 import { editPost } from '../services/posts';
 

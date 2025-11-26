@@ -1,6 +1,6 @@
 import { LitElement } from 'lit';
-import './md-menu.js';
-import './md-menu-item.js';
+import './md/md-menu.js';
+import './md/md-menu-item.js';
 export declare class RightClick extends LitElement {
     static styles: import("lit").CSSResult[];
     firstUpdated(): void;

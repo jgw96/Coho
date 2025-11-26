@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
-import './md-toast.js';
+import './md/md-toast.js';
 
 @customElement('offline-notify')
 export class OfflineNotify extends LitElement {

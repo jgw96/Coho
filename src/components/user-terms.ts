@@ -1,6 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
-import './md-checkbox.js';
+import './md/md-checkbox.js';
 
 @customElement('user-terms')
 export class UserTerms extends LitElement {

@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import copy from 'rollup-plugin-copy';
 import wasm from 'vite-plugin-wasm';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 let customPlugins = [];
 // Plugin to minify CSS in Lit component tagged templates
@@ -152,5 +153,6 @@ export default defineConfig({
         { src: 'global.css', dest: 'dist/' },
       ],
     }),
+    ...(process.env.ANALYZE_BUNDLE ? [visualizer({ open: true })] : []),
   ],
 });

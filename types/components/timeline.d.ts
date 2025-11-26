@@ -1,13 +1,13 @@
 import { LitElement } from 'lit';
-import '../components/md-dialog';
-import '../components/md-button';
-import '../components/md-icon';
-import '../components/md-skeleton-card';
+import '../components/md/md-dialog';
+import '../components/md/md-button';
+import '../components/md/md-icon';
+import '../components/md/md-skeleton-card';
 import '@lit-labs/virtualizer';
 import '../components/timeline-item';
 import '../components/search';
-import '../components/md-select';
-import '../components/md-option';
+import '../components/md/md-select';
+import '../components/md/md-option';
 import { Post } from '../interfaces/Post';
 export declare class Timeline extends LitElement {
     timeline: Post[];

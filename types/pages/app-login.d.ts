@@ -1,7 +1,7 @@
 import { LitElement } from 'lit';
-import '../components/md-text-field';
-import '../components/md-button';
-import '../components/md-card';
+import '../components/md/md-text-field';
+import '../components/md/md-button';
+import '../components/md/md-card';
 export declare class AppLogin extends LitElement {
     loadIntro: boolean;
     instances: any[];

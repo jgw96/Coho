@@ -1,8 +1,8 @@
 import { LitElement } from 'lit';
-import './md-dialog.js';
-import './md-button.js';
-import './md-text-area.js';
-import './md-skeleton.js';
+import './md/md-dialog.js';
+import './md/md-button.js';
+import './md/md-text-area.js';
+import './md/md-skeleton.js';
 export declare class MediaEditDialog extends LitElement {
     open: boolean;
     imageSrc: string;

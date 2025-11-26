@@ -1,8 +1,8 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
-import './md-button.js';
-import './md-icon.js';
+import './md/md-button.js';
+import './md/md-icon.js';
 
 import { getSettings, setSettings, Settings } from '../services/settings';
 

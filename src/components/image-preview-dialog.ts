@@ -1,9 +1,9 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state, query } from 'lit/decorators.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
-import './md-icon-button';
-import './md-icon';
-import './md-skeleton';
+import './md/md-icon-button';
+import './md/md-icon';
+import './md/md-skeleton';
 
 @customElement('image-preview-dialog')
 export class ImagePreviewDialog extends LitElement {

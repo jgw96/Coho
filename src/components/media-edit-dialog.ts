@@ -1,9 +1,9 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import './md-dialog.js';
-import './md-button.js';
-import './md-text-area.js';
-import './md-skeleton.js';
+import './md/md-dialog.js';
+import './md/md-button.js';
+import './md/md-text-area.js';
+import './md/md-skeleton.js';
 
 @customElement('media-edit-dialog')
 export class MediaEditDialog extends LitElement {

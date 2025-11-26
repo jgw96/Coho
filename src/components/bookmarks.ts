@@ -3,7 +3,7 @@ import { customElement, state } from 'lit/decorators.js';
 import { Post } from '../interfaces/Post';
 
 import './timeline-item';
-import './md-skeleton-card';
+import './md/md-skeleton-card';
 
 @customElement('app-bookmarks')
 export class Bookmarks extends LitElement {

@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
-import '../components/md-text-area';
+import '../components/md/md-text-area';
 import { requestMammothBot } from '../services/ai';
 
 @customElement('mammoth-bot')

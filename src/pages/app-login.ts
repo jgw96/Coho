@@ -1,9 +1,9 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
-import '../components/md-text-field';
-import '../components/md-button';
-import '../components/md-card';
+import '../components/md/md-text-field';
+import '../components/md/md-button';
+import '../components/md/md-card';
 
 import { router } from '../utils/router';
 import { enableVibrate } from '../utils/handle-vibrate';
@@ -226,7 +226,7 @@ export class AppLogin extends LitElement {
   }
 
   async openIntro() {
-    await import('../components/md-dialog.js');
+    await import('../components/md/md-dialog.js');
     this.loadIntro = true;
 
     await this.updateComplete;

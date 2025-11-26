@@ -1,8 +1,8 @@
 import { LitElement, css, html, PropertyValueMap, nothing } from 'lit';
 import { property, customElement } from 'lit/decorators.js';
 
-import './md-icon.js';
-import './md-icon-button.js';
+import './md/md-icon.js';
+import './md/md-icon-button.js';
 
 import { enableVibrate } from '../utils/handle-vibrate';
 

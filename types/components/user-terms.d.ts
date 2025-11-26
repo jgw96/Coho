@@ -1,5 +1,5 @@
 import { LitElement } from 'lit';
-import './md-checkbox.js';
+import './md/md-checkbox.js';
 export declare class UserTerms extends LitElement {
     private _interests;
     static styles: import("lit").CSSResult[];

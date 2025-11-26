@@ -4,9 +4,9 @@ import { router } from '../utils/router';
 
 import './user-profile';
 import './timeline-item';
-import './md-dialog';
-import './md-switch';
-import './md-button';
+import './md/md-dialog';
+import './md/md-switch';
+import './md/md-button';
 
 import '@shoelace-style/shoelace/dist/components/divider/divider';
 

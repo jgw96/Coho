@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
-import './md-text-field';
+import './md/md-text-field';
 
 import { router } from '../utils/router';
 

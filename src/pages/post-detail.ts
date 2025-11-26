@@ -3,9 +3,9 @@ import { customElement, property, state } from 'lit/decorators.js';
 
 import '../components/header';
 import '../components/timeline-item';
-import '../components/md-icon';
-import '../components/md-icon-button';
-import '../components/md-text-area';
+import '../components/md/md-icon';
+import '../components/md/md-icon-button';
+import '../components/md/md-text-area';
 import { Post } from '../interfaces/Post';
 import { getReplies } from '../services/timeline';
 

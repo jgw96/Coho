@@ -13,3 +13,6 @@ build
 # Firebase
 firebase-debug.log
 .firebase/
+
+# Bundle analyzer
+stats.html

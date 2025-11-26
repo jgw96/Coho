@@ -1,8 +1,8 @@
 import { LitElement } from 'lit';
-import './md-text-field';
-import './md-text-area';
-import './md-checkbox';
-import './md-button';
+import './md/md-text-field';
+import './md/md-text-area';
+import './md/md-checkbox';
+import './md/md-button';
 export declare class EditAccount extends LitElement {
     newAvatar: File | null;
     newHeader: File | null;

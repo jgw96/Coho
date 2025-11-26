@@ -1,5 +1,5 @@
 import { LitElement } from 'lit';
-import '../components/md-text-area';
+import '../components/md/md-text-area';
 export declare class MammothBot extends LitElement {
     previousMessages: any[];
     static styles: import("lit").CSSResult[];

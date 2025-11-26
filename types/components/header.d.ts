@@ -1,6 +1,6 @@
 import { LitElement, PropertyValueMap } from 'lit';
-import './md-icon.js';
-import './md-icon-button.js';
+import './md/md-icon.js';
+import './md/md-icon-button.js';
 export declare class AppHeader extends LitElement {
     title: string;
     enableBack: boolean;

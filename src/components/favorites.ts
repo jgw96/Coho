@@ -2,7 +2,7 @@ import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { Post } from '../interfaces/Post';
 
-import './md-skeleton-card';
+import './md/md-skeleton-card';
 
 @customElement('app-favorites')
 export class Favorites extends LitElement {

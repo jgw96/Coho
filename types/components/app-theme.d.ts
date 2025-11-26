@@ -1,6 +1,6 @@
 import { LitElement } from 'lit';
-import './md-button.js';
-import './md-icon.js';
+import './md/md-button.js';
+import './md/md-icon.js';
 import { Settings } from '../services/settings';
 export declare class AppTheme extends LitElement {
     primary_color: string;

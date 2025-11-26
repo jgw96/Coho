@@ -3,7 +3,7 @@ import { customElement, state } from 'lit/decorators.js';
 import { getServers } from '../services/account';
 
 import '@shoelace-style/shoelace/dist/components/badge/badge.js';
-import '../components/md-dialog.js';
+import '../components/md/md-dialog.js';
 
 @customElement('create-account')
 export class CreateAccount extends LitElement {

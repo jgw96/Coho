@@ -1,5 +1,5 @@
 import { LitElement } from 'lit';
-import './md-text-field';
+import './md/md-text-field';
 export declare class Search extends LitElement {
     searchData: any | undefined;
     static styles: import("lit").CSSResult[];

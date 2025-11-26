@@ -3,7 +3,7 @@ import { customElement, state } from 'lit/decorators.js';
 import { getPreviewTimeline } from '../services/timeline';
 
 import '../components/preview-timeline';
-import '../components/md-text-field';
+import '../components/md/md-text-field';
 
 import '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js';
 import '@shoelace-style/shoelace/dist/components/button/button.js';

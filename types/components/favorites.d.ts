@@ -1,5 +1,5 @@
 import { LitElement } from 'lit';
-import './md-skeleton-card';
+import './md/md-skeleton-card';
 export declare class Favorites extends LitElement {
     favorites: never[];
     isLoading: boolean;

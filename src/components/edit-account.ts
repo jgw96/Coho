@@ -1,10 +1,10 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
-import './md-text-field';
-import './md-text-area';
-import './md-checkbox';
-import './md-button';
+import './md/md-text-field';
+import './md/md-text-area';
+import './md/md-checkbox';
+import './md/md-button';
 import { editAccount, getCurrentUser } from '../services/account';
 import { fileOpen } from 'browser-fs-access';
 

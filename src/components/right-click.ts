@@ -1,8 +1,8 @@
 import { LitElement, html, css } from 'lit';
 import { customElement } from 'lit/decorators.js';
 
-import './md-menu.js';
-import './md-menu-item.js';
+import './md/md-menu.js';
+import './md/md-menu-item.js';
 
 @customElement('right-click')
 export class RightClick extends LitElement {
