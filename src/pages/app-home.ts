@@ -308,7 +308,7 @@ export class AppHome extends LitElement {
         main {
           padding-top: 54px;
           display: grid;
-          grid-template-columns: 70vw 30vw;
+          grid-template-columns: 65vw 35vw;
         }
 
         main.focus {
@@ -335,6 +335,13 @@ export class AppHome extends LitElement {
           display: flex;
           flex-direction: column;
           justify-content: space-between;
+        }
+
+        /* yeah i know */
+        #profile md-button {
+          position: fixed;
+          left: 34px;
+          bottom: 23px;
         }
 
         #username-block {
