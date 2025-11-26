@@ -185,7 +185,9 @@ export const getLastPlaceTimeline = async (): Promise<Post[] | undefined> => {
   return undefined;
 };
 
-export const getPaginatedHomeTimeline = async (type = 'home'): Promise<Post[]> => {
+export const getPaginatedHomeTimeline = async (
+  type = 'home'
+): Promise<Post[]> => {
   console.log('getPaginatedHomeTimeline', type);
   console.log('LOOK HERE', type);
 
@@ -302,7 +304,9 @@ export const reblogPost = async (id: string) => {
   return data;
 };
 
-export const getReplies = async (id: string): Promise<{ ancestors: Post[]; descendants: Post[] }> => {
+export const getReplies = async (
+  id: string
+): Promise<{ ancestors: Post[]; descendants: Post[] }> => {
   const response = await fetch(
     `${FIREBASE_FUNCTIONS_BASE_URL}/getReplies?id=${id}&code=${accessToken}&server=${server}`
   );

@@ -57,9 +57,19 @@ export class OtterDrawer extends LitElement {
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
       display: flex;
       flex-direction: column;
-      transition: transform var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+      transition:
+        transform var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1),
+        visibility 0s var(--transition-speed);
       z-index: 9999;
       overflow: hidden;
+      visibility: hidden;
+    }
+
+    .drawer.open {
+      visibility: visible;
+      transition:
+        transform var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1),
+        visibility 0s;
     }
 
     /* Placement: end (right) */

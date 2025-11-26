@@ -148,22 +148,6 @@ export class AppIndex extends LitElement {
     document.body.style.setProperty('--sl-color-primary-600', color);
     document.body.style.setProperty('--md-sys-color-primary', color);
     document.body.style.setProperty('--md-sys-color-outline', color);
-
-    // Update theme-color meta tags
-    const metaThemeColorLight = document.querySelector(
-      'meta[name="theme-color"][media="(prefers-color-scheme: light)"]'
-    );
-    const metaThemeColorDark = document.querySelector(
-      'meta[name="theme-color"][media="(prefers-color-scheme: dark)"]'
-    );
-
-    if (metaThemeColorLight) {
-      metaThemeColorLight.setAttribute('content', '#ffffff');
-    }
-
-    if (metaThemeColorDark) {
-      metaThemeColorDark.setAttribute('content', '#202124');
-    }
   }
 
   /**

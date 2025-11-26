@@ -120,7 +120,9 @@ export async function replyToPost(id: string, content: string): Promise<Post> {
   return data;
 }
 
-export async function uploadImageFromURL(url: string): Promise<MediaAttachment> {
+export async function uploadImageFromURL(
+  url: string
+): Promise<MediaAttachment> {
   const response = await fetch(`https://${server}/api/v2/media`, {
     method: 'POST',
     headers: new Headers({
@@ -135,7 +137,9 @@ export async function uploadImageFromURL(url: string): Promise<MediaAttachment> 
   return data;
 }
 
-export async function uploadImageFromBlob(blob: Blob): Promise<MediaAttachment> {
+export async function uploadImageFromBlob(
+  blob: Blob
+): Promise<MediaAttachment> {
   // const formData = new FormData();
   // formData.append('file', blob);
 
@@ -217,7 +221,10 @@ export async function uploadImageAsFormData(): Promise<MediaAttachment[]> {
   return uploaded;
 }
 
-export async function updateMedia(id: string, description: string): Promise<MediaAttachment> {
+export async function updateMedia(
+  id: string,
+  description: string
+): Promise<MediaAttachment> {
   const formData = new FormData();
   formData.append('description', description);
 

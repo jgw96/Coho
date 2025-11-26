@@ -204,13 +204,13 @@ export class ImageCarousel extends LitElement {
             @click="${() => this.openInBox(image)}"
           >
             ${blurhashUrl
-            ? html`<img
+              ? html`<img
                   class="blurhash-canvas"
                   src="${blurhashUrl}"
                   aria-hidden="true"
                   alt=""
                 />`
-            : ''}
+              : ''}
             <img
               class="real-image"
               loading="lazy"
@@ -234,22 +234,22 @@ export class ImageCarousel extends LitElement {
     return html`
       <div id="list">
         ${this.images.map((image) => {
-      if (image.type === 'image') {
-        const height = this.calculateImageHeight(image);
-        const blurhashUrl = this.blurhashUrls.get(image.id);
-        return html`
+          if (image.type === 'image') {
+            const height = this.calculateImageHeight(image);
+            const blurhashUrl = this.blurhashUrls.get(image.id);
+            return html`
               <div
                 class="image-container"
                 style="height: ${height}"
                 @click="${() => this.openInBox(image)}"
               >
                 ${blurhashUrl
-            ? html`<img
+                  ? html`<img
                       class="blurhash-canvas"
                       src="${blurhashUrl}"
                       aria-hidden="true"
                     />`
-            : null}
+                  : null}
                 <img
                   src="${image.preview_url}"
                   alt="${image.description || 'Image'}"
@@ -258,21 +258,21 @@ export class ImageCarousel extends LitElement {
                 />
               </div>
             `;
-      } else if (image.type === 'video') {
-        return html`
+          } else if (image.type === 'video') {
+            return html`
               <div>
                 <video controls src="${image.url}"></video>
               </div>
             `;
-      } else if (image.type === 'gifv') {
-        return html`
+          } else if (image.type === 'gifv') {
+            return html`
               <div>
                 <video autoplay loop src="${image.url}"></video>
               </div>
             `;
-      }
-      return null;
-    })}
+          }
+          return null;
+        })}
       </div>
     `;
   }
