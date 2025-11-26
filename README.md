@@ -85,4 +85,4 @@ Contributions are welcome! Please read our [CONTRIBUTING.md](CONTRIBUTING.md) fo
 
 ## License
 
-This project is licensed under the MPL License.
+This project is licensed under the GNU General Public License v2.0
