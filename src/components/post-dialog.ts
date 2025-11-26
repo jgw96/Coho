@@ -388,11 +388,11 @@ export class PostDialog extends LitElement {
       this.attachments = this.attachments.map((a) =>
         a.id === tempId
           ? {
-              ...a,
-              id: data.id,
-              preview_url: data.preview_url, // Use remote URL
-              pending: false,
-            }
+            ...a,
+            id: data.id,
+            preview_url: data.preview_url, // Use remote URL
+            pending: false,
+          }
           : a
       );
 
@@ -638,33 +638,33 @@ export class PostDialog extends LitElement {
         ></md-text-area>
 
         ${this.sensitive
-          ? html`<div id="sensitive-warning">
+        ? html`<div id="sensitive-warning">
               <md-text-field
                 id="sensitive-input"
                 placeholder="Write your warning here"
               ></md-text-field>
             </div>`
-          : null}
+        : null}
 
         <div slot="footer" class="dialog-footer-actions">
           ${this.showPrompt
-            ? html`<div id="ai-image">
+        ? html`<div id="ai-image">
                 ${this.showPrompt && this.generatedImage
-                  ? html` <img src="${this.generatedImage}" /> `
-                  : this.showPrompt && this.generatingImage === false
-                    ? html`<div id="ai-preview-block">
+            ? html` <img src="${this.generatedImage}" /> `
+            : this.showPrompt && this.generatingImage === false
+              ? html`<div id="ai-preview-block">
                         <p>Enter a prompt to generate an image with AI!</p>
                       </div>`
-                    : html`<div id="ai-preview-block">
+              : html`<div id="ai-preview-block">
                         <sl-skeleton effect="sheen"></sl-skeleton>
                       </div>`}
                 ${this.showPrompt
-                  ? html`
+            ? html`
                       <div id="ai-input-block">
                         <sl-input
                           placeholder="A picture of an orange cat"
                           @sl-change="${(e: any) =>
-                            this.doAIImage(e.target.value)}"
+                this.doAIImage(e.target.value)}"
                         ></sl-input>
 
                         <md-button
@@ -676,9 +676,9 @@ export class PostDialog extends LitElement {
                         >
                       </div>
                     `
-                  : null}
-              </div>`
             : null}
+              </div>`
+        : null}
 
           <div>
             <!-- Desktop buttons with text -->
@@ -696,7 +696,7 @@ export class PostDialog extends LitElement {
 
             <md-button
               class="desktop-button"
-              variant="text"
+              variant="outlined"
               @click="${() => this.markAsSensitive()}"
             >
               Content Warning
@@ -740,10 +740,10 @@ export class PostDialog extends LitElement {
         </div>
 
         ${this.attaching === false
-          ? html`
+        ? html`
               <ul>
                 ${this.attachments.map((attachment) => {
-                  return html`
+          return html`
                     <div class="img-preview">
                       <div class="preview-actions">
                         <md-icon-button
@@ -765,10 +765,10 @@ export class PostDialog extends LitElement {
                       />
                     </div>
                   `;
-                })}
+        })}
               </ul>
             `
-          : html`<div id="attachment-loading">
+        : html`<div id="attachment-loading">
               <sl-skeleton effect="sheen"></sl-skeleton>
             </div>`}
       </md-dialog>
@@ -779,9 +779,9 @@ export class PostDialog extends LitElement {
         .description="${this.activeAttachment?.description || ''}"
         .mediaId="${this.activeAttachment?.id || ''}"
         @close="${() => {
-          this.editDialogOpen = false;
-          this.activeAttachment = null;
-        }}"
+        this.editDialogOpen = false;
+        this.activeAttachment = null;
+      }}"
         @save="${this.handleMediaSave}"
       ></media-edit-dialog>
     `;
