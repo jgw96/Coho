@@ -4,7 +4,7 @@ import { getPaginatedHomeTimeline } from '../services/timeline';
 
 import '@shoelace-style/shoelace/dist/components/skeleton/skeleton.js';
 
-import '@lit-labs/virtualizer';
+import '../components/md/md-virtual-list';
 
 import '../components/timeline-item';
 import '../components/search';
@@ -49,9 +49,8 @@ export class MediaTimeline extends LitElement {
         overflow-x: hidden;
       }
 
-      lit-virtualizer {
+      md-virtual-list {
         height: 90vh;
-        overflow-x: hidden !important;
       }
 
       sl-card {
@@ -106,23 +105,14 @@ export class MediaTimeline extends LitElement {
     this.loadingData = true;
     // await this.refreshTimeline();
     this.loadingData = false;
+  }
 
-    // update data when the user scrolls to the bottom of the page
-    const scroller = this.shadowRoot?.querySelector('lit-virtualizer') as any;
+  private async _handleLoadMore() {
+    if (this.loadingData) return;
 
-    type scrollEvent = {
-      deltaY: number;
-    };
-
-    scroller.onoverscroll = async (e: scrollEvent) => {
-      if (e.deltaY > 0) {
-        if (this.loadingData) return;
-
-        this.loadingData = true;
-        await this.loadMore();
-        this.loadingData = false;
-      }
-    };
+    this.loadingData = true;
+    await this.loadMore();
+    this.loadingData = false;
   }
 
   async refreshTimeline() {
@@ -164,19 +154,21 @@ export class MediaTimeline extends LitElement {
   render() {
     return html`
       <ul>
-        <lit-virtualizer
-          scroller
+        <md-virtual-list
           .items="${this.timeline}"
+          .keyFn="${(tweet: any) => tweet.id}"
           .renderItem="${(tweet: Post) => html`
             <timeline-item
               ?show="${true}"
               @replies="${($event: any) =>
-                this.handleReplies($event.detail.data)}"
+          this.handleReplies($event.detail.data)}"
               .tweet="${tweet}"
             ></timeline-item>
           `}"
+          .loading="${this.loadingData}"
+          @load-more="${this._handleLoadMore}"
         >
-        </lit-virtualizer>
+        </md-virtual-list>
       </ul>
     `;
   }

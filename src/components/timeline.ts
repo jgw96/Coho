@@ -20,8 +20,7 @@ import '../components/md/md-dialog';
 import '../components/md/md-button';
 import '../components/md/md-icon';
 import '../components/md/md-skeleton-card';
-
-import '@lit-labs/virtualizer';
+import '../components/md/md-virtual-list';
 
 import '../components/timeline-item';
 import '../components/search';
@@ -150,9 +149,8 @@ export class Timeline extends LitElement {
         overflow-x: hidden;
       }
 
-      lit-virtualizer {
+      md-virtual-list {
         height: calc(84vh - 60px);
-        overflow-x: hidden !important;
       }
 
       #load-more {
@@ -282,7 +280,7 @@ export class Timeline extends LitElement {
           height: 85vh;
         }
 
-        lit-virtualizer {
+        md-virtual-list {
           height: 80vh;
         }
 
@@ -436,11 +434,11 @@ export class Timeline extends LitElement {
       // Restore scroll position after render
       await this.updateComplete;
       requestAnimationFrame(() => {
-        const scrollContainer = this.shadowRoot?.querySelector(
-          '#mainList'
-        ) as HTMLElement;
-        if (scrollContainer && cachedTimeline.scrollPosition > 0) {
-          scrollContainer.scrollTop = cachedTimeline.scrollPosition;
+        const virtualList = this.shadowRoot?.querySelector(
+          'md-virtual-list'
+        ) as any;
+        if (virtualList && cachedTimeline.scrollPosition > 0) {
+          virtualList.setScrollTop(cachedTimeline.scrollPosition);
           console.log(
             'Restored scroll position:',
             cachedTimeline.scrollPosition
@@ -455,23 +453,16 @@ export class Timeline extends LitElement {
       this.loadingData = false;
     }
 
-    // if (latestReadID && this.timelineType === "for you" && index > 0) {
-    //     const virtualizer: any = this.shadowRoot?.querySelector('lit-virtualizer');
-
-    //     console.log("check this", virtualizer?.element(index), index, latestReadID);
-    //     virtualizer.scrollToIndex(index);
-    // }
-
+    // Setup scroll position tracking for caching
     window.requestIdleCallback(
       async () => {
-        // setup intersection observer
-        const loadMore = this.shadowRoot?.querySelector('#load-more') as any;
-        const scrollContainer = this.shadowRoot?.querySelector(
-          '#mainList'
-        ) as HTMLElement;
+        const virtualList = this.shadowRoot?.querySelector(
+          'md-virtual-list'
+        ) as any;
+        const scrollContainer = virtualList?.getScrollContainer();
 
-        if (!loadMore || !scrollContainer) {
-          console.warn('Load more button or scroll container not found');
+        if (!scrollContainer) {
+          console.warn('Scroll container not found');
           return;
         }
 
@@ -487,30 +478,18 @@ export class Timeline extends LitElement {
             );
           }, 150);
         });
-
-        const observer = new IntersectionObserver(
-          async (entries: Array<IntersectionObserverEntry>) => {
-            entries.forEach(async (entry: IntersectionObserverEntry) => {
-              if (entry.isIntersecting) {
-                if (this.loadingData) return;
-
-                this.loadingData = true;
-                await this.loadMore();
-                this.loadingData = false;
-              }
-            });
-          },
-          {
-            root: scrollContainer,
-            rootMargin: '100px',
-            threshold: 0.1,
-          }
-        );
-
-        observer.observe(loadMore);
       },
       { timeout: 3000 }
     );
+  }
+
+  /** Handle load-more event from md-virtual-list */
+  private async _handleLoadMore() {
+    if (this.loadingData) return;
+
+    this.loadingData = true;
+    await this.loadMore();
+    this.loadingData = false;
   }
 
   disconnectedCallback() {
@@ -841,8 +820,9 @@ export class Timeline extends LitElement {
         ${this.loadingData && this.timeline.length === 0
         ? html`<md-skeleton-card count="5"></md-skeleton-card>`
         : html`
-              <lit-virtualizer
-                .items=${this.timeline as any}
+              <md-virtual-list
+                .items=${this.timeline}
+                .keyFn=${(tweet: any) => tweet.id}
                 .renderItem=${(tweet: any) =>
             html`<li class="timeline-list-item">
                     <timeline-item
@@ -868,16 +848,12 @@ export class Timeline extends LitElement {
                       .tweet="${tweet}"
                     ></timeline-item>
                   </li>`}
+                .loading=${this.loadingData}
+                @load-more=${this._handleLoadMore}
               >
-              </lit-virtualizer>
+              </md-virtual-list>
 
-              <md-button
-                variant="text"
-                ?disabled="${this.loadingData}"
-                id="load-more"
-              >
-                ${this.loadingData ? 'Loading...' : 'Load More'}
-              </md-button>
+              <div id="load-more" style="height: 1px;"></div>
             `}
       </ul>
     `;

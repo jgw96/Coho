@@ -3,7 +3,7 @@ import '../components/md/md-dialog';
 import '../components/md/md-button';
 import '../components/md/md-icon';
 import '../components/md/md-skeleton-card';
-import '@lit-labs/virtualizer';
+import '../components/md/md-virtual-list';
 import '../components/timeline-item';
 import '../components/search';
 import '../components/md/md-select';
@@ -30,6 +30,8 @@ export declare class Timeline extends LitElement {
     _handleTouchMove(e: TouchEvent): void;
     _handleTouchEnd(): Promise<void>;
     connectedCallback(): Promise<void>;
+    /** Handle load-more event from md-virtual-list */
+    private _handleLoadMore;
     disconnectedCallback(): void;
     refreshTimeline(skipCache?: boolean): Promise<void>;
     loadMore(): Promise<void>;

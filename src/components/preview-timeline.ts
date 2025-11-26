@@ -4,8 +4,7 @@ import { Post } from '../interfaces/Post';
 import { getPreviewTimeline } from '../services/timeline';
 
 import '../components/timeline-item';
-
-import '@lit-labs/virtualizer';
+import '../components/md/md-virtual-list';
 
 @customElement('preview-timeline')
 export class PreviewTimeline extends LitElement {
@@ -32,9 +31,8 @@ export class PreviewTimeline extends LitElement {
         overflow-x: hidden;
       }
 
-      lit-virtualizer {
+      md-virtual-list {
         height: 90vh;
-        overflow-x: hidden !important;
         width: 100%;
       }
 
@@ -43,7 +41,7 @@ export class PreviewTimeline extends LitElement {
       }
 
       ul::-webkit-scrollbar,
-      lit-virtualizer::-webkit-scrollbar {
+      md-virtual-list::-webkit-scrollbar {
         display: none;
       }
 
@@ -56,21 +54,14 @@ export class PreviewTimeline extends LitElement {
   async firstUpdated() {
     const previewData = await getPreviewTimeline();
     this.timeline = previewData;
+  }
 
-    // load more when the virtual scroller is at the bottom
-    const virtualizer = this.shadowRoot?.querySelector(
-      'lit-virtualizer'
-    ) as any;
-    virtualizer.addEventListener('scroll', async (e: any) => {
-      const { scrollTop, scrollHeight, clientHeight } = e.target;
-      if (scrollTop + clientHeight >= scrollHeight - 10) {
-        if (this.loadingData) return;
+  private async _handleLoadMore() {
+    if (this.loadingData) return;
 
-        this.loadingData = true;
-        await this.loadMore();
-        this.loadingData = false;
-      }
-    });
+    this.loadingData = true;
+    await this.loadMore();
+    this.loadingData = false;
   }
 
   async loadMore() {
@@ -81,15 +72,17 @@ export class PreviewTimeline extends LitElement {
   render() {
     return html`
       <ul part="parent">
-        <lit-virtualizer
+        <md-virtual-list
           part="list"
-          scroller
           .items="${this.timeline}"
+          .keyFn="${(tweet: any) => tweet.id}"
           .renderItem="${(tweet: Post) => html`
             <timeline-item ?show="${false}" .tweet="${tweet}"></timeline-item>
           `}"
+          .loading="${this.loadingData}"
+          @load-more="${this._handleLoadMore}"
         >
-        </lit-virtualizer>
+        </md-virtual-list>
 
         <li id="load-more"></li>
       </ul>
