@@ -91,9 +91,9 @@ export default defineConfig({
         hoist_vars: false,
         inline: 3,
         unsafe: false,
-        unsafe_arrows: false,
+        unsafe_arrows: true,
         unsafe_Function: false,
-        unsafe_methods: false,
+        unsafe_methods: true,
         unsafe_proto: false,
         unsafe_regexp: false,
         unsafe_undefined: false,
@@ -112,13 +112,14 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (
-            id.includes('/node_modules/lit') ||
-            id.includes('/node_modules/@lit')
-          ) {
-            return 'vendor-lit';
+          if (id.includes('node_modules')) {
+            if (
+              id.includes('/node_modules/lit') ||
+              id.includes('/node_modules/@lit')
+            ) {
+              return 'vendor-lit';
+            }
           }
-          return undefined;
         },
       },
     },

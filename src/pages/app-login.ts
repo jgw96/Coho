@@ -6,7 +6,6 @@ import '../components/md/md-button';
 import '../components/md/md-card';
 
 import { router } from '../utils/router';
-import { enableVibrate } from '../utils/handle-vibrate';
 
 let scrollWidth: number = 0;
 
@@ -201,8 +200,9 @@ export class AppLogin extends LitElement {
       await router.navigate('/home');
     }
 
-    window.requestIdleCallback(() => {
+    window.requestIdleCallback(async () => {
       if (this.shadowRoot) {
+        const { enableVibrate } = await import('../utils/handle-vibrate');
         enableVibrate(this.shadowRoot);
       }
     });

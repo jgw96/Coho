@@ -65,7 +65,7 @@ export declare class AppHome extends LitElement {
     shareMyProfile(): Promise<void>;
     viewMyProfile(): void;
     editMyProfile(): void;
-    handleReload(): void;
+    handleReload(): Promise<void>;
     openBotDrawer(): void;
     showSummary($event: any): void;
     onMoveHandler(ev: any, dialog: any): void;
