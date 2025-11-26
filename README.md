@@ -9,7 +9,7 @@ Coho is a Progressive Web App (PWA) client for Mastodon. It emphasizes offline c
 [**Get the App**](https://coho-mastodon.web.app)
 
 <div>
-  <img src="/public/assets/header-graphic.png" alt="Coho For Mastodon" />
+  <img src="/public/assets/new-header-graphic.png" alt="Coho For Mastodon" />
 </div>
 
 ## Features
