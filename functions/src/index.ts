@@ -12,10 +12,19 @@ import OpenAI from 'openai';
 const openaiApiKey = defineSecret('OPENAI_API_KEY');
 
 // Helper to enable CORS
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+const allowedOrigins = [
+  'https://coho.place',
+  'https://coho-mastodon.web.app',
+  'http://localhost:3000',
+];
+
+const applyCors = (request: any, response: any) => {
+  const origin = request.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    response.set('Access-Control-Allow-Origin', origin);
+  }
+  response.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  response.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 };
 
 // OpenAI Functions
@@ -25,12 +34,12 @@ export const generateImage = onRequest(
   async (request, response) => {
     // Handle CORS preflight
     if (request.method === 'OPTIONS') {
-      response.set(corsHeaders);
+      applyCors(request, response);
       response.status(204).send('');
       return;
     }
 
-    response.set(corsHeaders);
+    applyCors(request, response);
 
     const apiKey = openaiApiKey.value();
     if (!apiKey) {
@@ -65,12 +74,12 @@ export const generateStatus = onRequest(
   { secrets: [openaiApiKey] },
   async (request, response) => {
     if (request.method === 'OPTIONS') {
-      response.set(corsHeaders);
+      applyCors(request, response);
       response.status(204).send('');
       return;
     }
 
-    response.set(corsHeaders);
+    applyCors(request, response);
 
     const apiKey = openaiApiKey.value();
     if (!apiKey) {
@@ -107,12 +116,12 @@ export const translateStatus = onRequest(
   { secrets: [openaiApiKey] },
   async (request, response) => {
     if (request.method === 'OPTIONS') {
-      response.set(corsHeaders);
+      applyCors(request, response);
       response.status(204).send('');
       return;
     }
 
-    response.set(corsHeaders);
+    applyCors(request, response);
 
     const apiKey = openaiApiKey.value();
     if (!apiKey) {
@@ -153,12 +162,12 @@ export const translateStatus = onRequest(
 
 export const bookmark = onRequest(async (request, response) => {
   if (request.method === 'OPTIONS') {
-    response.set(corsHeaders);
+    applyCors(request, response);
     response.status(204).send('');
     return;
   }
 
-  response.set(corsHeaders);
+  applyCors(request, response);
 
   const accessToken = request.query.code as string;
   const server = `https://${request.query.server}`;
@@ -190,12 +199,12 @@ export const bookmark = onRequest(async (request, response) => {
 
 export const reblog = onRequest(async (request, response) => {
   if (request.method === 'OPTIONS') {
-    response.set(corsHeaders);
+    applyCors(request, response);
     response.status(204).send('');
     return;
   }
 
-  response.set(corsHeaders);
+  applyCors(request, response);
 
   const accessToken = request.query.code as string;
   const server = `https://${request.query.server}`;
@@ -224,12 +233,12 @@ export const reblog = onRequest(async (request, response) => {
 
 export const boost = onRequest(async (request, response) => {
   if (request.method === 'OPTIONS') {
-    response.set(corsHeaders);
+    applyCors(request, response);
     response.status(204).send('');
     return;
   }
 
-  response.set(corsHeaders);
+  applyCors(request, response);
 
   const accessToken = request.query.code as string;
   const server = `https://${request.query.server}`;
@@ -258,12 +267,12 @@ export const boost = onRequest(async (request, response) => {
 
 export const follow = onRequest(async (request, response) => {
   if (request.method === 'OPTIONS') {
-    response.set(corsHeaders);
+    applyCors(request, response);
     response.status(204).send('');
     return;
   }
 
-  response.set(corsHeaders);
+  applyCors(request, response);
 
   const accessToken = request.query.code as string;
   const server = `https://${request.query.server}`;
@@ -292,12 +301,12 @@ export const follow = onRequest(async (request, response) => {
 
 export const getStatus = onRequest(async (request, response) => {
   if (request.method === 'OPTIONS') {
-    response.set(corsHeaders);
+    applyCors(request, response);
     response.status(204).send('');
     return;
   }
 
-  response.set(corsHeaders);
+  applyCors(request, response);
 
   const accessToken = request.query.code as string;
   const server = `https://${request.query.server}`;
@@ -326,12 +335,12 @@ export const getStatus = onRequest(async (request, response) => {
 
 export const postStatus = onRequest(async (request, response) => {
   if (request.method === 'OPTIONS') {
-    response.set(corsHeaders);
+    applyCors(request, response);
     response.status(204).send('');
     return;
   }
 
-  response.set(corsHeaders);
+  applyCors(request, response);
 
   const accessToken = request.query.code as string;
   const server = `https://${request.query.server}`;
@@ -365,12 +374,12 @@ export const postStatus = onRequest(async (request, response) => {
 
 export const isFollowing = onRequest(async (request, response) => {
   if (request.method === 'OPTIONS') {
-    response.set(corsHeaders);
+    applyCors(request, response);
     response.status(204).send('');
     return;
   }
 
-  response.set(corsHeaders);
+  applyCors(request, response);
 
   const accessToken = request.query.code as string;
   const server = `https://${request.query.server}`;
@@ -402,12 +411,12 @@ export const isFollowing = onRequest(async (request, response) => {
 
 export const getMessages = onRequest(async (request, response) => {
   if (request.method === 'OPTIONS') {
-    response.set(corsHeaders);
+    applyCors(request, response);
     response.status(204).send('');
     return;
   }
 
-  response.set(corsHeaders);
+  applyCors(request, response);
 
   const accessToken = request.query.code as string;
   const server = `https://${request.query.server}`;
@@ -435,12 +444,12 @@ export const getMessages = onRequest(async (request, response) => {
 
 export const getReplies = onRequest(async (request, response) => {
   if (request.method === 'OPTIONS') {
-    response.set(corsHeaders);
+    applyCors(request, response);
     response.status(204).send('');
     return;
   }
 
-  response.set(corsHeaders);
+  applyCors(request, response);
 
   const accessToken = request.query.code as string;
   const server = `https://${request.query.server}`;
@@ -469,12 +478,12 @@ export const getReplies = onRequest(async (request, response) => {
 
 export const getUserPosts = onRequest(async (request, response) => {
   if (request.method === 'OPTIONS') {
-    response.set(corsHeaders);
+    applyCors(request, response);
     response.status(204).send('');
     return;
   }
 
-  response.set(corsHeaders);
+  applyCors(request, response);
 
   const accessToken = request.query.code as string;
   const server = `https://${request.query.server}`;
@@ -506,12 +515,12 @@ export const getUserPosts = onRequest(async (request, response) => {
 
 export const getAccount = onRequest(async (request, response) => {
   if (request.method === 'OPTIONS') {
-    response.set(corsHeaders);
+    applyCors(request, response);
     response.status(204).send('');
     return;
   }
 
-  response.set(corsHeaders);
+  applyCors(request, response);
 
   const accessToken = request.query.code as string;
   const server = `https://${request.query.server}`;
@@ -540,12 +549,12 @@ export const getAccount = onRequest(async (request, response) => {
 
 export const getHashtags = onRequest(async (request, response) => {
   if (request.method === 'OPTIONS') {
-    response.set(corsHeaders);
+    applyCors(request, response);
     response.status(204).send('');
     return;
   }
 
-  response.set(corsHeaders);
+  applyCors(request, response);
 
   const accessToken = request.query.code as string;
   const server = `https://${request.query.server}`;
@@ -577,12 +586,12 @@ export const getHashtags = onRequest(async (request, response) => {
 
 export const search = onRequest(async (request, response) => {
   if (request.method === 'OPTIONS') {
-    response.set(corsHeaders);
+    applyCors(request, response);
     response.status(204).send('');
     return;
   }
 
-  response.set(corsHeaders);
+  applyCors(request, response);
 
   const accessToken = request.query.code as string;
   const server = `https://${request.query.server}`;
@@ -611,12 +620,12 @@ export const search = onRequest(async (request, response) => {
 
 export const getFollowing = onRequest(async (request, response) => {
   if (request.method === 'OPTIONS') {
-    response.set(corsHeaders);
+    applyCors(request, response);
     response.status(204).send('');
     return;
   }
 
-  response.set(corsHeaders);
+  applyCors(request, response);
 
   const accessToken = request.query.code as string;
   const server = `https://${request.query.server}`;
@@ -648,12 +657,12 @@ export const getFollowing = onRequest(async (request, response) => {
 
 export const getFollowers = onRequest(async (request, response) => {
   if (request.method === 'OPTIONS') {
-    response.set(corsHeaders);
+    applyCors(request, response);
     response.status(204).send('');
     return;
   }
 
-  response.set(corsHeaders);
+  applyCors(request, response);
 
   const accessToken = request.query.code as string;
   const server = `https://${request.query.server}`;
@@ -685,12 +694,12 @@ export const getFollowers = onRequest(async (request, response) => {
 
 export const getFavorites = onRequest(async (request, response) => {
   if (request.method === 'OPTIONS') {
-    response.set(corsHeaders);
+    applyCors(request, response);
     response.status(204).send('');
     return;
   }
 
-  response.set(corsHeaders);
+  applyCors(request, response);
 
   const accessToken = request.query.code as string;
   const server = `https://${request.query.server}`;
@@ -718,12 +727,12 @@ export const getFavorites = onRequest(async (request, response) => {
 
 export const getBookmarks = onRequest(async (request, response) => {
   if (request.method === 'OPTIONS') {
-    response.set(corsHeaders);
+    applyCors(request, response);
     response.status(204).send('');
     return;
   }
 
-  response.set(corsHeaders);
+  applyCors(request, response);
 
   const accessToken = request.query.code as string;
   const server = `https://${request.query.server}`;
@@ -751,12 +760,12 @@ export const getBookmarks = onRequest(async (request, response) => {
 
 export const getNotifications = onRequest(async (request, response) => {
   if (request.method === 'OPTIONS') {
-    response.set(corsHeaders);
+    applyCors(request, response);
     response.status(204).send('');
     return;
   }
 
-  response.set(corsHeaders);
+  applyCors(request, response);
 
   const accessToken = request.query.code as string;
   const server = `https://${request.query.server}`;
@@ -784,12 +793,12 @@ export const getNotifications = onRequest(async (request, response) => {
 
 export const getTimelinePaginated = onRequest(async (request, response) => {
   if (request.method === 'OPTIONS') {
-    response.set(corsHeaders);
+    applyCors(request, response);
     response.status(204).send('');
     return;
   }
 
-  response.set(corsHeaders);
+  applyCors(request, response);
 
   const accessToken = request.query.code as string;
   const server = `https://${request.query.server}`;
@@ -823,12 +832,12 @@ export const getTimelinePaginated = onRequest(async (request, response) => {
 
 export const getUser = onRequest(async (request, response) => {
   if (request.method === 'OPTIONS') {
-    response.set(corsHeaders);
+    applyCors(request, response);
     response.status(204).send('');
     return;
   }
 
-  response.set(corsHeaders);
+  applyCors(request, response);
 
   const accessToken = request.query.code as string;
   const server = `https://${request.query.server}`;
@@ -861,12 +870,12 @@ export const getUser = onRequest(async (request, response) => {
 
 export const authenticate = onRequest(async (request, response) => {
   if (request.method === 'OPTIONS') {
-    response.set(corsHeaders);
+    applyCors(request, response);
     response.status(204).send('');
     return;
   }
 
-  response.set(corsHeaders);
+  applyCors(request, response);
 
   const serverURL = request.query.server as string;
   const redirectUri =
@@ -917,12 +926,12 @@ export const authenticate = onRequest(async (request, response) => {
 
 export const getClient = onRequest(async (request, response) => {
   if (request.method === 'OPTIONS') {
-    response.set(corsHeaders);
+    applyCors(request, response);
     response.status(204).send('');
     return;
   }
 
-  response.set(corsHeaders);
+  applyCors(request, response);
 
   const code = request.query.code as string;
   const state = request.query.state as string;
