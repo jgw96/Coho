@@ -1,4 +1,4 @@
-export {};
+export { };
 
 declare global {
   interface Window {
@@ -88,5 +88,22 @@ declare global {
 
   interface ServiceWorkerRegistration {
     periodicSync: PeriodicSyncManager;
+  }
+
+  // Extended NotificationOptions for Service Workers
+  interface ServiceWorkerNotificationOptions extends NotificationOptions {
+    renotify?: boolean;
+    actions?: NotificationAction[];
+  }
+
+  interface NotificationAction {
+    action: string;
+    title: string;
+    icon?: string;
+  }
+
+  // Extend ServiceWorkerRegistration.showNotification to accept extended options
+  interface ServiceWorkerRegistration {
+    showNotification(title: string, options?: ServiceWorkerNotificationOptions): Promise<void>;
   }
 }

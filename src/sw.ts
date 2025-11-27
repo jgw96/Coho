@@ -177,7 +177,7 @@ const getNotifications = async (): Promise<void> => {
 
     // build message for notification
     let message = '';
-    let actions: NotificationData[] = [];
+    let actions: NotificationAction[] = [];
     let title = 'Coho';
 
     // if data[0].type === 'mention' || 'reblog' || 'favourite'
@@ -197,7 +197,6 @@ const getNotifications = async (): Promise<void> => {
         title = 'New Follower';
         actions = [
           {
-            // @ts-expect-error fix
             action: 'follow',
             title: 'Follow back',
           },
@@ -213,7 +212,6 @@ const getNotifications = async (): Promise<void> => {
       body: message,
       icon: '/assets/icons/new-icons/icon-256x256.webp',
       tag: 'coho',
-      // @ts-expect-error fix
       renotify: false,
       actions: actions,
       data: {
