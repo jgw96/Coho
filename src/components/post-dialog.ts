@@ -107,7 +107,7 @@ export class PostDialog extends LitElement {
       .dialog-footer-actions div {
         display: flex;
         align-items: center;
-        gap: 4px;
+        gap: 8px;
       }
 
       #post-copilot {

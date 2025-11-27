@@ -41,6 +41,7 @@ export class TimelineItem extends LitElement {
         width: 100%;
 
         margin-bottom: 10px;
+        -webkit-tap-highlight-color: transparent;
       }
 
       md-card {
@@ -633,6 +634,40 @@ export class TimelineItem extends LitElement {
     }
   }
 
+  async muteUser(accountId: string) {
+    if (!accountId) return;
+
+    const { muteUser } = await import('../services/account');
+    await muteUser(accountId);
+
+    this.dispatchEvent(
+      new CustomEvent('user-muted', {
+        detail: {
+          accountId,
+        },
+        bubbles: true,
+        composed: true,
+      })
+    );
+  }
+
+  async blockUser(accountId: string) {
+    if (!accountId) return;
+
+    const { blockUser } = await import('../services/account');
+    await blockUser(accountId);
+
+    this.dispatchEvent(
+      new CustomEvent('user-blocked', {
+        detail: {
+          accountId,
+        },
+        bubbles: true,
+        composed: true,
+      })
+    );
+  }
+
   getHandlers(): TimelineItemHandlers {
     return {
       viewSensitive: () => this.viewSensitive(),
@@ -647,6 +682,8 @@ export class TimelineItem extends LitElement {
       openPost: () => this.openPost(),
       openLinkCard: (url: string) => this.openLinkCard(url),
       showThread: () => this.showThread(),
+      muteUser: (accountId: string) => this.muteUser(accountId),
+      blockUser: (accountId: string) => this.blockUser(accountId),
     };
   }
 

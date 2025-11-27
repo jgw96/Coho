@@ -289,3 +289,67 @@ export const isFollowingMe = async (id: string) => {
   const data = await response.json();
   return data;
 };
+
+export const muteUser = async (id: string) => {
+  const response = await fetch(
+    `https://${server}/api/v1/accounts/${id}/mute`,
+    {
+      method: 'POST',
+      headers: new Headers({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      }),
+    }
+  );
+
+  const data = await response.json();
+  return data;
+};
+
+export const unmuteUser = async (id: string) => {
+  const response = await fetch(
+    `https://${server}/api/v1/accounts/${id}/unmute`,
+    {
+      method: 'POST',
+      headers: new Headers({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      }),
+    }
+  );
+
+  const data = await response.json();
+  return data;
+};
+
+export const blockUser = async (id: string) => {
+  const response = await fetch(
+    `https://${server}/api/v1/accounts/${id}/block`,
+    {
+      method: 'POST',
+      headers: new Headers({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      }),
+    }
+  );
+
+  const data = await response.json();
+  return data;
+};
+
+export const unblockUser = async (id: string) => {
+  const response = await fetch(
+    `https://${server}/api/v1/accounts/${id}/unblock`,
+    {
+      method: 'POST',
+      headers: new Headers({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      }),
+    }
+  );
+
+  const data = await response.json();
+  return data;
+};

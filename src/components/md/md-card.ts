@@ -35,9 +35,11 @@ export class MdCard extends LitElement {
     :host {
       display: block;
       width: 100%;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .card {
+      -webkit-tap-highlight-color: transparent;
       display: flex;
       flex-direction: column;
       background: transparent;
@@ -234,9 +236,9 @@ export class MdCard extends LitElement {
       <div
         part="base"
         class="${Object.entries(classes)
-          .filter(([_, v]) => v)
-          .map(([k]) => k)
-          .join(' ')}"
+        .filter(([_, v]) => v)
+        .map(([k]) => k)
+        .join(' ')}"
         @click=${this.handleClick}
         tabindex="${this.clickable && !this.disabled ? '0' : '-1'}"
         role="${this.clickable ? 'button' : 'article'}"
