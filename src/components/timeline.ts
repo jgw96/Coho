@@ -5,6 +5,7 @@ import {
   getPaginatedHomeTimeline,
   getPreviewTimeline,
   mixTimeline,
+  enrichPostsWithReplyContext,
 } from '../services/timeline';
 import {
   saveTimelineCache,
@@ -21,6 +22,7 @@ import '../components/md/md-button';
 import '../components/md/md-icon';
 import '../components/md/md-skeleton-card';
 import '../components/md/md-virtual-list';
+import '../components/md/md-divider';
 
 import '../components/timeline-item';
 import '../components/search';
@@ -74,10 +76,6 @@ export class Timeline extends LitElement {
         margin-bottom: 30px;
       }
 
-      .timeline-list-item {
-        border-bottom: solid 1px #80808063;
-      }
-
       #list-actions {
         display: none;
         margin-bottom: 12px;
@@ -101,6 +99,7 @@ export class Timeline extends LitElement {
         margin-bottom: 12px;
         gap: 12px;
         padding-left: 10px;
+        padding-right: 10px;
       }
 
       #timeline-header md-select {
@@ -280,6 +279,10 @@ export class Timeline extends LitElement {
           height: 85vh;
         }
 
+        #timeline-header md-select {
+          max-width: 100%;
+        }
+
         md-virtual-list {
           height: 80vh;
         }
@@ -301,9 +304,26 @@ export class Timeline extends LitElement {
   ];
 
   firstUpdated() {
-    const scrollContainer = this.shadowRoot?.querySelector(
-      '#mainList'
-    ) as HTMLElement;
+    // The actual scroll container is inside md-virtual-list's shadow DOM
+    // We need to wait for it to be ready, then attach our touch handlers
+    this._setupPullToRefresh();
+  }
+
+  private async _setupPullToRefresh() {
+    // Wait for md-virtual-list to render its shadow DOM
+    await this.updateComplete;
+    
+    // Additional wait to ensure virtual list's shadow DOM is ready
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    
+    const virtualList = this.shadowRoot?.querySelector('md-virtual-list');
+    const virtualListScrollContainer = virtualList?.shadowRoot?.querySelector('.scroll-container') as HTMLElement;
+    
+    // Use the virtual list's internal scroll container if available, 
+    // otherwise fall back to #mainList
+    const scrollContainer = virtualListScrollContainer || 
+      this.shadowRoot?.querySelector('#mainList') as HTMLElement;
+    
     if (scrollContainer) {
       scrollContainer.addEventListener(
         'touchstart',
@@ -323,31 +343,53 @@ export class Timeline extends LitElement {
     }
   }
 
+  private _getScrollContainer(): HTMLElement | null {
+    const virtualList = this.shadowRoot?.querySelector('md-virtual-list');
+    const virtualListScrollContainer = virtualList?.shadowRoot?.querySelector('.scroll-container') as HTMLElement;
+    return virtualListScrollContainer || this.shadowRoot?.querySelector('#mainList') as HTMLElement;
+  }
+
   _handleTouchStart(e: TouchEvent) {
-    const scrollContainer = this.shadowRoot?.querySelector(
-      '#mainList'
-    ) as HTMLElement;
-    if (scrollContainer.scrollTop === 0) {
+    const scrollContainer = this._getScrollContainer();
+    if (!scrollContainer) {
+      this._isPulling = false;
+      return;
+    }
+    
+    const scrollTop = scrollContainer.scrollTop;
+    
+    // ONLY allow pull-to-refresh if we're at the very top (scrollTop <= 1 for tolerance)
+    if (scrollTop <= 1) {
       this._pullStartY = e.touches[0].clientY;
       this._isPulling = true;
+    } else {
+      // Not at top - do not enable pull-to-refresh
+      this._isPulling = false;
     }
   }
 
   _handleTouchMove(e: TouchEvent) {
-    if (!this._isPulling) return;
-
-    const scrollContainer = this.shadowRoot?.querySelector(
-      '#mainList'
-    ) as HTMLElement;
-    if (scrollContainer.scrollTop > 0) {
+    const scrollContainer = this._getScrollContainer();
+    if (!scrollContainer) return;
+    
+    const scrollTop = scrollContainer.scrollTop;
+    
+    // If not at top, never do pull-to-refresh
+    if (scrollTop > 1) {
       this._isPulling = false;
+      this._pullDistance = 0;
       return;
     }
+    
+    // If we didn't start the pull gesture, ignore
+    if (!this._isPulling) return;
 
     const y = e.touches[0].clientY;
     const deltaY = y - this._pullStartY;
 
+    // Only trigger pull-to-refresh if pulling DOWN (positive deltaY)
     if (deltaY > 0) {
+      // Prevent default scroll behavior when pulling down at top
       if (e.cancelable) e.preventDefault();
 
       this._pullDistance = deltaY * 0.5;
@@ -359,7 +401,7 @@ export class Timeline extends LitElement {
 
       if (indicator) {
         indicator.style.height = `${Math.min(this._pullDistance, 150)}px`;
-        indicator.style.transition = 'none'; // Disable transition during drag
+        indicator.style.transition = 'none';
       }
 
       if (icon) {
@@ -375,6 +417,17 @@ export class Timeline extends LitElement {
         this._hapticTriggered = true;
       } else if (this._pullDistance < this._threshold) {
         this._hapticTriggered = false;
+      }
+    } else {
+      // User is scrolling up (negative deltaY) - cancel pull-to-refresh
+      // and let normal scrolling happen
+      this._isPulling = false;
+      this._pullDistance = 0;
+      const indicator = this.shadowRoot?.querySelector(
+        '#refresh-indicator'
+      ) as HTMLElement;
+      if (indicator) {
+        indicator.style.height = '0px';
       }
     }
   }
@@ -529,7 +582,9 @@ export class Timeline extends LitElement {
         const uniqueMix = Array.from(
           new Map(timelineDataMix.map((post: Post) => [post.id, post])).values()
         ) as Post[];
-        this.timeline = uniqueMix;
+
+        // Enrich posts with reply context
+        this.timeline = await enrichPostsWithReplyContext(uniqueMix);
 
         // Save to cache after successful fetch
         saveTimelineCache(this.timelineType, this.timeline, 0);
@@ -550,7 +605,9 @@ export class Timeline extends LitElement {
             timelineDataMix2.map((post: Post) => [post.id, post])
           ).values()
         ) as Post[];
-        this.timeline = uniqueMix2;
+
+        // Enrich posts with reply context
+        this.timeline = await enrichPostsWithReplyContext(uniqueMix2);
 
         // Save to cache after successful fetch
         saveTimelineCache(this.timelineType, this.timeline, 0);
@@ -573,7 +630,9 @@ export class Timeline extends LitElement {
                 timelineData.map((post: Post) => [post.id, post])
               ).values()
             ) as Post[];
-            this.timeline = uniqueLastPlace;
+
+            // Enrich posts with reply context
+            this.timeline = await enrichPostsWithReplyContext(uniqueLastPlace);
           }
 
           // Save to cache after successful fetch
@@ -594,7 +653,9 @@ export class Timeline extends LitElement {
         const uniqueHome = Array.from(
           new Map(timelineData.map((post: Post) => [post.id, post])).values()
         ) as Post[];
-        this.timeline = uniqueHome;
+
+        // Enrich posts with reply context
+        this.timeline = await enrichPostsWithReplyContext(uniqueHome);
 
         // Save to cache after successful fetch
         saveTimelineCache(this.timelineType, this.timeline, 0);
@@ -613,7 +674,9 @@ export class Timeline extends LitElement {
         const uniquePub = Array.from(
           new Map(timelineDataPub.map((post: Post) => [post.id, post])).values()
         ) as Post[];
-        this.timeline = uniquePub;
+
+        // Enrich posts with reply context
+        this.timeline = await enrichPostsWithReplyContext(uniquePub);
 
         // Save to cache after successful fetch
         saveTimelineCache(this.timelineType, this.timeline, 0);
@@ -635,7 +698,9 @@ export class Timeline extends LitElement {
         const uniqueMedia = Array.from(
           new Map(mediaFiltered.map((post: Post) => [post.id, post])).values()
         ) as Post[];
-        this.timeline = uniqueMedia;
+
+        // Enrich posts with reply context
+        this.timeline = await enrichPostsWithReplyContext(uniqueMedia);
 
         // Save to cache after successful fetch
         saveTimelineCache(this.timelineType, this.timeline, 0);
@@ -659,7 +724,10 @@ export class Timeline extends LitElement {
     const existingIds = new Set(this.timeline.map((post) => post.id));
     const newPosts = timelineData.filter((post) => !existingIds.has(post.id));
 
-    this.timeline = [...this.timeline, ...newPosts];
+    // Enrich new posts with reply context
+    const enrichedNewPosts = await enrichPostsWithReplyContext(newPosts);
+
+    this.timeline = [...this.timeline, ...enrichedNewPosts];
 
     // Update cache with new data
     saveTimelineCache(
@@ -847,6 +915,7 @@ export class Timeline extends LitElement {
                 this.handleReplies($event.detail.data)}"
                       .tweet="${tweet}"
                     ></timeline-item>
+                    <md-divider style="margin-top: 12px; margin-bottom: 12px;"></md-divider>
                   </li>`}
                 .loading=${this.loadingData}
                 @load-more=${this._handleLoadMore}

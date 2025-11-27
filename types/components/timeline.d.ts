@@ -4,6 +4,7 @@ import '../components/md/md-button';
 import '../components/md/md-icon';
 import '../components/md/md-skeleton-card';
 import '../components/md/md-virtual-list';
+import '../components/md/md-divider';
 import '../components/timeline-item';
 import '../components/search';
 import '../components/md/md-select';
@@ -26,6 +27,8 @@ export declare class Timeline extends LitElement {
     timelineType: 'home' | 'public' | 'media' | 'for you' | 'home and some trending';
     static styles: import("lit").CSSResult[];
     firstUpdated(): void;
+    private _setupPullToRefresh;
+    private _getScrollContainer;
     _handleTouchStart(e: TouchEvent): void;
     _handleTouchMove(e: TouchEvent): void;
     _handleTouchEnd(): Promise<void>;

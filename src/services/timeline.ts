@@ -7,6 +7,92 @@ const token = localStorage.getItem('token') || '';
 const accessToken = localStorage.getItem('accessToken') || '';
 const server = localStorage.getItem('server') || 'mastodon.social';
 
+// Cache for reply parent posts to avoid duplicate fetches
+const replyParentCache = new Map<string, Post>();
+
+/**
+ * Enriches posts that are replies with their parent post data.
+ * This allows the timeline to show thread context for reply posts.
+ */
+export const enrichPostsWithReplyContext = async (
+  posts: Post[]
+): Promise<Post[]> => {
+  // Find posts that are replies and need their parent fetched
+  const postsNeedingParent = posts.filter(
+    (post) => post.in_reply_to_id && !post.reply_to
+  );
+
+  if (postsNeedingParent.length === 0) {
+    return posts;
+  }
+
+  // Get unique parent IDs that aren't already cached
+  const parentIds = [
+    ...new Set(
+      postsNeedingParent
+        .map((p) => p.in_reply_to_id)
+        .filter((id): id is string => id !== null && !replyParentCache.has(id))
+    ),
+  ];
+
+  // Fetch parent posts in parallel (limit concurrent requests)
+  const batchSize = 5;
+  for (let i = 0; i < parentIds.length; i += batchSize) {
+    const batch = parentIds.slice(i, i + batchSize);
+    const fetchPromises = batch.map(async (id) => {
+      try {
+        const parentPost = await getAStatusDirect(id);
+        if (parentPost && parentPost.id) {
+          replyParentCache.set(id, parentPost);
+        }
+      } catch (error) {
+        console.warn(`Failed to fetch parent post ${id}:`, error);
+      }
+    });
+    await Promise.all(fetchPromises);
+  }
+
+  // Enrich posts with their parent data
+  return posts.map((post) => {
+    if (post.in_reply_to_id && !post.reply_to) {
+      const parent = replyParentCache.get(post.in_reply_to_id);
+      if (parent) {
+        return { ...post, reply_to: parent };
+      }
+    }
+    return post;
+  });
+};
+
+/**
+ * Direct API call to get a status without going through Firebase functions
+ */
+const getAStatusDirect = async (id: string): Promise<Post | null> => {
+  try {
+    const currentAccessToken = localStorage.getItem('accessToken') || '';
+    const currentServer = localStorage.getItem('server') || 'mastodon.social';
+
+    const response = await fetch(
+      `https://${currentServer}/api/v1/statuses/${id}`,
+      {
+        method: 'GET',
+        headers: new Headers({
+          Authorization: `Bearer ${currentAccessToken}`,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.warn(`Error fetching status ${id}:`, error);
+    return null;
+  }
+};
+
 // when the app unloads, call savePlace
 window.addEventListener('beforeunload', async () => {
   await savePlace(lastPageID);
