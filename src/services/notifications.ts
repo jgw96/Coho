@@ -151,6 +151,10 @@ export const subToPush = async () => {
           reblog: true,
           favourite: true,
           mention: true,
+          poll: true,
+          follow_request: true,
+          status: true,
+          update: true,
         },
         policy: 'all',
       },
@@ -197,6 +201,8 @@ export const modifyPush = async (flags?: string[]) => {
         mention: flags.includes('mention'),
         poll: flags.includes('poll'),
         follow_request: flags.includes('follow_request'),
+        status: flags.includes('status'),
+        update: flags.includes('update'),
       },
     };
   } else {
@@ -208,6 +214,8 @@ export const modifyPush = async (flags?: string[]) => {
         mention: true,
         poll: true,
         follow_request: true,
+        status: true,
+        update: true,
       },
     };
   }
