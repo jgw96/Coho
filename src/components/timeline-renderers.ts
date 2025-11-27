@@ -82,7 +82,7 @@ export function renderReplyContext(
               variant="text"
               pill
               size="small"
-              style="--md-sys-color-primary: #878792"
+              style="--md-sys-color-primary: var(--md-sys-color-on-surface-variant)"
               @click="${() => handlers.replies()}"
             >
               <md-icon slot="suffix" name="chatbox"></md-icon>
@@ -94,7 +94,7 @@ export function renderReplyContext(
           style="--md-sys-color-primary: ${state.isBookmarked ||
       state.tweet?.reply_to.bookmarked
       ? 'var(--sl-color-primary-600)'
-      : '#878792'}"
+      : 'var(--md-sys-color-on-surface-variant)'}"
           pill
           size="small"
           @click="${() => handlers.bookmark(state.tweet?.reply_to.id || '')}"
@@ -106,7 +106,7 @@ export function renderReplyContext(
               style="--md-sys-color-primary: ${state.isBoosted ||
           state.tweet?.reply_to.favourited
           ? 'var(--sl-color-primary-600)'
-          : '#878792'}"
+          : 'var(--md-sys-color-on-surface-variant)'}"
               pill
               size="small"
               @click="${() =>
@@ -121,7 +121,7 @@ export function renderReplyContext(
               style="--md-sys-color-primary: ${state.isReblogged ||
           state.tweet?.reply_to.reblogged
           ? 'var(--sl-color-primary-600)'
-          : '#878792'}"
+          : 'var(--md-sys-color-on-surface-variant)'}"
               pill
               @click="${() => handlers.reblog(state.tweet?.reply_to.id || '')}"
               >${state.tweet?.reply_to.reblogs_count}
@@ -243,7 +243,7 @@ export function renderRegularTweet(
                 variant="text"
                 pill
                 size="small"
-                style="--md-sys-color-primary: #878792"
+                style="--md-sys-color-primary: var(--md-sys-color-on-surface-variant)"
                 @click="${() => handlers.replies()}"
               >
                 <md-icon
@@ -257,7 +257,7 @@ export function renderRegularTweet(
           variant="text"
           style="--md-sys-color-primary: ${state.isBookmarked || state.tweet?.bookmarked
       ? 'var(--sl-color-primary-600)'
-      : '#878792'
+      : 'var(--md-sys-color-on-surface-variant)'
     }"
           pill
           size="small"
@@ -270,7 +270,7 @@ export function renderRegularTweet(
                 style="--md-sys-color-primary: ${state.isBoosted ||
           state.tweet?.favourited
           ? 'var(--sl-color-primary-600)'
-          : '#878792'}"
+          : 'var(--md-sys-color-on-surface-variant)'}"
                 pill
                 size="small"
                 @click="${() => handlers.favorite(state.tweet?.id || '')}"
@@ -285,7 +285,7 @@ export function renderRegularTweet(
                 style="--md-sys-color-primary: ${state.isReblogged ||
           state.tweet?.reblogged
           ? 'var(--sl-color-primary-600)'
-          : '#878792'}"
+          : 'var(--md-sys-color-on-surface-variant)'}"
                 pill
                 size="small"
                 @click="${() => handlers.reblog(state.tweet?.id || '')}"
@@ -375,7 +375,7 @@ export function renderReblog(
               variant="text"
               pill
               size="small"
-              style="--md-sys-color-primary: #878792"
+              style="--md-sys-color-primary: var(--md-sys-color-on-surface-variant)"
               @click="${() => handlers.replies()}"
             >
               <md-icon slot="suffix" name="chatbox"></md-icon>
@@ -385,7 +385,7 @@ export function renderReblog(
           variant="text"
           style="--md-sys-color-primary: ${state.isBookmarked
       ? 'var(--sl-color-primary-600)'
-      : '#878792'}"
+      : 'var(--md-sys-color-on-surface-variant)'}"
           pill
           size="small"
           @click="${() => handlers.bookmark(state.tweet?.id || '')}"
@@ -397,7 +397,7 @@ export function renderReblog(
               style="--md-sys-color-primary: ${state.isBoosted ||
           state.tweet?.favourited
           ? 'var(--sl-color-primary-600)'
-          : '#878792'}"
+          : 'var(--md-sys-color-on-surface-variant)'}"
               pill
               size="small"
               @click="${() => handlers.favorite(state.tweet?.id || '')}"
@@ -411,7 +411,7 @@ export function renderReblog(
               style="--md-sys-color-primary: ${state.isReblogged ||
           state.tweet?.reblogged
           ? 'var(--sl-color-primary-600)'
-          : '#878792'}"
+          : 'var(--md-sys-color-on-surface-variant)'}"
               pill
               size="small"
               @click="${() => handlers.reblog(state.tweet?.id || '')}"
@@ -448,7 +448,7 @@ export function renderThread(
                 variant="text"
                 style="--md-sys-color-primary: ${threadPost.bookmarked
         ? 'var(--sl-color-primary-600)'
-        : '#878792'}"
+        : 'var(--md-sys-color-on-surface-variant)'}"
                 pill
                 size="small"
                 @click="${() => handlers.bookmark(threadPost.id)}"
@@ -459,7 +459,7 @@ export function renderThread(
                     variant="text"
                     style="--md-sys-color-primary: ${threadPost.favourited
             ? 'var(--sl-color-primary-600)'
-            : '#878792'}"
+            : 'var(--md-sys-color-on-surface-variant)'}"
                     pill
                     size="small"
                     @click="${() => handlers.favorite(threadPost.id)}"
@@ -472,7 +472,7 @@ export function renderThread(
                     variant="text"
                     style="--md-sys-color-primary: ${threadPost.reblogged
             ? 'var(--sl-color-primary-600)'
-            : '#878792'}"
+            : 'var(--md-sys-color-on-surface-variant)'}"
                     pill
                     size="small"
                     @click="${() => handlers.reblog(threadPost.id)}"

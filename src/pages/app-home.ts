@@ -337,11 +337,17 @@ export class AppHome extends LitElement {
           justify-content: space-between;
         }
 
-        /* yeah i know */
+        /* Desktop New Post button - Extended FAB style */
         #profile md-button {
           position: fixed;
           left: 34px;
           bottom: 23px;
+          box-shadow: var(--md-sys-elevation-level3, 0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px 0px rgba(0, 0, 0, 0.3));
+          transition: box-shadow 200ms cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        #profile md-button:hover {
+          box-shadow: var(--md-sys-elevation-level4, 0px 6px 10px 4px rgba(0, 0, 0, 0.15), 0px 2px 3px 0px rgba(0, 0, 0, 0.3));
         }
 
         #username-block {
@@ -396,11 +402,11 @@ export class AppHome extends LitElement {
 
         #profile img,
         #profile-avatar {
-          height: 88px;
-          width: 88px;
+          height: var(--md-sys-size-avatar-large, 88px);
+          width: var(--md-sys-size-avatar-large, 88px);
           border-radius: 50%;
 
-          border: solid var(--sl-color-primary-600) 4px;
+          border: solid var(--sl-color-primary-600) var(--md-sys-size-avatar-border-width, 4px);
         }
 
         #profile md-skeleton {
@@ -408,11 +414,11 @@ export class AppHome extends LitElement {
         }
 
         #profile md-skeleton#profile-avatar {
-          height: 88px;
-          width: 88px;
+          height: var(--md-sys-size-avatar-large, 88px);
+          width: var(--md-sys-size-avatar-large, 88px);
           border-radius: 50%;
 
-          border: solid var(--sl-color-primary-600) 4px;
+          border: solid var(--sl-color-primary-600) var(--md-sys-size-avatar-border-width, 4px);
         }
 
         #profile-top {
@@ -483,7 +489,7 @@ export class AppHome extends LitElement {
           display: none;
         }
 
-        @media (min-width: 825px) and (max-width: 1030px) {
+        @media (min-width: 821px) and (max-width: 1030px) {
           #profile-card-actions md-button {
             width: 100%;
           }

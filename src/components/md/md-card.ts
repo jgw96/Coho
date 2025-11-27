@@ -52,6 +52,13 @@ export class MdCard extends LitElement {
       color: var(--md-sys-color-on-surface, white);
     }
 
+    /* Respect reduced motion preference */
+    @media (prefers-reduced-motion: reduce) {
+      .card {
+        transition: none;
+      }
+    }
+
     /* Variants */
     .card--filled {
       background: transparent;

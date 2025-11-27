@@ -212,6 +212,14 @@
   --md-sys-shape-corner-full: 9999px;
 }
 
+/* Size Tokens (MD3) */
+:root {
+  --md-sys-size-avatar-large: 88px;
+  --md-sys-size-avatar-medium: 48px;
+  --md-sys-size-avatar-small: 32px;
+  --md-sys-size-avatar-border-width: 4px;
+}
+
 /* Motion Tokens (MD3) */
 :root {
   --md-sys-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
@@ -287,4 +295,20 @@
 .scrollbar-hidden {
   scrollbar-width: none;
   -ms-overflow-style: none;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    transition: none;
+  }
 }
