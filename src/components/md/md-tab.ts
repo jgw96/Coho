@@ -5,12 +5,12 @@ import { customElement, property } from 'lit/decorators.js';
  * MD3 Tab Button
  *
  * Individual tab button within md-tabs container.
- * Follows Material Design 3 primary tabs specification.
+ * Follows Material Design 3 primary tabs specification with stacked icon/label layout.
  *
  * @fires tab-selected - Emitted when tab is clicked { detail: { panel: string } }
  *
  * @slot default - Tab label content
- * @slot icon - Optional icon before label
+ * @slot icon - Optional icon above label (stacked in horizontal mode)
  *
  * @example
  * ```html
@@ -42,31 +42,34 @@ export class MdTab extends LitElement {
       display: inline-flex;
       position: relative;
       outline: none;
+      flex: 1;
+      min-width: 0;
     }
 
     button {
       all: unset;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 4px;
       padding: 12px 16px;
-      min-height: 48px;
+      min-height: 64px;
       cursor: pointer;
       position: relative;
       flex: 1;
       box-sizing: border-box;
 
-      /* Typography - Label Large */
+      /* Typography - Label Medium for tabs */
       font-family:
         Roboto,
         system-ui,
         -apple-system,
         sans-serif;
-      font-size: var(--md-sys-typescale-label-large-font-size);
+      font-size: 12px;
       font-weight: 500;
-      line-height: 20px;
-      letter-spacing: 0.1px;
+      line-height: 16px;
+      letter-spacing: 0.5px;
 
       color: var(
         --md-sys-color-on-surface-variant,
@@ -79,11 +82,22 @@ export class MdTab extends LitElement {
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* Vertical orientation (side nav) - align left with more padding */
+    /* Vertical orientation (side nav) - horizontal icon+label layout */
     :host([data-orientation='vertical']) button {
+      flex-direction: row;
       justify-content: flex-start;
-      padding: 16px 24px;
+      gap: 12px;
+      padding: 12px 16px;
+      min-height: 48px;
       width: 100%;
+      font-size: 14px;
+      line-height: 20px;
+      letter-spacing: 0.1px;
+      border-radius: 28px;
+    }
+
+    :host([data-orientation='vertical']) {
+      flex: none;
     }
 
     /* Icon slot */
@@ -91,10 +105,16 @@ export class MdTab extends LitElement {
       width: 24px;
       height: 24px;
       font-size: 24px;
+      flex-shrink: 0;
     }
 
     /* Active state */
     :host([active]) button {
+      color: var(--md-sys-color-primary, var(--sl-color-primary-600));
+    }
+
+    /* Active icon fill */
+    :host([active]) ::slotted([slot='icon']) {
       color: var(--md-sys-color-primary, var(--sl-color-primary-600));
     }
 
@@ -129,25 +149,31 @@ export class MdTab extends LitElement {
     :host(:focus-visible) button::after {
       content: '';
       position: absolute;
-      inset: -2px;
+      inset: 4px;
       border: 2px solid var(--md-sys-color-primary, var(--sl-color-primary-600));
-      border-radius: 4px;
+      border-radius: 8px;
       pointer-events: none;
     }
 
-    /* Active indicator (bottom border for horizontal, left border for vertical) */
+    /* Active indicator - MD3 pill shape */
     .indicator {
       position: absolute;
       background: var(--md-sys-color-primary, var(--sl-color-primary-600));
-      transition: opacity 0.2s cubic-bezier(0.2, 0, 0, 1);
+      transition:
+        transform 0.2s cubic-bezier(0.2, 0, 0, 1),
+        opacity 0.2s cubic-bezier(0.2, 0, 0, 1);
       opacity: 0;
+      transform: scaleX(0);
     }
 
-    /* Horizontal indicator (bottom) */
+    /* Horizontal indicator (bottom) - centered pill */
     :host([data-orientation='horizontal']) .indicator {
       bottom: 0;
-      left: 0;
-      right: 0;
+      left: 50%;
+      transform: translateX(-50%) scaleX(0);
+      width: calc(100% - 32px);
+      min-width: 24px;
+      max-width: 48px;
       height: 3px;
       border-radius: 3px 3px 0 0;
     }
@@ -159,23 +185,23 @@ export class MdTab extends LitElement {
       border-radius: 0 0 3px 3px;
     }
 
-    /* Vertical indicator (left or right) */
+    /* Vertical indicator - hidden since we use background highlight instead */
     :host([data-orientation='vertical']) .indicator {
-      top: 0;
-      bottom: 0;
-      left: 0;
-      width: 3px;
-      border-radius: 0 3px 3px 0;
+      display: none;
     }
 
     :host([data-orientation='vertical'][data-placement='end']) .indicator {
-      left: auto;
-      right: 0;
-      border-radius: 3px 0 0 3px;
+      display: none;
+    }
+
+    /* Vertical active state - use background highlight instead of indicator */
+    :host([active][data-orientation='vertical']) button {
+      background: color-mix(in srgb, var(--md-sys-color-primary, var(--sl-color-primary-600)) 12%, transparent);
     }
 
     :host([active]) .indicator {
       opacity: 1;
+      transform: translateX(-50%) scaleX(1);
     }
 
     /* Dark mode */

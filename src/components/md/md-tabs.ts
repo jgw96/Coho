@@ -79,8 +79,7 @@ export class MdTabs extends LitElement {
       display: flex;
       position: relative;
       background: transparent;
-      border-bottom: 1px solid
-        var(--md-sys-color-outline-variant, var(--sl-color-neutral-200));
+      border-bottom: none;
     }
 
     /* Horizontal tab bar */
@@ -90,6 +89,10 @@ export class MdTabs extends LitElement {
       overflow-y: hidden;
       scrollbar-width: none;
       -ms-overflow-style: none;
+      /* Fixed tabs - equal width distribution */
+      justify-content: stretch;
+      border-bottom: 1px solid
+        var(--md-sys-color-outline-variant, var(--sl-color-neutral-200));
     }
 
     :host([orientation='horizontal']) .tab-bar::-webkit-scrollbar {
@@ -106,19 +109,20 @@ export class MdTabs extends LitElement {
     :host([orientation='vertical']) .tab-bar {
       flex-direction: column;
       border-bottom: none;
-      border-right: 1px solid
-        var(--md-sys-color-outline-variant, var(--sl-color-neutral-200));
-      min-width: 200px;
-      max-width: 280px;
-      overflow-y: auto;
+      border-right: none;
+      min-width: fit-content;
+      max-width: fit-content;
+      overflow-y: visible;
       overflow-x: hidden;
       background: transparent;
+      padding: 16px 8px;
+      gap: 4px;
+      align-self: flex-start;
     }
 
     :host([orientation='vertical'][placement='end']) .tab-bar {
       border-right: none;
-      border-left: 1px solid
-        var(--md-sys-color-outline-variant, var(--sl-color-neutral-200));
+      border-left: none;
     }
 
     .panel-container {
@@ -139,6 +143,9 @@ export class MdTabs extends LitElement {
     @media (prefers-color-scheme: dark) {
       .tab-bar {
         background: transparent;
+      }
+
+      :host([orientation='horizontal']) .tab-bar {
         border-color: var(
           --md-sys-color-outline-variant,
           var(--sl-color-neutral-700)
@@ -162,11 +169,13 @@ export class MdTabs extends LitElement {
         border-bottom: none;
         border-top: 1px solid
           var(--md-sys-color-outline-variant, var(--sl-color-neutral-200));
+        /* Safe area for devices with home indicator */
+        padding-bottom: env(safe-area-inset-bottom, 0);
       }
 
       :host([orientation='vertical']) .tab-bar {
-        min-width: 180px;
-        max-width: 220px;
+        min-width: fit-content;
+        max-width: fit-content;
       }
     }
   `;

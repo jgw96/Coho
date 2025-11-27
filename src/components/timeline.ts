@@ -312,18 +312,18 @@ export class Timeline extends LitElement {
   private async _setupPullToRefresh() {
     // Wait for md-virtual-list to render its shadow DOM
     await this.updateComplete;
-    
+
     // Additional wait to ensure virtual list's shadow DOM is ready
     await new Promise(resolve => requestAnimationFrame(resolve));
-    
+
     const virtualList = this.shadowRoot?.querySelector('md-virtual-list');
     const virtualListScrollContainer = virtualList?.shadowRoot?.querySelector('.scroll-container') as HTMLElement;
-    
-    // Use the virtual list's internal scroll container if available, 
+
+    // Use the virtual list's internal scroll container if available,
     // otherwise fall back to #mainList
-    const scrollContainer = virtualListScrollContainer || 
+    const scrollContainer = virtualListScrollContainer ||
       this.shadowRoot?.querySelector('#mainList') as HTMLElement;
-    
+
     if (scrollContainer) {
       scrollContainer.addEventListener(
         'touchstart',
@@ -355,9 +355,9 @@ export class Timeline extends LitElement {
       this._isPulling = false;
       return;
     }
-    
+
     const scrollTop = scrollContainer.scrollTop;
-    
+
     // ONLY allow pull-to-refresh if we're at the very top (scrollTop <= 1 for tolerance)
     if (scrollTop <= 1) {
       this._pullStartY = e.touches[0].clientY;
@@ -371,16 +371,16 @@ export class Timeline extends LitElement {
   _handleTouchMove(e: TouchEvent) {
     const scrollContainer = this._getScrollContainer();
     if (!scrollContainer) return;
-    
+
     const scrollTop = scrollContainer.scrollTop;
-    
+
     // If not at top, never do pull-to-refresh
     if (scrollTop > 1) {
       this._isPulling = false;
       this._pullDistance = 0;
       return;
     }
-    
+
     // If we didn't start the pull gesture, ignore
     if (!this._isPulling) return;
 
