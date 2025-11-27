@@ -14,3 +14,14 @@ export declare const authToClient: (code: string, state: string) => Promise<any>
 export declare const registerAccount: (username: string, email: string, password: string, agreement: boolean, locale: string, chosenServer: string) => Promise<any>;
 export declare const getServers: () => Promise<any>;
 export declare const isFollowingMe: (id: string) => Promise<any>;
+export declare const muteUser: (id: string) => Promise<any>;
+export declare const unmuteUser: (id: string) => Promise<any>;
+export declare const blockUser: (id: string) => Promise<any>;
+export declare const unblockUser: (id: string) => Promise<any>;
+export interface ReportOptions {
+    statusIds?: string[];
+    comment?: string;
+    category?: 'spam' | 'legal' | 'violation' | 'other';
+    forward?: boolean;
+}
+export declare const reportUser: (accountId: string, options?: ReportOptions) => Promise<any>;

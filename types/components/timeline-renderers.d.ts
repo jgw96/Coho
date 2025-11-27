@@ -5,6 +5,9 @@ import '../components/md/md-icon';
 import '../components/md/md-icon-button';
 import '../components/image-carousel';
 import '../components/md/md-button';
+import '../components/md/md-dropdown';
+import '../components/md/md-menu';
+import '../components/md/md-menu-item';
 export interface TimelineItemHandlers {
     viewSensitive: () => void;
     replies: () => void;
@@ -18,6 +21,9 @@ export interface TimelineItemHandlers {
     openPost: () => void;
     openLinkCard: (url: string) => void;
     showThread: () => void;
+    muteUser: (accountId: string) => void;
+    blockUser: (accountId: string) => void;
+    reportUser: (accountId: string, accountAcct: string, statusId?: string) => void;
 }
 export interface TimelineItemState {
     tweet: Post | undefined;

@@ -13,6 +13,8 @@ import {
   TimelineItemHandlers,
   TimelineItemState,
 } from './timeline-renderers';
+import './report-dialog';
+import type { ReportSubmitDetail } from './report-dialog';
 
 @customElement('timeline-item')
 export class TimelineItem extends LitElement {
@@ -30,6 +32,11 @@ export class TimelineItem extends LitElement {
   @state() settings: any | undefined;
 
   @state() currentUser: any;
+
+  @state() showReportDialog: boolean = false;
+  @state() reportAccountId: string = '';
+  @state() reportAccountAcct: string = '';
+  @state() reportStatusId: string | undefined;
 
   device: 'mobile' | 'desktop' = 'mobile';
 
@@ -668,6 +675,53 @@ export class TimelineItem extends LitElement {
     );
   }
 
+  reportUser(accountId: string, accountAcct: string, statusId?: string) {
+    if (!accountId) return;
+
+    this.reportAccountId = accountId;
+    this.reportAccountAcct = accountAcct;
+    this.reportStatusId = statusId;
+    this.showReportDialog = true;
+  }
+
+  async handleReportSubmit(e: CustomEvent<ReportSubmitDetail>) {
+    const detail = e.detail;
+
+    try {
+      const { reportUser } = await import('../services/account');
+      await reportUser(detail.accountId, {
+        statusIds: detail.statusId ? [detail.statusId] : undefined,
+        comment: detail.comment,
+        category: detail.category,
+        forward: detail.forward,
+      });
+
+      this.showReportDialog = false;
+      this.reportAccountId = '';
+      this.reportAccountAcct = '';
+      this.reportStatusId = undefined;
+
+      this.dispatchEvent(
+        new CustomEvent('user-reported', {
+          detail: {
+            accountId: detail.accountId,
+          },
+          bubbles: true,
+          composed: true,
+        })
+      );
+    } catch (error) {
+      console.error('Failed to submit report:', error);
+    }
+  }
+
+  handleReportCancel() {
+    this.showReportDialog = false;
+    this.reportAccountId = '';
+    this.reportAccountAcct = '';
+    this.reportStatusId = undefined;
+  }
+
   getHandlers(): TimelineItemHandlers {
     return {
       viewSensitive: () => this.viewSensitive(),
@@ -684,6 +738,7 @@ export class TimelineItem extends LitElement {
       showThread: () => this.showThread(),
       muteUser: (accountId: string) => this.muteUser(accountId),
       blockUser: (accountId: string) => this.blockUser(accountId),
+      reportUser: (accountId: string, accountAcct: string, statusId?: string) => this.reportUser(accountId, accountAcct, statusId),
     };
   }
 
@@ -717,6 +772,15 @@ export class TimelineItem extends LitElement {
         ? renderReblog(state, handlers)
         : renderRegularTweet(state, handlers)}
       ${renderThread(state, handlers)}
+
+      <report-dialog
+        .open=${this.showReportDialog}
+        .accountId=${this.reportAccountId}
+        .accountAcct=${this.reportAccountAcct}
+        .statusId=${this.reportStatusId}
+        @report-submit=${this.handleReportSubmit}
+        @report-cancel=${this.handleReportCancel}
+      ></report-dialog>
     `;
   }
 }

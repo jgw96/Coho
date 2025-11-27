@@ -12,6 +12,7 @@ import {
   unmuteUser,
   blockUser,
   unblockUser,
+  reportUser,
 } from '../services/account';
 
 import '../components/timeline-item';
@@ -22,6 +23,8 @@ import '../components/md/md-menu';
 import '../components/md/md-menu-item';
 import '../components/md/md-icon';
 import '../components/md/md-icon-button';
+import '../components/report-dialog';
+import type { ReportSubmitDetail } from '../components/report-dialog';
 
 import '@shoelace-style/shoelace/dist/components/skeleton/skeleton.js';
 import '@shoelace-style/shoelace/dist/components/badge/badge.js';
@@ -41,6 +44,7 @@ export class AppProfile extends LitElement {
   @state() showMiniProfile: boolean = false;
   @state() selectedPost: Post | undefined = undefined;
   @state() isOwnProfile: boolean = false;
+  @state() showReportDialog: boolean = false;
 
   static styles = [
     css`
@@ -506,6 +510,30 @@ export class AppProfile extends LitElement {
     this.blocked = false;
   }
 
+  openReportDialog() {
+    this.showReportDialog = true;
+  }
+
+  async handleReportSubmit(e: CustomEvent<ReportSubmitDetail>) {
+    const detail = e.detail;
+
+    try {
+      await reportUser(detail.accountId, {
+        comment: detail.comment,
+        category: detail.category,
+        forward: detail.forward,
+      });
+
+      this.showReportDialog = false;
+    } catch (error) {
+      console.error('Failed to submit report:', error);
+    }
+  }
+
+  handleReportCancel() {
+    this.showReportDialog = false;
+  }
+
   editPost(tweet: Post) {
     console.log('edit post', tweet);
     const preview = this.shadowRoot?.getElementById('preview-content') as any;
@@ -660,6 +688,10 @@ export class AppProfile extends LitElement {
                               <md-icon slot="prefix" name="ban"></md-icon>
                               Block @${this.user?.acct}
                             </md-menu-item>`}
+                        <md-menu-item @click="${() => this.openReportDialog()}">
+                          <md-icon slot="prefix" name="flag"></md-icon>
+                          Report @${this.user?.acct}
+                        </md-menu-item>
                       </md-menu>
                     </md-dropdown>
                   `
@@ -704,6 +736,14 @@ export class AppProfile extends LitElement {
             `
         )}
         </ul>
+
+        <report-dialog
+          .open=${this.showReportDialog}
+          .accountId=${this.user?.id || ''}
+          .accountAcct=${this.user?.acct || ''}
+          @report-submit=${this.handleReportSubmit}
+          @report-cancel=${this.handleReportCancel}
+        ></report-dialog>
       </main>
     `;
   }

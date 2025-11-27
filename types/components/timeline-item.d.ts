@@ -1,6 +1,8 @@
 import { LitElement } from 'lit';
 import { Post } from '../interfaces/Post';
 import { TimelineItemHandlers, TimelineItemState } from './timeline-renderers';
+import './report-dialog';
+import type { ReportSubmitDetail } from './report-dialog';
 export declare class TimelineItem extends LitElement {
     tweet: Post | undefined;
     show: boolean;
@@ -13,6 +15,10 @@ export declare class TimelineItem extends LitElement {
     loadingThread: boolean;
     settings: any | undefined;
     currentUser: any;
+    showReportDialog: boolean;
+    reportAccountId: string;
+    reportAccountAcct: string;
+    reportStatusId: string | undefined;
     device: 'mobile' | 'desktop';
     static styles: import("lit").CSSResult[];
     showThread(): Promise<void>;
@@ -29,6 +35,11 @@ export declare class TimelineItem extends LitElement {
     openLinkCard(url: string): void;
     summarizePost(postContent: string | null): Promise<void>;
     translatePost(postContent: string | null): Promise<void>;
+    muteUser(accountId: string): Promise<void>;
+    blockUser(accountId: string): Promise<void>;
+    reportUser(accountId: string, accountAcct: string, statusId?: string): void;
+    handleReportSubmit(e: CustomEvent<ReportSubmitDetail>): Promise<void>;
+    handleReportCancel(): void;
     getHandlers(): TimelineItemHandlers;
     getState(): TimelineItemState;
     render(): import("lit-html").TemplateResult<1>;

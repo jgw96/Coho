@@ -27,6 +27,7 @@ export interface TimelineItemHandlers {
   showThread: () => void;
   muteUser: (accountId: string) => void;
   blockUser: (accountId: string) => void;
+  reportUser: (accountId: string, accountAcct: string, statusId?: string) => void;
 }
 
 export interface TimelineItemState {
@@ -169,6 +170,10 @@ export function renderRegularTweet(
                   <md-menu-item @click="${() => handlers.blockUser(state.tweet?.account.id || '')}">
                     <md-icon slot="prefix" name="ban"></md-icon>
                     Block @${state.tweet?.account.acct}
+                  </md-menu-item>
+                  <md-menu-item @click="${() => handlers.reportUser(state.tweet?.account.id || '', state.tweet?.account.acct || '', state.tweet?.id)}">
+                    <md-icon slot="prefix" name="flag"></md-icon>
+                    Report @${state.tweet?.account.acct}
                   </md-menu-item>
                 `
       : null
@@ -347,6 +352,10 @@ export function renderReblog(
                 <md-menu-item @click="${() => handlers.blockUser(state.tweet?.reblog?.account.id || '')}">
                   <md-icon slot="prefix" name="ban"></md-icon>
                   Block @${state.tweet?.reblog?.account.acct}
+                </md-menu-item>
+                <md-menu-item @click="${() => handlers.reportUser(state.tweet?.reblog?.account.id || '', state.tweet?.reblog?.account.acct || '', state.tweet?.reblog?.id)}">
+                  <md-icon slot="prefix" name="flag"></md-icon>
+                  Report @${state.tweet?.reblog?.account.acct}
                 </md-menu-item>
               `
       : null

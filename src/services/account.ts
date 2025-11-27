@@ -353,3 +353,42 @@ export const unblockUser = async (id: string) => {
   const data = await response.json();
   return data;
 };
+
+export interface ReportOptions {
+  statusIds?: string[];
+  comment?: string;
+  category?: 'spam' | 'legal' | 'violation' | 'other';
+  forward?: boolean;
+}
+
+export const reportUser = async (accountId: string, options: ReportOptions = {}) => {
+  const formData = new FormData();
+  formData.append('account_id', accountId);
+
+  if (options.statusIds && options.statusIds.length > 0) {
+    options.statusIds.forEach(id => formData.append('status_ids[]', id));
+  }
+  if (options.comment) {
+    formData.append('comment', options.comment);
+  }
+  if (options.category) {
+    formData.append('category', options.category);
+  }
+  if (options.forward !== undefined) {
+    formData.append('forward', options.forward.toString());
+  }
+
+  const response = await fetch(
+    `https://${server}/api/v1/reports`,
+    {
+      method: 'POST',
+      headers: new Headers({
+        'Authorization': `Bearer ${accessToken}`,
+      }),
+      body: formData,
+    }
+  );
+
+  const data = await response.json();
+  return data;
+};
