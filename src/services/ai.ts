@@ -185,6 +185,67 @@ export const createImage = async (prompt: string) => {
   return data;
 };
 
+/**
+ * Check if Chrome's Proofreader API is available on this device
+ */
+export const isProofreaderAvailable = async (): Promise<boolean> => {
+  try {
+    if (typeof Proofreader === 'undefined') {
+      return false;
+    }
+    const availability = await Proofreader.availability({
+      expectedInputLanguages: ['en'],
+    });
+    return availability === 'available' || availability === 'downloadable';
+  } catch (error) {
+    console.error('Proofreader availability check failed:', error);
+    return false;
+  }
+};
+
+/**
+ * Proofread text using Chrome's on-device AI Proofreader API
+ * Returns corrections for grammar, spelling, and punctuation errors
+ */
+export const proofread = async (
+  text: string
+): Promise<ProofreadResult | null> => {
+  try {
+    if (typeof Proofreader === 'undefined') {
+      throw new Error('Proofreader API not available');
+    }
+
+    const availability = await Proofreader.availability({
+      expectedInputLanguages: ['en'],
+    });
+
+    if (availability !== 'available' && availability !== 'downloadable') {
+      throw new Error('Proofreader not available on this device');
+    }
+
+    // Create proofreader session
+    const proofreader = await Proofreader.create({
+      expectedInputLanguages: ['en'],
+      monitor(m) {
+        m.addEventListener('downloadprogress', (e) => {
+          console.log(`Proofreader model download: ${e.loaded * 100}%`);
+        });
+      },
+    });
+
+    // Proofread the text
+    const result = await proofreader.proofread(text);
+
+    // Clean up
+    proofreader.destroy();
+
+    return result;
+  } catch (error) {
+    console.error('Proofreader API error:', error);
+    return null;
+  }
+};
+
 // export const analyzeStatusImage = async (image: string) => {
 //     const response = await fetch(`${visionEndpoint}/computervision/imageanalysis:analyze?api-version=2022-10-12-preview&features=Read,Description`, {
 //         method: "POST",

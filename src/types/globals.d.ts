@@ -21,6 +21,48 @@ declare global {
     };
   }
 
+  // Chrome Proofreader API
+  interface Proofreader {
+    availability(options?: ProofreaderOptions): Promise<string>;
+    create(options?: ProofreaderCreateOptions): Promise<ProofreaderSession>;
+  }
+
+  interface ProofreaderOptions {
+    expectedInputLanguages?: string[];
+  }
+
+  interface ProofreaderCreateOptions {
+    expectedInputLanguages?: string[];
+    monitor?: (monitor: ProofreaderDownloadMonitor) => void;
+  }
+
+  interface ProofreaderDownloadMonitor {
+    addEventListener(
+      type: 'downloadprogress',
+      listener: (event: { loaded: number }) => void
+    ): void;
+  }
+
+  interface ProofreaderSession {
+    proofread(text: string): Promise<ProofreadResult>;
+    destroy(): void;
+  }
+
+  interface ProofreadResult {
+    correctedInput: string;
+    corrections: ProofreadCorrection[];
+  }
+
+  interface ProofreadCorrection {
+    startIndex: number;
+    endIndex: number;
+    correction: string;
+    correctionType?: string;
+    explanation?: string;
+  }
+
+  const Proofreader: Proofreader;
+
   interface SummarizerSession {
     summarize(text: string): Promise<string>;
     destroy(): void;
