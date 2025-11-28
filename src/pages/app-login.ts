@@ -5,7 +5,8 @@ import '../components/md/md-text-field';
 import '../components/md/md-button';
 import '../components/md/md-card';
 
-import { router } from '../utils/router';
+// Dynamic import to avoid loading router during SSR
+const getRouter = () => import('../utils/router').then(m => m.router);
 
 let scrollWidth: number = 0;
 
@@ -195,8 +196,10 @@ export class AppLogin extends LitElement {
 
       await authToClient(code, state);
 
+      const router = await getRouter();
       await router.navigate('/home');
     } else if (accessToken && server) {
+      const router = await getRouter();
       await router.navigate('/home');
     }
 
@@ -266,12 +269,14 @@ export class AppLogin extends LitElement {
     this.chosenServer = event.target.value;
   }
 
-  joinMastodon() {
+  async joinMastodon() {
     // open https://joinmastodon.org/servers in new tab
+    const router = await getRouter();
     router.navigate('/createaccount');
   }
 
-  explore() {
+  async explore() {
+    const router = await getRouter();
     router.navigate('/explore');
   }
 

@@ -851,13 +851,13 @@ export class Timeline extends LitElement {
           .value="${this.timelineType}"
           @change="${($event: any) =>
         this.changeTimelineType($event.detail.value)}"
-          placeholder="home"
+          placeholder="Home"
         >
           <md-option value="for you">for you</md-option>
           <md-option value="home and some trending"
-            >home and some trending</md-option
+            >Home and some trending</md-option
           >
-          <md-option value="home">home</md-option>
+          <md-option value="home">Home</md-option>
           <md-option value="public">public</md-option>
         </md-select>
 

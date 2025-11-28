@@ -14,7 +14,7 @@ export declare class AppLogin extends LitElement {
     next(): void;
     getStarted(): Promise<void>;
     handleServerInput(event: any): void;
-    joinMastodon(): void;
-    explore(): void;
+    joinMastodon(): Promise<void>;
+    explore(): Promise<void>;
     render(): import("lit-html").TemplateResult<1>;
 }

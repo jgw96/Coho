@@ -110,7 +110,11 @@ export default defineConfig({
 
     // Create a dedicated vendor chunk for lit so it can be fetched in parallel
     rollupOptions: {
+      input: {
+        main: 'index.html',
+      },
       output: {
+        entryFileNames: 'code/[name].js',
         manualChunks(id) {
           if (id.includes('node_modules')) {
             if (
@@ -152,6 +156,7 @@ export default defineConfig({
         { src: 'light.css', dest: 'dist/' },
         { src: 'dark.css', dest: 'dist/' },
         { src: 'global.css', dest: 'dist/' },
+        { src: 'src/styles/md-tokens.css', dest: 'dist/code/' },
       ],
     }),
     ...(process.env.ANALYZE_BUNDLE ? [visualizer({ open: true })] : []),
