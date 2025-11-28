@@ -41,7 +41,15 @@ interface WidgetInstallEvent extends ExtendableEvent {
 }
 
 interface NotificationData {
-  type: 'mention' | 'reblog' | 'favourite' | 'follow';
+  type:
+    | 'mention'
+    | 'reblog'
+    | 'favourite'
+    | 'follow'
+    | 'poll'
+    | 'follow_request'
+    | 'status'
+    | 'update';
   account: {
     id: string;
     display_name: string;
@@ -50,6 +58,31 @@ interface NotificationData {
   status?: {
     content: string;
   };
+}
+
+// Mastodon push notification payload format (what the server actually sends)
+interface MastodonPushPayload {
+  access_token: string;
+  preferred_locale: string;
+  notification_id: string;
+  notification_type:
+    | 'mention'
+    | 'reblog'
+    | 'favourite'
+    | 'follow'
+    | 'poll'
+    | 'follow_request'
+    | 'status'
+    | 'update';
+  icon: string;
+  title: string;
+  body: string;
+}
+
+// Notification action interface
+interface NotificationAction {
+  action: string;
+  title: string;
 }
 
 // Enable navigation preload for supporting browsers
@@ -160,7 +193,7 @@ const getNotifications = async (): Promise<void> => {
 
     // build message for notification
     let message = '';
-    let actions: NotificationData[] = [];
+    let actions: NotificationAction[] = [];
     let title = 'Coho';
 
     // if data[0].type === 'mention' || 'reblog' || 'favourite'
@@ -180,7 +213,6 @@ const getNotifications = async (): Promise<void> => {
         title = 'New Follower';
         actions = [
           {
-            // @ts-expect-error fix
             action: 'follow',
             title: 'Follow back',
           },
@@ -196,7 +228,6 @@ const getNotifications = async (): Promise<void> => {
       body: message,
       icon: '/assets/icons/new-icons/icon-256x256.webp',
       tag: 'coho',
-      // @ts-expect-error fix
       renotify: false,
       actions: actions,
       data: {
@@ -214,67 +245,79 @@ self.addEventListener('notificationclick', (event: NotificationEvent) => {
     (navigator as any).clearAppBadge();
   }
 
-  // if event.action === 'follow'
-  if (event.action === 'follow' && event.notification.data?.accountId) {
-    event.waitUntil(followAUser(event.notification.data.accountId));
+  const notificationData = event.notification.data;
+
+  // Handle follow action - need to fetch notification to get account ID
+  if (
+    event.action === 'follow' &&
+    notificationData?.notification_id &&
+    notificationData?.access_token
+  ) {
+    event.waitUntil(
+      (async () => {
+        try {
+          const server = (await get('server')) as string;
+          const response = await fetch(
+            `https://${server}/api/v1/notifications/${notificationData.notification_id}`,
+            {
+              method: 'GET',
+              headers: new Headers({
+                Authorization: `Bearer ${notificationData.access_token}`,
+              }),
+            }
+          );
+          if (response.ok) {
+            const notification = await response.json();
+            if (notification.account?.id) {
+              await followAUser(notification.account.id);
+            }
+          }
+        } catch (error) {
+          console.error('Failed to follow user:', error);
+        }
+        await self.clients.openWindow('/home?tab=notifications');
+      })()
+    );
+    return;
   }
 
   event.waitUntil(self.clients.openWindow('/home?tab=notifications'));
 });
 
 self.addEventListener('push', async (event: PushEvent) => {
-  const data = event.data?.json() as NotificationData[];
+  // Mastodon sends a single notification payload, not an array
+  const payload = event.data?.json() as MastodonPushPayload;
 
   // show badge
   if ('setAppBadge' in navigator) {
-    (navigator as any).setAppBadge(data.length);
+    (navigator as any).setAppBadge(1);
   }
 
-  // build message for notification
-  let message = '';
-  let actions: NotificationData[] = [];
-  let title = 'Coho';
-
-  // if data[0].type === 'mention' || 'reblog' || 'favourite'
-  switch (data[0].type) {
-    case 'mention':
-      message = `${data[0].status?.content || ''}`;
-      title = `${data[0].account.display_name} mentioned you`;
-      break;
-    case 'reblog':
-      message = `${data[0].account.display_name} boosted your post`;
-      break;
-    case 'favourite':
-      message = `${data[0].account.display_name} favorited your post`;
-      break;
-    case 'follow':
-      message = `${data[0].account.display_name} followed you`;
-      title = 'New Follower';
-      actions = [
-        {
-          // @ts-expect-error fix
-          action: 'follow',
-          title: 'Follow back',
-        },
-      ];
-      break;
-    default:
-      message = `You have ${data.length} new notifications`;
-      break;
+  // Build actions based on notification type
+  let actions: NotificationAction[] = [];
+  if (payload.notification_type === 'follow') {
+    actions = [
+      {
+        action: 'follow',
+        title: 'Follow back',
+      },
+    ];
   }
 
-  // show notification
+  // show notification using the data Mastodon provides
   event.waitUntil(
-    self.registration.showNotification(title, {
-      body: message,
-      icon: '/assets/icons/new-icons/icon-256x256.webp',
-      tag: 'coho',
-      // @ts-expect-error fix
-      renotify: false,
+    self.registration.showNotification(payload.title || 'Coho', {
+      body: payload.body || 'You have a new notification',
+      icon: payload.icon || '/assets/icons/new-icons/icon-256x256.webp',
+      tag: payload.notification_id || 'coho',
+      badge: '/assets/icons/new-icons/icon-256x256.webp',
+      renotify: true,
       actions: actions,
       data: {
-        url: data[0].account.url,
-        accountId: data[0].account.id,
+        access_token: payload.access_token,
+        notification_id: payload.notification_id,
+        notification_type: payload.notification_type,
+        preferred_locale: payload.preferred_locale,
       },
     })
   );

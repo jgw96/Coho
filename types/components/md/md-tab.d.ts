@@ -3,12 +3,12 @@ import { LitElement } from 'lit';
  * MD3 Tab Button
  *
  * Individual tab button within md-tabs container.
- * Follows Material Design 3 primary tabs specification.
+ * Follows Material Design 3 primary tabs specification with stacked icon/label layout.
  *
  * @fires tab-selected - Emitted when tab is clicked { detail: { panel: string } }
  *
  * @slot default - Tab label content
- * @slot icon - Optional icon before label
+ * @slot icon - Optional icon above label (stacked in horizontal mode)
  *
  * @example
  * ```html

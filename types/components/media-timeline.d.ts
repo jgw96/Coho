@@ -10,6 +10,8 @@ export declare class MediaTimeline extends LitElement {
     timelineType: 'Home' | 'Public' | 'Media';
     static styles: import("lit").CSSResult[];
     connectedCallback(): Promise<void>;
+    /** Handle visibility changes from lit-virtualizer to trigger load more */
+    private _handleVisibilityChanged;
     refreshTimeline(): Promise<void>;
     loadMore(): Promise<void>;
     handleReplies(data: Array<Post>): void;

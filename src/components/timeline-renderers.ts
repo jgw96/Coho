@@ -8,6 +8,9 @@ import '../components/md/md-icon';
 import '../components/md/md-icon-button';
 import '../components/image-carousel';
 import '../components/md/md-button';
+import '../components/md/md-dropdown';
+import '../components/md/md-menu';
+import '../components/md/md-menu-item';
 
 export interface TimelineItemHandlers {
   viewSensitive: () => void;
@@ -20,8 +23,16 @@ export interface TimelineItemHandlers {
   deleteStatus: () => void;
   initEditStatus: () => void;
   openPost: () => void;
+  openParentPost: () => void;
   openLinkCard: (url: string) => void;
   showThread: () => void;
+  muteUser: (accountId: string) => void;
+  blockUser: (accountId: string) => void;
+  reportUser: (
+    accountId: string,
+    accountAcct: string,
+    statusId?: string
+  ) => void;
 }
 
 export interface TimelineItemState {
@@ -61,12 +72,16 @@ export function renderReplyContext(
   if (!state.tweet?.reply_to || !state.show) return null;
 
   return html`
-    <div id="reply-to">
+    <div
+      id="reply-to"
+      @click="${() => handlers.openParentPost()}"
+      style="cursor: pointer;"
+    >
       <md-icon name="chatbox"></md-icon>
       Thread
     </div>
 
-    <md-card part="card">
+    <md-card part="card" @click="${() => handlers.openParentPost()}">
       <user-profile .account="${state.tweet?.reply_to.account}"></user-profile>
       <div .innerHTML="${state.tweet?.reply_to.content}"></div>
 
@@ -76,7 +91,7 @@ export function renderReplyContext(
               variant="text"
               pill
               size="small"
-              style="--md-sys-color-primary: #878792"
+              style="--md-sys-color-primary: var(--md-sys-color-on-surface-variant)"
               @click="${() => handlers.replies()}"
             >
               <md-icon slot="suffix" name="chatbox"></md-icon>
@@ -88,7 +103,7 @@ export function renderReplyContext(
           style="--md-sys-color-primary: ${state.isBookmarked ||
           state.tweet?.reply_to.bookmarked
             ? 'var(--sl-color-primary-600)'
-            : '#878792'}"
+            : 'var(--md-sys-color-on-surface-variant)'}"
           pill
           size="small"
           @click="${() => handlers.bookmark(state.tweet?.reply_to.id || '')}"
@@ -100,7 +115,7 @@ export function renderReplyContext(
               style="--md-sys-color-primary: ${state.isBoosted ||
               state.tweet?.reply_to.favourited
                 ? 'var(--sl-color-primary-600)'
-                : '#878792'}"
+                : 'var(--md-sys-color-on-surface-variant)'}"
               pill
               size="small"
               @click="${() =>
@@ -115,7 +130,7 @@ export function renderReplyContext(
               style="--md-sys-color-primary: ${state.isReblogged ||
               state.tweet?.reply_to.reblogged
                 ? 'var(--sl-color-primary-600)'
-                : '#878792'}"
+                : 'var(--md-sys-color-on-surface-variant)'}"
               pill
               @click="${() => handlers.reblog(state.tweet?.reply_to.id || '')}"
               >${state.tweet?.reply_to.reblogs_count}
@@ -144,42 +159,50 @@ export function renderRegularTweet(
         <user-profile .account="${state.tweet?.account}"></user-profile>
 
         <div class="actions-right">
-          <md-icon-button
-            size="small"
-            @click="${() =>
-              handlers.translatePost(state.tweet?.content || null)}"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="ionicon"
-              viewBox="0 0 512 512"
-            >
-              <path
-                fill="none"
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="32"
-                d="M48 112h288M192 64v48M272 448l96-224 96 224M301.5 384h133M281.3 112S257 206 199 277 80 384 80 384"
-              />
-              <path
-                d="M256 336s-35-27-72-75-56-85-56-85"
-                fill="none"
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="32"
-              />
-            </svg>
-          </md-icon-button>
-
-          <md-icon-button
-            @click="${() => handlers.shareStatus(state.tweet || null)}"
-            name="share"
-            label="Share"
-            size="small"
-          >
-          </md-icon-button>
+          <md-dropdown placement="bottom-end">
+            <md-icon-button slot="trigger" name="ellipsis-vertical" label="More options" size="small"></md-icon-button>
+            <md-menu>
+              <md-menu-item @click="${() => handlers.translatePost(state.tweet?.content || null)}">
+                <md-icon slot="prefix" name="language"></md-icon>
+                Translate
+              </md-menu-item>
+              <md-menu-item @click="${() => handlers.shareStatus(state.tweet || null)}">
+                <md-icon slot="prefix" name="share"></md-icon>
+                Share
+              </md-menu-item>
+              ${
+                state.tweet?.account.id !== state.currentUser?.id
+                  ? html`
+                      <md-menu-item
+                        @click="${() =>
+                          handlers.muteUser(state.tweet?.account.id || '')}"
+                      >
+                        <md-icon slot="prefix" name="volume-mute"></md-icon>
+                        Mute @${state.tweet?.account.acct}
+                      </md-menu-item>
+                      <md-menu-item
+                        @click="${() =>
+                          handlers.blockUser(state.tweet?.account.id || '')}"
+                      >
+                        <md-icon slot="prefix" name="ban"></md-icon>
+                        Block @${state.tweet?.account.acct}
+                      </md-menu-item>
+                      <md-menu-item
+                        @click="${() =>
+                          handlers.reportUser(
+                            state.tweet?.account.id || '',
+                            state.tweet?.account.acct || '',
+                            state.tweet?.id
+                          )}"
+                      >
+                        <md-icon slot="prefix" name="flag"></md-icon>
+                        Report @${state.tweet?.account.acct}
+                      </md-menu-item>
+                    `
+                  : null
+              }
+            </md-menu>
+          </md-dropdown>
 
           ${
             state.tweet?.account.acct === state.currentUser?.acct
@@ -247,7 +270,7 @@ export function renderRegularTweet(
                 variant="text"
                 pill
                 size="small"
-                style="--md-sys-color-primary: #878792"
+                style="--md-sys-color-primary: var(--md-sys-color-on-surface-variant)"
                 @click="${() => handlers.replies()}"
               >
                 <md-icon
@@ -262,7 +285,7 @@ export function renderRegularTweet(
           style="--md-sys-color-primary: ${
             state.isBookmarked || state.tweet?.bookmarked
               ? 'var(--sl-color-primary-600)'
-              : '#878792'
+              : 'var(--md-sys-color-on-surface-variant)'
           }"
           pill
           size="small"
@@ -276,7 +299,7 @@ export function renderRegularTweet(
                 style="--md-sys-color-primary: ${state.isBoosted ||
                 state.tweet?.favourited
                   ? 'var(--sl-color-primary-600)'
-                  : '#878792'}"
+                  : 'var(--md-sys-color-on-surface-variant)'}"
                 pill
                 size="small"
                 @click="${() => handlers.favorite(state.tweet?.id || '')}"
@@ -292,7 +315,7 @@ export function renderRegularTweet(
                 style="--md-sys-color-primary: ${state.isReblogged ||
                 state.tweet?.reblogged
                   ? 'var(--sl-color-primary-600)'
-                  : '#878792'}"
+                  : 'var(--md-sys-color-on-surface-variant)'}"
                 pill
                 size="small"
                 @click="${() => handlers.reblog(state.tweet?.id || '')}"
@@ -339,12 +362,60 @@ export function renderReblog(
             .account="${state.tweet.account}"
           ></user-profile>
         </div>
-        <md-icon-button
-          @click="${() => handlers.shareStatus(state.tweet || null)}"
-          name="share"
-          label="Share"
-        >
-        </md-icon-button>
+        <md-dropdown placement="bottom-end">
+          <md-icon-button
+            slot="trigger"
+            name="ellipsis-vertical"
+            label="More options"
+            size="small"
+          ></md-icon-button>
+          <md-menu>
+            <md-menu-item
+              @click="${() =>
+                handlers.translatePost(state.tweet?.reblog?.content || null)}"
+            >
+              <md-icon slot="prefix" name="language"></md-icon>
+              Translate
+            </md-menu-item>
+            <md-menu-item
+              @click="${() => handlers.shareStatus(state.tweet || null)}"
+            >
+              <md-icon slot="prefix" name="share"></md-icon>
+              Share
+            </md-menu-item>
+            ${state.tweet?.reblog?.account.id !== state.currentUser?.id
+              ? html`
+                  <md-menu-item
+                    @click="${() =>
+                      handlers.muteUser(state.tweet?.reblog?.account.id || '')}"
+                  >
+                    <md-icon slot="prefix" name="volume-mute"></md-icon>
+                    Mute @${state.tweet?.reblog?.account.acct}
+                  </md-menu-item>
+                  <md-menu-item
+                    @click="${() =>
+                      handlers.blockUser(
+                        state.tweet?.reblog?.account.id || ''
+                      )}"
+                  >
+                    <md-icon slot="prefix" name="ban"></md-icon>
+                    Block @${state.tweet?.reblog?.account.acct}
+                  </md-menu-item>
+                  <md-menu-item
+                    @click="${() =>
+                      handlers.reportUser(
+                        state.tweet?.reblog?.account.id || '',
+                        state.tweet?.reblog?.account.acct || '',
+                        state.tweet?.reblog?.id
+                      )}"
+                  >
+                    <md-icon slot="prefix" name="flag"></md-icon>
+                    Report @${state.tweet?.reblog?.account.acct}
+                  </md-menu-item>
+                `
+              : null}
+          </md-menu>
+        </md-dropdown>
       </div>
 
       <div
@@ -358,7 +429,7 @@ export function renderReblog(
               variant="text"
               pill
               size="small"
-              style="--md-sys-color-primary: #878792"
+              style="--md-sys-color-primary: var(--md-sys-color-on-surface-variant)"
               @click="${() => handlers.replies()}"
             >
               <md-icon slot="suffix" name="chatbox"></md-icon>
@@ -368,7 +439,7 @@ export function renderReblog(
           variant="text"
           style="--md-sys-color-primary: ${state.isBookmarked
             ? 'var(--sl-color-primary-600)'
-            : '#878792'}"
+            : 'var(--md-sys-color-on-surface-variant)'}"
           pill
           size="small"
           @click="${() => handlers.bookmark(state.tweet?.id || '')}"
@@ -380,7 +451,7 @@ export function renderReblog(
               style="--md-sys-color-primary: ${state.isBoosted ||
               state.tweet?.favourited
                 ? 'var(--sl-color-primary-600)'
-                : '#878792'}"
+                : 'var(--md-sys-color-on-surface-variant)'}"
               pill
               size="small"
               @click="${() => handlers.favorite(state.tweet?.id || '')}"
@@ -394,7 +465,7 @@ export function renderReblog(
               style="--md-sys-color-primary: ${state.isReblogged ||
               state.tweet?.reblogged
                 ? 'var(--sl-color-primary-600)'
-                : '#878792'}"
+                : 'var(--md-sys-color-on-surface-variant)'}"
               pill
               size="small"
               @click="${() => handlers.reblog(state.tweet?.id || '')}"
@@ -431,7 +502,7 @@ export function renderThread(
                 variant="text"
                 style="--md-sys-color-primary: ${threadPost.bookmarked
                   ? 'var(--sl-color-primary-600)'
-                  : '#878792'}"
+                  : 'var(--md-sys-color-on-surface-variant)'}"
                 pill
                 size="small"
                 @click="${() => handlers.bookmark(threadPost.id)}"
@@ -442,7 +513,7 @@ export function renderThread(
                     variant="text"
                     style="--md-sys-color-primary: ${threadPost.favourited
                       ? 'var(--sl-color-primary-600)'
-                      : '#878792'}"
+                      : 'var(--md-sys-color-on-surface-variant)'}"
                     pill
                     size="small"
                     @click="${() => handlers.favorite(threadPost.id)}"
@@ -455,7 +526,7 @@ export function renderThread(
                     variant="text"
                     style="--md-sys-color-primary: ${threadPost.reblogged
                       ? 'var(--sl-color-primary-600)'
-                      : '#878792'}"
+                      : 'var(--md-sys-color-on-surface-variant)'}"
                     pill
                     size="small"
                     @click="${() => handlers.reblog(threadPost.id)}"

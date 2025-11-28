@@ -1,4 +1,11 @@
 import { Post } from '../interfaces/Post';
+/**
+ * Enriches posts that are replies with their parent post data.
+ * This allows the timeline to show thread context for reply posts.
+ * Also filters out standalone posts that will be shown as reply_to context
+ * to avoid duplicate display.
+ */
+export declare const enrichPostsWithReplyContext: (posts: Post[]) => Promise<Post[]>;
 export declare const savePlace: (id: string) => Promise<void>;
 export declare const getHomeTimeline: () => Promise<Post[]>;
 export declare const mixTimeline: (type?: string) => Promise<Post[]>;

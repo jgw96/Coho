@@ -19,9 +19,13 @@ import {
   uploadMediaFile,
 } from '../services/posts';
 import { getInstanceInfo } from '../services/account';
-import { createAPost, createImage } from '../services/ai';
+import {
+  createAPost,
+  createImage,
+  proofread,
+  isProofreaderAvailable,
+} from '../services/ai';
 
-// @ts-expect-error fix
 import MarkdownWorker from '../utils/markdown-worker?worker';
 
 interface LocalAttachment {
@@ -57,6 +61,10 @@ export class PostDialog extends LitElement {
 
   @state() maxChars: number = 500;
   @state() charCount: number = 0;
+
+  @state() proofreading: boolean = false;
+  @state() proofreadResult: ProofreadResult | null = null;
+  @state() proofreaderAvailable: boolean = false;
 
   aiBlob: Blob | undefined;
 
@@ -107,7 +115,7 @@ export class PostDialog extends LitElement {
       .dialog-footer-actions div {
         display: flex;
         align-items: center;
-        gap: 4px;
+        gap: 8px;
       }
 
       #post-copilot {
@@ -275,6 +283,121 @@ export class PostDialog extends LitElement {
           opacity: 1;
         }
       }
+
+      /* Proofreading styles */
+      #proofread-action {
+        position: relative;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 8px;
+        margin-top: 8px;
+      }
+
+      #proofread-action md-button {
+        font-size: var(--md-sys-typescale-label-small-font-size, 12px);
+        opacity: 0.8;
+      }
+
+      #proofread-action md-button:hover:not([disabled]) {
+        opacity: 1;
+      }
+
+      #proofread-action md-button[disabled] {
+        opacity: 0.4;
+      }
+
+      #proofread-action md-icon {
+        width: 14px;
+        height: 14px;
+        margin-right: 4px;
+      }
+
+      .proofread-result {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: var(--md-sys-typescale-label-small-font-size, 12px);
+        color: var(--md-sys-color-primary, var(--sl-color-primary-600));
+      }
+
+      .proofread-result.no-issues {
+        color: var(--md-sys-color-on-surface-variant, #666);
+      }
+
+      .proofread-dropdown {
+        position: absolute;
+        bottom: 100%;
+        left: 0;
+        width: 320px;
+        margin-bottom: 4px;
+        padding: 8px 0;
+        background-color: var(--md-sys-color-surface-container, #2b2930);
+        color: var(--md-sys-color-on-surface, #e6e1e5);
+        border-radius: 4px;
+        box-shadow:
+          0 1px 2px 0 rgba(0, 0, 0, 0.3),
+          0 2px 6px 2px rgba(0, 0, 0, 0.15);
+        z-index: 100;
+        animation: dropdownFadeIn 0.15s cubic-bezier(0.2, 0, 0, 1);
+      }
+
+      @keyframes dropdownFadeIn {
+        from {
+          opacity: 0;
+          transform: scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .proofread-dropdown-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 12px;
+      }
+
+      .proofread-dropdown-label {
+        font-size: var(--md-sys-typescale-label-medium-font-size, 12px);
+        color: var(--md-sys-color-on-surface-variant, #cac4d0);
+        font-weight: 500;
+      }
+
+      .proofread-dropdown-actions {
+        display: flex;
+        gap: 4px;
+      }
+
+      .proofread-dropdown-content {
+        max-height: 100px;
+        overflow-y: auto;
+        padding: 0 12px 8px;
+      }
+
+      .proofread-dropdown-content p {
+        margin: 0;
+        font-size: var(--md-sys-typescale-body-small-font-size, 13px);
+        line-height: 1.5;
+        color: var(--md-sys-color-on-surface, #e6e1e5);
+      }
+
+      @media (prefers-color-scheme: light) {
+        .proofread-dropdown {
+          background-color: var(--md-sys-color-surface-container, #f3edf7);
+          color: var(--md-sys-color-on-surface, #1d1b20);
+        }
+
+        .proofread-dropdown-label {
+          color: var(--md-sys-color-on-surface-variant, #49454f);
+        }
+
+        .proofread-dropdown-content p {
+          color: var(--md-sys-color-on-surface, #1d1b20);
+        }
+      }
     `,
   ];
 
@@ -293,6 +416,9 @@ export class PostDialog extends LitElement {
     } else if (instance.max_toot_chars) {
       this.maxChars = instance.max_toot_chars;
     }
+
+    // Check if proofreader is available
+    this.proofreaderAvailable = await isProofreaderAvailable();
   }
 
   public async openNewDialog() {
@@ -585,6 +711,42 @@ export class PostDialog extends LitElement {
     }
   }
 
+  async doProofread() {
+    const textarea = this.shadowRoot?.querySelector('md-text-area') as any;
+    const text = textarea?.value;
+
+    if (!text || text.trim().length === 0) return;
+
+    this.proofreading = true;
+    this.proofreadResult = null;
+
+    try {
+      const result = await proofread(text);
+      this.proofreadResult = result;
+    } catch (error) {
+      console.error('Proofreading failed:', error);
+    } finally {
+      this.proofreading = false;
+    }
+  }
+
+  applyCorrections() {
+    if (!this.proofreadResult) return;
+
+    const textarea = this.shadowRoot?.querySelector('md-text-area') as any;
+    if (textarea) {
+      textarea.value = this.proofreadResult.correctedInput;
+      this.charCount = this.proofreadResult.correctedInput.length;
+      this.hasStatus = this.proofreadResult.correctedInput.length > 0;
+    }
+
+    this.proofreadResult = null;
+  }
+
+  dismissProofread() {
+    this.proofreadResult = null;
+  }
+
   async markAsSensitive() {
     this.sensitive = !this.sensitive;
   }
@@ -637,6 +799,83 @@ export class PostDialog extends LitElement {
           maxlength="${this.maxChars}"
         ></md-text-area>
 
+        ${this.proofreaderAvailable
+          ? html`
+              <div id="proofread-action">
+                ${this.proofreadResult
+                  ? this.proofreadResult.corrections.length === 0
+                    ? html`
+                        <span class="proofread-result no-issues"
+                          >✓ Looks good!</span
+                        >
+                        <md-button
+                          size="small"
+                          variant="text"
+                          @click="${() => this.dismissProofread()}"
+                          >Dismiss</md-button
+                        >
+                      `
+                    : html`
+                        <md-button
+                          size="small"
+                          variant="text"
+                          ?disabled=${!this.hasStatus || this.proofreading}
+                          @click="${() => this.doProofread()}"
+                        >
+                          <md-icon src="/assets/sparkles-outline.svg"></md-icon>
+                          Re-check
+                        </md-button>
+                      `
+                  : html`
+                      <md-button
+                        size="small"
+                        variant="text"
+                        ?disabled=${!this.hasStatus || this.proofreading}
+                        @click="${() => this.doProofread()}"
+                      >
+                        <md-icon src="/assets/sparkles-outline.svg"></md-icon>
+                        ${this.proofreading
+                          ? 'Checking...'
+                          : 'Proofread with AI'}
+                      </md-button>
+                    `}
+                ${this.proofreadResult &&
+                this.proofreadResult.corrections.length > 0
+                  ? html`
+                      <div class="proofread-dropdown">
+                        <div class="proofread-dropdown-header">
+                          <span class="proofread-dropdown-label">
+                            Suggested revision
+                            (${this.proofreadResult.corrections.length}
+                            change${this.proofreadResult.corrections.length > 1
+                              ? 's'
+                              : ''})
+                          </span>
+                          <div class="proofread-dropdown-actions">
+                            <md-button
+                              size="small"
+                              variant="filled"
+                              pill
+                              @click="${() => this.applyCorrections()}"
+                              >Apply</md-button
+                            >
+                            <md-button
+                              size="small"
+                              variant="text"
+                              @click="${() => this.dismissProofread()}"
+                              >Dismiss</md-button
+                            >
+                          </div>
+                        </div>
+                        <div class="proofread-dropdown-content">
+                          <p>${this.proofreadResult.correctedInput}</p>
+                        </div>
+                      </div>
+                    `
+                  : null}
+              </div>
+            `
+          : null}
         ${this.sensitive
           ? html`<div id="sensitive-warning">
               <md-text-field
@@ -696,7 +935,7 @@ export class PostDialog extends LitElement {
 
             <md-button
               class="desktop-button"
-              variant="text"
+              variant="outlined"
               @click="${() => this.markAsSensitive()}"
             >
               Content Warning

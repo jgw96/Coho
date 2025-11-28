@@ -35,9 +35,11 @@ export class MdCard extends LitElement {
     :host {
       display: block;
       width: 100%;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .card {
+      -webkit-tap-highlight-color: transparent;
       display: flex;
       flex-direction: column;
       background: transparent;
@@ -48,6 +50,13 @@ export class MdCard extends LitElement {
       transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
       position: relative;
       color: var(--md-sys-color-on-surface, white);
+    }
+
+    /* Respect reduced motion preference */
+    @media (prefers-reduced-motion: reduce) {
+      .card {
+        transition: none;
+      }
     }
 
     /* Variants */

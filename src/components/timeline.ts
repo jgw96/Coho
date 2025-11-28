@@ -5,6 +5,7 @@ import {
   getPaginatedHomeTimeline,
   getPreviewTimeline,
   mixTimeline,
+  enrichPostsWithReplyContext,
 } from '../services/timeline';
 import {
   saveTimelineCache,
@@ -20,8 +21,9 @@ import '../components/md/md-dialog';
 import '../components/md/md-button';
 import '../components/md/md-icon';
 import '../components/md/md-skeleton-card';
-
+import '../components/md/md-divider';
 import '@lit-labs/virtualizer';
+import { VisibilityChangedEvent } from '@lit-labs/virtualizer';
 
 import '../components/timeline-item';
 import '../components/search';
@@ -75,10 +77,6 @@ export class Timeline extends LitElement {
         margin-bottom: 30px;
       }
 
-      .timeline-list-item {
-        border-bottom: solid 1px #80808063;
-      }
-
       #list-actions {
         display: none;
         margin-bottom: 12px;
@@ -101,7 +99,6 @@ export class Timeline extends LitElement {
         align-items: center;
         margin-bottom: 12px;
         gap: 12px;
-        padding-left: 10px;
       }
 
       #timeline-header md-select {
@@ -137,22 +134,21 @@ export class Timeline extends LitElement {
         border-radius: 6px;
       }
 
-      ul {
-        display: flex;
-        flex-direction: column;
+      lit-virtualizer {
+        display: block;
         border-radius: 6px;
         margin: 0;
         padding: 0;
-        list-style: none;
 
         height: 84vh;
-        overflow-y: scroll;
+        overflow-y: auto;
         overflow-x: hidden;
+        overscroll-behavior-y: contain;
       }
 
-      lit-virtualizer {
-        height: calc(84vh - 60px);
-        overflow-x: hidden !important;
+      .timeline-list-item {
+        margin-bottom: 30px;
+        width: 100%;
       }
 
       #load-more {
@@ -278,12 +274,12 @@ export class Timeline extends LitElement {
       }
 
       @media (max-width: 820px) {
-        ul {
+        lit-virtualizer {
           height: 85vh;
         }
 
-        lit-virtualizer {
-          height: 80vh;
+        #timeline-header md-select {
+          max-width: 100%;
         }
 
         #refresh-manual-button {
@@ -303,9 +299,22 @@ export class Timeline extends LitElement {
   ];
 
   firstUpdated() {
+    // The lit-virtualizer with scroller attribute is itself the scroll container
+    this._setupPullToRefresh();
+  }
+
+  private async _setupPullToRefresh() {
+    // Wait for lit-virtualizer to render
+    await this.updateComplete;
+
+    // Additional wait to ensure virtualizer is ready
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+
+    // lit-virtualizer with scroller attribute is itself the scroll container
     const scrollContainer = this.shadowRoot?.querySelector(
-      '#mainList'
+      'lit-virtualizer'
     ) as HTMLElement;
+
     if (scrollContainer) {
       scrollContainer.addEventListener(
         'touchstart',
@@ -325,31 +334,51 @@ export class Timeline extends LitElement {
     }
   }
 
-  _handleTouchStart(e: TouchEvent) {
-    const scrollContainer = this.shadowRoot?.querySelector(
-      '#mainList'
-    ) as HTMLElement;
-    if (scrollContainer.scrollTop === 0) {
-      this._pullStartY = e.touches[0].clientY;
-      this._isPulling = true;
-    }
+  private _getScrollContainer(): HTMLElement | null {
+    return this.shadowRoot?.querySelector('lit-virtualizer') as HTMLElement;
   }
 
-  _handleTouchMove(e: TouchEvent) {
-    if (!this._isPulling) return;
-
-    const scrollContainer = this.shadowRoot?.querySelector(
-      '#mainList'
-    ) as HTMLElement;
-    if (scrollContainer.scrollTop > 0) {
+  _handleTouchStart(e: TouchEvent) {
+    const scrollContainer = this._getScrollContainer();
+    if (!scrollContainer) {
       this._isPulling = false;
       return;
     }
 
+    const scrollTop = scrollContainer.scrollTop;
+
+    // ONLY allow pull-to-refresh if we're at the very top (scrollTop <= 1 for tolerance)
+    if (scrollTop <= 1) {
+      this._pullStartY = e.touches[0].clientY;
+      this._isPulling = true;
+    } else {
+      // Not at top - do not enable pull-to-refresh
+      this._isPulling = false;
+    }
+  }
+
+  _handleTouchMove(e: TouchEvent) {
+    const scrollContainer = this._getScrollContainer();
+    if (!scrollContainer) return;
+
+    const scrollTop = scrollContainer.scrollTop;
+
+    // If not at top, never do pull-to-refresh
+    if (scrollTop > 1) {
+      this._isPulling = false;
+      this._pullDistance = 0;
+      return;
+    }
+
+    // If we didn't start the pull gesture, ignore
+    if (!this._isPulling) return;
+
     const y = e.touches[0].clientY;
     const deltaY = y - this._pullStartY;
 
+    // Only trigger pull-to-refresh if pulling DOWN (positive deltaY)
     if (deltaY > 0) {
+      // Prevent default scroll behavior when pulling down at top
       if (e.cancelable) e.preventDefault();
 
       this._pullDistance = deltaY * 0.5;
@@ -361,7 +390,7 @@ export class Timeline extends LitElement {
 
       if (indicator) {
         indicator.style.height = `${Math.min(this._pullDistance, 150)}px`;
-        indicator.style.transition = 'none'; // Disable transition during drag
+        indicator.style.transition = 'none';
       }
 
       if (icon) {
@@ -377,6 +406,17 @@ export class Timeline extends LitElement {
         this._hapticTriggered = true;
       } else if (this._pullDistance < this._threshold) {
         this._hapticTriggered = false;
+      }
+    } else {
+      // User is scrolling up (negative deltaY) - cancel pull-to-refresh
+      // and let normal scrolling happen
+      this._isPulling = false;
+      this._pullDistance = 0;
+      const indicator = this.shadowRoot?.querySelector(
+        '#refresh-indicator'
+      ) as HTMLElement;
+      if (indicator) {
+        indicator.style.height = '0px';
       }
     }
   }
@@ -436,11 +476,11 @@ export class Timeline extends LitElement {
       // Restore scroll position after render
       await this.updateComplete;
       requestAnimationFrame(() => {
-        const scrollContainer = this.shadowRoot?.querySelector(
-          '#mainList'
+        const virtualizer = this.shadowRoot?.querySelector(
+          'lit-virtualizer'
         ) as HTMLElement;
-        if (scrollContainer && cachedTimeline.scrollPosition > 0) {
-          scrollContainer.scrollTop = cachedTimeline.scrollPosition;
+        if (virtualizer && cachedTimeline.scrollPosition > 0) {
+          virtualizer.scrollTop = cachedTimeline.scrollPosition;
           console.log(
             'Restored scroll position:',
             cachedTimeline.scrollPosition
@@ -455,62 +495,48 @@ export class Timeline extends LitElement {
       this.loadingData = false;
     }
 
-    // if (latestReadID && this.timelineType === "for you" && index > 0) {
-    //     const virtualizer: any = this.shadowRoot?.querySelector('lit-virtualizer');
-
-    //     console.log("check this", virtualizer?.element(index), index, latestReadID);
-    //     virtualizer.scrollToIndex(index);
-    // }
-
+    // Setup scroll position tracking for caching
     window.requestIdleCallback(
       async () => {
-        // setup intersection observer
-        const loadMore = this.shadowRoot?.querySelector('#load-more') as any;
-        const scrollContainer = this.shadowRoot?.querySelector(
-          '#mainList'
+        const virtualizer = this.shadowRoot?.querySelector(
+          'lit-virtualizer'
         ) as HTMLElement;
 
-        if (!loadMore || !scrollContainer) {
-          console.warn('Load more button or scroll container not found');
+        if (!virtualizer) {
+          console.warn('Virtualizer not found');
           return;
         }
 
         // Track scroll position for caching
         let scrollTimeout: number;
-        scrollContainer.addEventListener('scroll', () => {
+        virtualizer.addEventListener('scroll', () => {
           clearTimeout(scrollTimeout);
           scrollTimeout = window.setTimeout(() => {
-            this.lastScrollPosition = scrollContainer.scrollTop;
+            this.lastScrollPosition = virtualizer.scrollTop;
             updateCacheScrollPosition(
               this.timelineType,
               this.lastScrollPosition
             );
           }, 150);
         });
-
-        const observer = new IntersectionObserver(
-          async (entries: Array<IntersectionObserverEntry>) => {
-            entries.forEach(async (entry: IntersectionObserverEntry) => {
-              if (entry.isIntersecting) {
-                if (this.loadingData) return;
-
-                this.loadingData = true;
-                await this.loadMore();
-                this.loadingData = false;
-              }
-            });
-          },
-          {
-            root: scrollContainer,
-            rootMargin: '100px',
-            threshold: 0.1,
-          }
-        );
-
-        observer.observe(loadMore);
       },
       { timeout: 3000 }
     );
+  }
+
+  /** Handle visibility changes from lit-virtualizer to trigger load more */
+  private async _handleVisibilityChanged(e: VisibilityChangedEvent) {
+    const { last } = e;
+    // Load more when we're close to the end
+    if (
+      last >= this.timeline.length - 5 &&
+      !this.loadingData &&
+      this.timeline.length > 0
+    ) {
+      this.loadingData = true;
+      await this.loadMore();
+      this.loadingData = false;
+    }
   }
 
   disconnectedCallback() {
@@ -550,7 +576,9 @@ export class Timeline extends LitElement {
         const uniqueMix = Array.from(
           new Map(timelineDataMix.map((post: Post) => [post.id, post])).values()
         ) as Post[];
-        this.timeline = uniqueMix;
+
+        // Enrich posts with reply context
+        this.timeline = await enrichPostsWithReplyContext(uniqueMix);
 
         // Save to cache after successful fetch
         saveTimelineCache(this.timelineType, this.timeline, 0);
@@ -571,7 +599,9 @@ export class Timeline extends LitElement {
             timelineDataMix2.map((post: Post) => [post.id, post])
           ).values()
         ) as Post[];
-        this.timeline = uniqueMix2;
+
+        // Enrich posts with reply context
+        this.timeline = await enrichPostsWithReplyContext(uniqueMix2);
 
         // Save to cache after successful fetch
         saveTimelineCache(this.timelineType, this.timeline, 0);
@@ -594,7 +624,9 @@ export class Timeline extends LitElement {
                 timelineData.map((post: Post) => [post.id, post])
               ).values()
             ) as Post[];
-            this.timeline = uniqueLastPlace;
+
+            // Enrich posts with reply context
+            this.timeline = await enrichPostsWithReplyContext(uniqueLastPlace);
           }
 
           // Save to cache after successful fetch
@@ -615,7 +647,9 @@ export class Timeline extends LitElement {
         const uniqueHome = Array.from(
           new Map(timelineData.map((post: Post) => [post.id, post])).values()
         ) as Post[];
-        this.timeline = uniqueHome;
+
+        // Enrich posts with reply context
+        this.timeline = await enrichPostsWithReplyContext(uniqueHome);
 
         // Save to cache after successful fetch
         saveTimelineCache(this.timelineType, this.timeline, 0);
@@ -634,7 +668,9 @@ export class Timeline extends LitElement {
         const uniquePub = Array.from(
           new Map(timelineDataPub.map((post: Post) => [post.id, post])).values()
         ) as Post[];
-        this.timeline = uniquePub;
+
+        // Enrich posts with reply context
+        this.timeline = await enrichPostsWithReplyContext(uniquePub);
 
         // Save to cache after successful fetch
         saveTimelineCache(this.timelineType, this.timeline, 0);
@@ -656,7 +692,9 @@ export class Timeline extends LitElement {
         const uniqueMedia = Array.from(
           new Map(mediaFiltered.map((post: Post) => [post.id, post])).values()
         ) as Post[];
-        this.timeline = uniqueMedia;
+
+        // Enrich posts with reply context
+        this.timeline = await enrichPostsWithReplyContext(uniqueMedia);
 
         // Save to cache after successful fetch
         saveTimelineCache(this.timelineType, this.timeline, 0);
@@ -680,7 +718,10 @@ export class Timeline extends LitElement {
     const existingIds = new Set(this.timeline.map((post) => post.id));
     const newPosts = timelineData.filter((post) => !existingIds.has(post.id));
 
-    this.timeline = [...this.timeline, ...newPosts];
+    // Enrich new posts with reply context
+    const enrichedNewPosts = await enrichPostsWithReplyContext(newPosts);
+
+    this.timeline = [...this.timeline, ...enrichedNewPosts];
 
     // Update cache with new data
     saveTimelineCache(
@@ -798,11 +839,11 @@ export class Timeline extends LitElement {
         label="Image Preview"
       >
         ${this.imgPreview
-        ? html`<img
+          ? html`<img
               src="${this.imgPreview}"
               style="width:100%;border-radius:6px;"
             />`
-        : null}
+          : null}
       </md-dialog>
 
       <div id="timeline-header">
@@ -810,14 +851,14 @@ export class Timeline extends LitElement {
           pill
           .value="${this.timelineType}"
           @change="${($event: any) =>
-        this.changeTimelineType($event.detail.value)}"
-          placeholder="home"
+            this.changeTimelineType($event.detail.value)}"
+          placeholder="Home"
         >
           <md-option value="for you">for you</md-option>
           <md-option value="home and some trending"
-            >home and some trending</md-option
+            >Home and some trending</md-option
           >
-          <md-option value="home">home</md-option>
+          <md-option value="home">Home</md-option>
           <md-option value="public">public</md-option>
         </md-select>
 
@@ -825,61 +866,58 @@ export class Timeline extends LitElement {
           id="refresh-manual-button"
           circle
           @click="${() => {
-        clearTimelineCache(this.timelineType);
-        this.refreshTimeline(true);
-      }}"
+            clearTimelineCache(this.timelineType);
+            this.refreshTimeline(true);
+          }}"
         >
           <md-icon src="/assets/refresh-circle-outline.svg"></md-icon>
         </md-icon-button>
       </div>
 
-      <ul id="mainList" part="list" class="scrollbar-hidden">
-        <div id="refresh-indicator">
-          <md-icon src="/assets/refresh-circle-outline.svg"></md-icon>
-        </div>
+      <div id="refresh-indicator">
+        <md-icon src="/assets/refresh-circle-outline.svg"></md-icon>
+      </div>
 
-        ${this.loadingData && this.timeline.length === 0
+      ${this.loadingData && this.timeline.length === 0
         ? html`<md-skeleton-card count="5"></md-skeleton-card>`
         : html`
-              <lit-virtualizer
-                .items=${this.timeline as any}
-                .renderItem=${(tweet: any) =>
-            html`<li class="timeline-list-item">
-                    <timeline-item
-                      @open="${($event: CustomEvent) =>
-                this.handleOpen($event.detail.tweet)}"
-                      @summarize="${($event: any) =>
-                this.handleSummary($event)}"
-                      @translating="${($event: any) =>
-                this.handleTranslating($event)}"
-                      tweetID="${tweet.id}"
-                      @delete="${() => this.refreshTimeline()}"
-                      @analyze="${($event: any) =>
-                this.showAnalyze(
-                  $event.detail.data,
-                  $event.detail.imageData,
-                  $event.detail.tweet
-                )}"
-                      @openimage="${($event: any) =>
-                this.showImage($event.detail.imageURL)}"
-                      ?show="${true}"
-                      @replies="${($event: any) =>
-                this.handleReplies($event.detail.data)}"
-                      .tweet="${tweet}"
-                    ></timeline-item>
-                  </li>`}
-              >
-              </lit-virtualizer>
-
-              <md-button
-                variant="text"
-                ?disabled="${this.loadingData}"
-                id="load-more"
-              >
-                ${this.loadingData ? 'Loading...' : 'Load More'}
-              </md-button>
-            `}
-      </ul>
+            <lit-virtualizer
+              id="mainList"
+              part="list"
+              class="scrollbar-hidden"
+              scroller
+              .items=${this.timeline as Post[]}
+              .renderItem=${((tweet: Post) =>
+                html`<div class="timeline-list-item">
+                  <timeline-item
+                    @open="${($event: CustomEvent) =>
+                      this.handleOpen($event.detail.tweet)}"
+                    @summarize="${($event: any) => this.handleSummary($event)}"
+                    @translating="${($event: any) =>
+                      this.handleTranslating($event)}"
+                    tweetID="${tweet.id}"
+                    @delete="${() => this.refreshTimeline()}"
+                    @analyze="${($event: any) =>
+                      this.showAnalyze(
+                        $event.detail.data,
+                        $event.detail.imageData,
+                        $event.detail.tweet
+                      )}"
+                    @openimage="${($event: any) =>
+                      this.showImage($event.detail.imageURL)}"
+                    ?show="${true}"
+                    @replies="${($event: any) =>
+                      this.handleReplies($event.detail.data)}"
+                    .tweet="${tweet}"
+                  ></timeline-item>
+                  <md-divider
+                    style="margin-top: 12px; margin-bottom: 12px;"
+                  ></md-divider>
+                </div>`) as any}
+              @visibilityChanged=${this._handleVisibilityChanged}
+            >
+            </lit-virtualizer>
+          `}
     `;
   }
 }

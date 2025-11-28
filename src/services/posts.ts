@@ -4,10 +4,13 @@ import { Account } from '../types/interfaces/Account';
 import { Post } from '../interfaces/Post';
 import { MediaAttachment } from '../types/interfaces/MediaAttachment';
 
-const server = localStorage.getItem('server') || '';
-const accessToken = localStorage.getItem('accessToken') || '';
+// Helper functions to always get fresh values from localStorage
+const getServer = () => localStorage.getItem('server') || '';
+const getAccessToken = () => localStorage.getItem('accessToken') || '';
 
 export async function whoBoostedAndFavorited(id: string): Promise<Account[]> {
+  const server = getServer();
+  const accessToken = getAccessToken();
   const response = await fetch(
     `https://${server}/api/v1/statuses/${id}/reactions`,
     {
@@ -23,6 +26,8 @@ export async function whoBoostedAndFavorited(id: string): Promise<Account[]> {
 }
 
 export async function editPost(id: string, newContent: string): Promise<Post> {
+  const server = getServer();
+  const accessToken = getAccessToken();
   const formData = new FormData();
   formData.append('status', newContent);
   const response = await fetch(`https://${server}/api/v1/statuses/${id}`, {
@@ -38,6 +43,8 @@ export async function editPost(id: string, newContent: string): Promise<Post> {
 }
 
 export async function deletePost(id: string): Promise<Post> {
+  const server = getServer();
+  const accessToken = getAccessToken();
   const response = await fetch(`https://${server}/api/v1/statuses/${id}`, {
     method: 'DELETE',
     headers: new Headers({
@@ -50,6 +57,8 @@ export async function deletePost(id: string): Promise<Post> {
 }
 
 export async function getPostDetail(id: string): Promise<Post> {
+  const server = getServer();
+  const accessToken = getAccessToken();
   const response = await fetch(`https://${server}/api/v1/statuses/${id}`, {
     method: 'GET',
     headers: new Headers({
@@ -68,6 +77,8 @@ export async function publishPost(
   spoilerText: string = '',
   visibility: string = 'public'
 ): Promise<Post> {
+  const server = getServer();
+  const accessToken = getAccessToken();
   const formData = new FormData();
 
   formData.append('status', post && post.length > 0 ? post : '');
@@ -101,6 +112,8 @@ export async function publishPost(
 }
 
 export async function replyToPost(id: string, content: string): Promise<Post> {
+  const server = getServer();
+  const accessToken = getAccessToken();
   const formData = new FormData();
 
   formData.append('in_reply_to_id', id);
@@ -123,6 +136,8 @@ export async function replyToPost(id: string, content: string): Promise<Post> {
 export async function uploadImageFromURL(
   url: string
 ): Promise<MediaAttachment> {
+  const server = getServer();
+  const accessToken = getAccessToken();
   const response = await fetch(`https://${server}/api/v2/media`, {
     method: 'POST',
     headers: new Headers({
@@ -143,6 +158,8 @@ export async function uploadImageFromBlob(
   // const formData = new FormData();
   // formData.append('file', blob);
 
+  const server = getServer();
+  const accessToken = getAccessToken();
   const formData = new FormData();
   formData.append('file', blob);
 
@@ -171,6 +188,8 @@ export async function pickMedia(): Promise<File[]> {
 }
 
 export async function uploadMediaFile(file: File): Promise<MediaAttachment> {
+  const server = getServer();
+  const accessToken = getAccessToken();
   const formData = new FormData();
   formData.append('file', file);
 
@@ -194,6 +213,9 @@ export async function uploadImageAsFormData(): Promise<MediaAttachment[]> {
   });
 
   let uploaded: MediaAttachment[] = [];
+
+  const server = getServer();
+  const accessToken = getAccessToken();
 
   // loop through the files and upload them
 
@@ -225,6 +247,8 @@ export async function updateMedia(
   id: string,
   description: string
 ): Promise<MediaAttachment> {
+  const server = getServer();
+  const accessToken = getAccessToken();
   const formData = new FormData();
   formData.append('description', description);
 

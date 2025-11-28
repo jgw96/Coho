@@ -2,12 +2,12 @@ import { set } from 'idb-keyval';
 import { FIREBASE_FUNCTIONS_BASE_URL } from '../config/firebase';
 import { Account } from '../types/interfaces/Account';
 
-let accessToken = localStorage.getItem('accessToken') || '';
-set('accessToken', accessToken);
-set('server', localStorage.getItem('server') || '');
+// Helper functions to always get fresh values from localStorage
+const getAccessToken = () => localStorage.getItem('accessToken') || '';
+const getServer = () => localStorage.getItem('server') || '';
 
-let token = localStorage.getItem('token') || '';
-let server = localStorage.getItem('server') || '';
+// Note: IndexedDB is updated in authToClient() after successful login
+// We don't update it here at module load to avoid overwriting with empty values
 
 export const editAccount = async (
   display_name: string,
@@ -19,6 +19,8 @@ export const editAccount = async (
 ) => {
   const currentUser = await getCurrentUser();
 
+  const accessToken = getAccessToken();
+  const server = getServer();
   const formData = new FormData();
 
   formData.append('display_name', display_name || currentUser.display_name);
@@ -54,6 +56,8 @@ export const getPeers = async () => {
 
 export const checkFollowing = async (id: string) => {
   try {
+    const accessToken = getAccessToken();
+    const server = getServer();
     const response = await fetch(
       `${FIREBASE_FUNCTIONS_BASE_URL}/isFollowing?id=${id}&code=${accessToken}&server=${server}`
     );
@@ -61,6 +65,7 @@ export const checkFollowing = async (id: string) => {
 
     return data;
   } catch (err) {
+    const server = getServer();
     if (server) {
       await initAuth(server);
     }
@@ -75,6 +80,8 @@ export const getCurrentUser = async () => {
       return currentUser;
     }
 
+    const accessToken = getAccessToken();
+    const server = getServer();
     const response = await fetch(
       'https://' + server + '/api/v1/accounts/verify_credentials',
       {
@@ -94,6 +101,7 @@ export const getCurrentUser = async () => {
     return data;
   } catch (err) {
     console.log(err);
+    const server = getServer();
     if (server) {
       // await initAuth(server);
     }
@@ -101,6 +109,8 @@ export const getCurrentUser = async () => {
 };
 
 export const unfollowUser = async (id: string) => {
+  const accessToken = getAccessToken();
+  const server = getServer();
   const response = await fetch(
     `https://${server}/api/v1/accounts/${id}/unfollow`,
     {
@@ -117,6 +127,8 @@ export const unfollowUser = async (id: string) => {
 };
 
 export const getAccount = async (id: string) => {
+  const accessToken = getAccessToken();
+  const server = getServer();
   const response = await fetch(
     `${FIREBASE_FUNCTIONS_BASE_URL}/getAccount?id=${id}&code=${accessToken}&server=${server}`
   );
@@ -127,6 +139,8 @@ export const getAccount = async (id: string) => {
 };
 
 export const getUsersPosts = async (id: string) => {
+  const accessToken = getAccessToken();
+  const server = getServer();
   const response = await fetch(
     `${FIREBASE_FUNCTIONS_BASE_URL}/getUserPosts?id=${id}&code=${accessToken}&server=${server}`
   );
@@ -135,6 +149,8 @@ export const getUsersPosts = async (id: string) => {
 };
 
 export const getUsersFollowers = async (id: string) => {
+  const accessToken = getAccessToken();
+  const server = getServer();
   const response = await fetch(
     `${FIREBASE_FUNCTIONS_BASE_URL}/getFollowers?id=${id}&code=${accessToken}&server=${server}`
   );
@@ -143,6 +159,8 @@ export const getUsersFollowers = async (id: string) => {
 };
 
 export const getFollowing = async (id: string) => {
+  const accessToken = getAccessToken();
+  const server = getServer();
   const response = await fetch(
     `${FIREBASE_FUNCTIONS_BASE_URL}/getFollowing?id=${id}&code=${accessToken}&server=${server}`
   );
@@ -151,6 +169,8 @@ export const getFollowing = async (id: string) => {
 };
 
 export const followUser = async (id: string) => {
+  const accessToken = getAccessToken();
+  const server = getServer();
   const response = await fetch(
     `${FIREBASE_FUNCTIONS_BASE_URL}/follow?id=${id}&code=${accessToken}&server=${server}`,
     {
@@ -166,6 +186,8 @@ export const followUser = async (id: string) => {
 
 export const getInstanceInfo = async () => {
   // This function doesn't exist in the old server either, calling Mastodon API directly
+  const accessToken = getAccessToken();
+  const server = getServer();
   const response = await fetch(`https://${server}/api/v1/instance`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -192,19 +214,16 @@ export const initAuth = async (serverURL: string) => {
 
   localStorage.setItem('server', serverURL);
 
-  server = serverURL;
-
   return;
 };
 
 export const authToClient = async (code: string, state: string) => {
   try {
-    token = code;
     localStorage.setItem('token', code);
     const redirect_uri = location.origin;
 
     const response = await fetch(
-      `${FIREBASE_FUNCTIONS_BASE_URL}/getClient?code=${token}&state=${state}&redirect_uri=${redirect_uri}`,
+      `${FIREBASE_FUNCTIONS_BASE_URL}/getClient?code=${code}&state=${state}&redirect_uri=${redirect_uri}`,
       {
         method: 'POST',
       }
@@ -215,14 +234,25 @@ export const authToClient = async (code: string, state: string) => {
     console.log('tokenData', data);
 
     // Firebase function returns {access_token: "..."}
-    const tokenData = data.access_token || data;
+    // Make sure we actually have a string token, not an error object
+    if (!data.access_token || typeof data.access_token !== 'string') {
+      console.error('Invalid token response:', data);
+      throw new Error(
+        data.error ||
+          data.details?.error_description ||
+          'Failed to get access token'
+      );
+    }
+
+    const tokenData = data.access_token;
 
     // Update both localStorage and IndexedDB
     localStorage.setItem('accessToken', tokenData);
     await set('accessToken', tokenData);
+    await set('server', getServer());
 
-    // Update module-level variable
-    accessToken = tokenData;
+    // Clear cached currentUser to force re-fetch with new token
+    currentUser = null;
 
     // try to get user info
     try {
@@ -276,6 +306,8 @@ export const getServers = async () => {
 
 export const isFollowingMe = async (id: string) => {
   // check if you are following a user
+  const accessToken = getAccessToken();
+  const server = getServer();
   const response = await fetch(
     'https://' + server + `/api/v1/accounts/relationships?id=${id}`,
     {
@@ -285,6 +317,116 @@ export const isFollowingMe = async (id: string) => {
       },
     }
   );
+
+  const data = await response.json();
+  return data;
+};
+
+export const muteUser = async (id: string) => {
+  const accessToken = getAccessToken();
+  const server = getServer();
+  const response = await fetch(`https://${server}/api/v1/accounts/${id}/mute`, {
+    method: 'POST',
+    headers: new Headers({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken}`,
+    }),
+  });
+
+  const data = await response.json();
+  return data;
+};
+
+export const unmuteUser = async (id: string) => {
+  const accessToken = getAccessToken();
+  const server = getServer();
+  const response = await fetch(
+    `https://${server}/api/v1/accounts/${id}/unmute`,
+    {
+      method: 'POST',
+      headers: new Headers({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      }),
+    }
+  );
+
+  const data = await response.json();
+  return data;
+};
+
+export const blockUser = async (id: string) => {
+  const accessToken = getAccessToken();
+  const server = getServer();
+  const response = await fetch(
+    `https://${server}/api/v1/accounts/${id}/block`,
+    {
+      method: 'POST',
+      headers: new Headers({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      }),
+    }
+  );
+
+  const data = await response.json();
+  return data;
+};
+
+export const unblockUser = async (id: string) => {
+  const accessToken = getAccessToken();
+  const server = getServer();
+  const response = await fetch(
+    `https://${server}/api/v1/accounts/${id}/unblock`,
+    {
+      method: 'POST',
+      headers: new Headers({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      }),
+    }
+  );
+
+  const data = await response.json();
+  return data;
+};
+
+export interface ReportOptions {
+  statusIds?: string[];
+  comment?: string;
+  category?: 'spam' | 'legal' | 'violation' | 'other';
+  forward?: boolean;
+}
+
+export const reportUser = async (
+  accountId: string,
+  options: ReportOptions = {}
+) => {
+  const accessToken = getAccessToken();
+  const server = getServer();
+  const formData = new FormData();
+  formData.append('account_id', accountId);
+
+  if (options.statusIds && options.statusIds.length > 0) {
+    options.statusIds.forEach((id) => formData.append('status_ids[]', id));
+  }
+  if (options.comment) {
+    formData.append('comment', options.comment);
+  }
+  if (options.category) {
+    formData.append('category', options.category);
+  }
+  if (options.forward !== undefined) {
+    formData.append('forward', options.forward.toString());
+  }
+
+  const response = await fetch(`https://${server}/api/v1/reports`, {
+    method: 'POST',
+    headers: new Headers({
+      Authorization: `Bearer ${accessToken}`,
+    }),
+    body: formData,
+  });
 
   const data = await response.json();
   return data;

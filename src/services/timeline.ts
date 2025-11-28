@@ -3,9 +3,115 @@ import { getUsersPosts } from './account';
 import { FIREBASE_FUNCTIONS_BASE_URL } from '../config/firebase';
 import { Post } from '../interfaces/Post';
 
-const token = localStorage.getItem('token') || '';
-const accessToken = localStorage.getItem('accessToken') || '';
-const server = localStorage.getItem('server') || 'mastodon.social';
+// Helper functions to always get fresh values from localStorage
+const getToken = () => localStorage.getItem('token') || '';
+const getAccessToken = () => localStorage.getItem('accessToken') || '';
+const getServer = () => localStorage.getItem('server') || 'mastodon.social';
+
+// Cache for reply parent posts to avoid duplicate fetches
+const replyParentCache = new Map<string, Post>();
+
+/**
+ * Enriches posts that are replies with their parent post data.
+ * This allows the timeline to show thread context for reply posts.
+ * Also filters out standalone posts that will be shown as reply_to context
+ * to avoid duplicate display.
+ */
+export const enrichPostsWithReplyContext = async (
+  posts: Post[]
+): Promise<Post[]> => {
+  // Find posts that are replies and need their parent fetched
+  const postsNeedingParent = posts.filter(
+    (post) => post.in_reply_to_id && !post.reply_to
+  );
+
+  if (postsNeedingParent.length === 0) {
+    return posts;
+  }
+
+  // Get unique parent IDs that aren't already cached
+  const parentIds = [
+    ...new Set(
+      postsNeedingParent
+        .map((p) => p.in_reply_to_id)
+        .filter((id): id is string => id !== null && !replyParentCache.has(id))
+    ),
+  ];
+
+  // Fetch parent posts in parallel (limit concurrent requests)
+  const batchSize = 5;
+  for (let i = 0; i < parentIds.length; i += batchSize) {
+    const batch = parentIds.slice(i, i + batchSize);
+    const fetchPromises = batch.map(async (id) => {
+      try {
+        const parentPost = await getAStatusDirect(id);
+        if (parentPost && parentPost.id) {
+          replyParentCache.set(id, parentPost);
+        }
+      } catch (error) {
+        console.warn(`Failed to fetch parent post ${id}:`, error);
+      }
+    });
+    await Promise.all(fetchPromises);
+  }
+
+  // Collect all parent IDs that will be shown as reply_to context
+  const parentIdsBeingShown = new Set<string>();
+  for (const post of posts) {
+    if (post.in_reply_to_id) {
+      const parent = post.reply_to || replyParentCache.get(post.in_reply_to_id);
+      if (parent) {
+        parentIdsBeingShown.add(post.in_reply_to_id);
+      }
+    }
+  }
+
+  // Enrich posts with their parent data and filter out duplicates
+  return posts
+    .map((post) => {
+      if (post.in_reply_to_id && !post.reply_to) {
+        const parent = replyParentCache.get(post.in_reply_to_id);
+        if (parent) {
+          return { ...post, reply_to: parent };
+        }
+      }
+      return post;
+    })
+    .filter((post) => {
+      // Filter out posts that will be shown as reply_to context of another post
+      // This prevents showing the same post twice (once standalone, once as context)
+      return !parentIdsBeingShown.has(post.id);
+    });
+};
+
+/**
+ * Direct API call to get a status without going through Firebase functions
+ */
+const getAStatusDirect = async (id: string): Promise<Post | null> => {
+  try {
+    const currentAccessToken = localStorage.getItem('accessToken') || '';
+    const currentServer = localStorage.getItem('server') || 'mastodon.social';
+
+    const response = await fetch(
+      `https://${currentServer}/api/v1/statuses/${id}`,
+      {
+        method: 'GET',
+        headers: new Headers({
+          Authorization: `Bearer ${currentAccessToken}`,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.warn(`Error fetching status ${id}:`, error);
+    return null;
+  }
+};
 
 // when the app unloads, call savePlace
 window.addEventListener('beforeunload', async () => {
@@ -29,6 +135,9 @@ export const savePlace = async (id: string) => {
   const formData = new FormData();
   formData.append('home[last_read_id]', id);
 
+  const accessToken = getAccessToken();
+  const server = getServer();
+
   const response = await fetch(`https://${server}/api/v1/markers`, {
     method: 'POST',
     headers: new Headers({
@@ -46,6 +155,8 @@ export const savePlace = async (id: string) => {
 };
 
 export const getHomeTimeline = async (): Promise<Post[]> => {
+  const token = getToken();
+  const server = getServer();
   const response = await fetch(
     `${FIREBASE_FUNCTIONS_BASE_URL}/getTimelinePaginated?code=${token}&server=${server}`
   );
@@ -82,7 +193,8 @@ export const addSomeInterestFinds = async () => {
   if (interests && interests.length > 0) {
     const interest = interests[Math.floor(Math.random() * interests.length)];
 
-    const accessToken = localStorage.getItem('accessToken') || '';
+    const accessToken = getAccessToken();
+    const server = getServer();
     const headers = new Headers({
       Authorization: `Bearer ${accessToken}`,
     });
@@ -138,7 +250,8 @@ export const getPreviewTimeline = async (): Promise<Post[]> => {
 };
 
 export const getTrendingLinks = async () => {
-  const accessToken = localStorage.getItem('accessToken') || '';
+  const accessToken = getAccessToken();
+  const server = getServer();
   const headers = new Headers({
     Authorization: `Bearer ${accessToken}`,
   });
@@ -166,6 +279,8 @@ export const resetLastPageID = (): Promise<void> => {
 export const getLastPlaceTimeline = async (): Promise<Post[] | undefined> => {
   const last_read_id = sessionStorage.getItem('latest-read');
   if (last_read_id && last_read_id.length > 0) {
+    const accessToken = getAccessToken();
+    const server = getServer();
     const headers = new Headers({
       Authorization: `Bearer ${accessToken}`,
     });
@@ -197,13 +312,14 @@ export const getPaginatedHomeTimeline = async (
     console.log(err);
   }
 
+  const accessToken = getAccessToken();
+  const server = getServer();
   const headers = new Headers({
     Authorization: `Bearer ${accessToken}`,
   });
 
   if (lastPageID && lastPageID.length > 0) {
     console.log('LOOK HERE', type);
-    const accessToken = localStorage.getItem('accessToken') || '';
 
     if (type === 'for you') {
       type = 'home';
@@ -224,7 +340,6 @@ export const getPaginatedHomeTimeline = async (
     return data;
   } else {
     console.log('LOOK HERE', type);
-    const accessToken = localStorage.getItem('accessToken') || '';
 
     if (type === 'for you') {
       type = 'home';
@@ -250,6 +365,8 @@ export const getPaginatedHomeTimeline = async (
 
 export const getPublicTimeline = async (): Promise<Post[]> => {
   // Call Mastodon API directly - public timeline doesn't need proxy
+  const accessToken = getAccessToken();
+  const server = getServer();
   const response = await fetch(
     `https://${server}/api/v1/timelines/public?limit=40`,
     {
@@ -272,7 +389,8 @@ export const boostPost = async (id: string) => {
   // const data = await response.json();
   // return data;
 
-  const accessToken = localStorage.getItem('accessToken') || '';
+  const accessToken = getAccessToken();
+  const server = getServer();
 
   // boost post
   const response = await fetch(
@@ -291,6 +409,8 @@ export const boostPost = async (id: string) => {
 };
 
 export const reblogPost = async (id: string) => {
+  const accessToken = getAccessToken();
+  const server = getServer();
   const response = await fetch(
     `${FIREBASE_FUNCTIONS_BASE_URL}/reblog?id=${id}&code=${accessToken}&server=${server}`,
     {
@@ -307,6 +427,8 @@ export const reblogPost = async (id: string) => {
 export const getReplies = async (
   id: string
 ): Promise<{ ancestors: Post[]; descendants: Post[] }> => {
+  const accessToken = getAccessToken();
+  const server = getServer();
   const response = await fetch(
     `${FIREBASE_FUNCTIONS_BASE_URL}/getReplies?id=${id}&code=${accessToken}&server=${server}`
   );
@@ -316,6 +438,8 @@ export const getReplies = async (
 
 export const reply = async (id: string, reply: string) => {
   // Call Mastodon API directly - this endpoint doesn't exist in old server
+  const accessToken = getAccessToken();
+  const server = getServer();
   const formData = new FormData();
   formData.append('status', reply);
   formData.append('in_reply_to_id', id);
@@ -333,6 +457,8 @@ export const reply = async (id: string, reply: string) => {
 
 export const mediaTimeline = async (): Promise<Post[]> => {
   // Call Mastodon API directly
+  const accessToken = getAccessToken();
+  const server = getServer();
   const currentUser = localStorage.getItem('currentUserID');
   const response = await fetch(
     `https://${server}/api/v1/accounts/${currentUser}/statuses?only_media=true&limit=40`,
@@ -347,6 +473,8 @@ export const mediaTimeline = async (): Promise<Post[]> => {
 };
 
 export const searchTimeline = async (query: string) => {
+  const accessToken = getAccessToken();
+  const server = getServer();
   const response = await fetch(
     `${FIREBASE_FUNCTIONS_BASE_URL}/search?query=${query}&code=${accessToken}&server=${server}`
   );
@@ -356,6 +484,8 @@ export const searchTimeline = async (query: string) => {
 
 export const getHashtagTimeline = async (hashtag: string): Promise<Post[]> => {
   // Call Mastodon API directly
+  const accessToken = getAccessToken();
+  const server = getServer();
   const response = await fetch(
     `https://${server}/api/v1/timelines/tag/${hashtag}`,
     {
@@ -371,6 +501,8 @@ export const getHashtagTimeline = async (hashtag: string): Promise<Post[]> => {
 export const getAStatus = async (id: string): Promise<Post> => {
   console.log('reply id', id);
   // get a specific status
+  const accessToken = getAccessToken();
+  const server = getServer();
   const response = await fetch('https://' + server + '/api/v1/statuses/' + id, {
     method: 'GET',
     headers: new Headers({
@@ -386,7 +518,8 @@ export const getAStatus = async (id: string): Promise<Post> => {
 };
 
 export const getTrendingStatuses = async (): Promise<Post[]> => {
-  const accessToken = localStorage.getItem('accessToken') || '';
+  const accessToken = getAccessToken();
+  const server = getServer();
 
   const response = await fetch(`https://${server}/api/v1/trends/statuses`, {
     method: 'GET',

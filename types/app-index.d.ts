@@ -7,6 +7,11 @@ export declare class AppIndex extends LitElement {
     constructor();
     connectedCallback(): Promise<void>;
     /**
+     * Sync credentials from localStorage to IndexedDB
+     * This ensures the service worker has access to the latest tokens
+     */
+    private syncCredentialsToIndexedDB;
+    /**
      * Warm the service worker cache for notifications, bookmarks, and favorites
      * Only if user has good network and data saver is off
      */

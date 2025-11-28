@@ -33,10 +33,6 @@ export class ImagePreviewDialog extends LitElement {
       overflow: hidden;
     }
 
-    md-skeleton {
-      height: 280px !important;
-    }
-
     dialog::backdrop {
       background-color: rgb(0 0 0 / 0%);
       backdrop-filter: blur(36px);
@@ -212,7 +208,8 @@ export class ImagePreviewDialog extends LitElement {
           <div class="image-wrapper">
             <md-skeleton
               class="${this.loaded ? 'hidden' : ''}"
-              style="width: 100%; height: 280px;"
+              width="600px"
+              height="600px"
             ></md-skeleton>
             <img
               class="${this.loaded ? 'loaded' : ''}"
