@@ -3,8 +3,8 @@ import { customElement, property, state } from 'lit/decorators.js';
 import { getPaginatedHomeTimeline } from '../services/timeline';
 
 import '@shoelace-style/shoelace/dist/components/skeleton/skeleton.js';
-
-import '../components/md/md-virtual-list';
+import '@lit-labs/virtualizer';
+import { VisibilityChangedEvent } from '@lit-labs/virtualizer';
 
 import '../components/timeline-item';
 import '../components/search';
@@ -36,21 +36,14 @@ export class MediaTimeline extends LitElement {
         justify-content: space-between;
       }
 
-      ul {
-        display: flex;
-        flex-direction: column;
+      lit-virtualizer {
+        display: block;
         border-radius: 6px;
         margin: 0;
         padding: 0;
-        list-style: none;
-
         height: 90vh;
-        overflow-y: scroll;
+        overflow-y: auto;
         overflow-x: hidden;
-      }
-
-      md-virtual-list {
-        height: 90vh;
       }
 
       sl-card {
@@ -107,12 +100,15 @@ export class MediaTimeline extends LitElement {
     this.loadingData = false;
   }
 
-  private async _handleLoadMore() {
-    if (this.loadingData) return;
-
-    this.loadingData = true;
-    await this.loadMore();
-    this.loadingData = false;
+  /** Handle visibility changes from lit-virtualizer to trigger load more */
+  private async _handleVisibilityChanged(e: VisibilityChangedEvent) {
+    const { last } = e;
+    // Load more when we're close to the end
+    if (last >= this.timeline.length - 5 && !this.loadingData && this.timeline.length > 0) {
+      this.loadingData = true;
+      await this.loadMore();
+      this.loadingData = false;
+    }
   }
 
   async refreshTimeline() {
@@ -153,23 +149,20 @@ export class MediaTimeline extends LitElement {
 
   render() {
     return html`
-      <ul>
-        <md-virtual-list
-          .items="${this.timeline}"
-          .keyFn="${(tweet: any) => tweet.id}"
-          .renderItem="${(tweet: Post) => html`
-            <timeline-item
-              ?show="${true}"
-              @replies="${($event: any) =>
+      <lit-virtualizer
+        scroller
+        .items="${this.timeline as Post[]}"
+        .renderItem="${((tweet: Post) => html`
+          <timeline-item
+            ?show="${true}"
+            @replies="${($event: any) =>
           this.handleReplies($event.detail.data)}"
-              .tweet="${tweet}"
-            ></timeline-item>
-          `}"
-          .loading="${this.loadingData}"
-          @load-more="${this._handleLoadMore}"
-        >
-        </md-virtual-list>
-      </ul>
+            .tweet="${tweet}"
+          ></timeline-item>
+        `) as any}"
+        @visibilityChanged="${this._handleVisibilityChanged}"
+      >
+      </lit-virtualizer>
     `;
   }
 }

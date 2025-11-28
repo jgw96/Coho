@@ -4,11 +4,12 @@ import { Post } from '../interfaces/Post';
 import { getPreviewTimeline } from '../services/timeline';
 
 import '../components/timeline-item';
-import '../components/md/md-virtual-list';
+import '@lit-labs/virtualizer';
+import { VisibilityChangedEvent } from '@lit-labs/virtualizer';
 
 @customElement('preview-timeline')
 export class PreviewTimeline extends LitElement {
-  @state() timeline: any[] = [];
+  @state() timeline: Post[] = [];
   @state() loadingData = false;
 
   static styles = [
@@ -17,35 +18,18 @@ export class PreviewTimeline extends LitElement {
         display: block;
       }
 
-      ul {
-        display: flex;
-        flex-direction: column;
+      lit-virtualizer {
+        display: block;
         border-radius: 6px;
         margin: 0;
         padding: 0;
-        list-style: none;
         width: 100%;
-
         height: 90vh;
-        overflow-y: scroll;
+        overflow-y: auto;
         overflow-x: hidden;
       }
 
-      md-virtual-list {
-        height: 90vh;
-        width: 100%;
-      }
-
-      #load-more {
-        height: 10px;
-      }
-
-      ul::-webkit-scrollbar,
-      md-virtual-list::-webkit-scrollbar {
-        display: none;
-      }
-
-      li {
+      .timeline-item {
         width: 100%;
       }
     `,
@@ -56,12 +40,15 @@ export class PreviewTimeline extends LitElement {
     this.timeline = previewData;
   }
 
-  private async _handleLoadMore() {
-    if (this.loadingData) return;
-
-    this.loadingData = true;
-    await this.loadMore();
-    this.loadingData = false;
+  /** Handle visibility changes from lit-virtualizer to trigger load more */
+  private async _handleVisibilityChanged(e: VisibilityChangedEvent) {
+    const { last } = e;
+    // Load more when we're close to the end
+    if (last >= this.timeline.length - 5 && !this.loadingData && this.timeline.length > 0) {
+      this.loadingData = true;
+      await this.loadMore();
+      this.loadingData = false;
+    }
   }
 
   async loadMore() {
@@ -71,21 +58,18 @@ export class PreviewTimeline extends LitElement {
 
   render() {
     return html`
-      <ul part="parent">
-        <md-virtual-list
-          part="list"
-          .items="${this.timeline}"
-          .keyFn="${(tweet: any) => tweet.id}"
-          .renderItem="${(tweet: Post) => html`
+      <lit-virtualizer
+        part="list"
+        scroller
+        .items="${this.timeline as Post[]}"
+        .renderItem="${((tweet: Post) => html`
+          <div class="timeline-item">
             <timeline-item ?show="${false}" .tweet="${tweet}"></timeline-item>
-          `}"
-          .loading="${this.loadingData}"
-          @load-more="${this._handleLoadMore}"
-        >
-        </md-virtual-list>
-
-        <li id="load-more"></li>
-      </ul>
+          </div>
+        `) as any}"
+        @visibilityChanged="${this._handleVisibilityChanged}"
+      >
+      </lit-virtualizer>
     `;
   }
 }

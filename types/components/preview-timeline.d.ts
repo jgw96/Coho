@@ -1,12 +1,14 @@
 import { LitElement } from 'lit';
+import { Post } from '../interfaces/Post';
 import '../components/timeline-item';
-import '../components/md/md-virtual-list';
+import '@lit-labs/virtualizer';
 export declare class PreviewTimeline extends LitElement {
-    timeline: any[];
+    timeline: Post[];
     loadingData: boolean;
     static styles: import("lit").CSSResult[];
     firstUpdated(): Promise<void>;
-    private _handleLoadMore;
+    /** Handle visibility changes from lit-virtualizer to trigger load more */
+    private _handleVisibilityChanged;
     loadMore(): Promise<void>;
     render(): import("lit-html").TemplateResult<1>;
 }
