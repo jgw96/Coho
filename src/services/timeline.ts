@@ -13,6 +13,8 @@ const replyParentCache = new Map<string, Post>();
 /**
  * Enriches posts that are replies with their parent post data.
  * This allows the timeline to show thread context for reply posts.
+ * Also filters out standalone posts that will be shown as reply_to context
+ * to avoid duplicate display.
  */
 export const enrichPostsWithReplyContext = async (
   posts: Post[]
@@ -52,16 +54,33 @@ export const enrichPostsWithReplyContext = async (
     await Promise.all(fetchPromises);
   }
 
-  // Enrich posts with their parent data
-  return posts.map((post) => {
-    if (post.in_reply_to_id && !post.reply_to) {
-      const parent = replyParentCache.get(post.in_reply_to_id);
+  // Collect all parent IDs that will be shown as reply_to context
+  const parentIdsBeingShown = new Set<string>();
+  for (const post of posts) {
+    if (post.in_reply_to_id) {
+      const parent = post.reply_to || replyParentCache.get(post.in_reply_to_id);
       if (parent) {
-        return { ...post, reply_to: parent };
+        parentIdsBeingShown.add(post.in_reply_to_id);
       }
     }
-    return post;
-  });
+  }
+
+  // Enrich posts with their parent data and filter out duplicates
+  return posts
+    .map((post) => {
+      if (post.in_reply_to_id && !post.reply_to) {
+        const parent = replyParentCache.get(post.in_reply_to_id);
+        if (parent) {
+          return { ...post, reply_to: parent };
+        }
+      }
+      return post;
+    })
+    .filter((post) => {
+      // Filter out posts that will be shown as reply_to context of another post
+      // This prevents showing the same post twice (once standalone, once as context)
+      return !parentIdsBeingShown.has(post.id);
+    });
 };
 
 /**

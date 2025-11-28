@@ -1,4 +1,3 @@
-// @ts-expect-error fix
 import ImgWorker from '../utils/img-worker?worker';
 
 type BlurhashCallback = (id: string, dataUrl: string) => void;

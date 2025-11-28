@@ -23,6 +23,7 @@ export interface TimelineItemHandlers {
   deleteStatus: () => void;
   initEditStatus: () => void;
   openPost: () => void;
+  openParentPost: () => void;
   openLinkCard: (url: string) => void;
   showThread: () => void;
   muteUser: (accountId: string) => void;
@@ -67,12 +68,12 @@ export function renderReplyContext(
   if (!state.tweet?.reply_to || !state.show) return null;
 
   return html`
-    <div id="reply-to">
+    <div id="reply-to" @click="${() => handlers.openParentPost()}" style="cursor: pointer;">
       <md-icon name="chatbox"></md-icon>
       Thread
     </div>
 
-    <md-card part="card">
+    <md-card part="card" @click="${() => handlers.openParentPost()}">
       <user-profile .account="${state.tweet?.reply_to.account}"></user-profile>
       <div .innerHTML="${state.tweet?.reply_to.content}"></div>
 

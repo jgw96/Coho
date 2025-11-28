@@ -954,6 +954,9 @@ export const getClient = onRequest(async (request, response) => {
       return;
     }
 
+    // Ensure redirect_uri has trailing slash to match what was used in authenticate
+    const normalizedRedirectUri = redirectUri.endsWith('/') ? redirectUri : `${redirectUri}/`;
+
     const apiResponse = await fetch(`https://${server}/oauth/token`, {
       method: 'POST',
       headers: {
@@ -963,7 +966,7 @@ export const getClient = onRequest(async (request, response) => {
         client_id: clientId,
         client_secret: clientSecret,
         code: code,
-        redirect_uri: redirectUri,
+        redirect_uri: normalizedRedirectUri,
         grant_type: 'authorization_code',
         scope: 'read write follow push',
       }),

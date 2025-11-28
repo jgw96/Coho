@@ -19,6 +19,7 @@ export interface TimelineItemHandlers {
     deleteStatus: () => void;
     initEditStatus: () => void;
     openPost: () => void;
+    openParentPost: () => void;
     openLinkCard: (url: string) => void;
     showThread: () => void;
     muteUser: (accountId: string) => void;

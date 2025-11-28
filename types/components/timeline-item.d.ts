@@ -29,6 +29,7 @@ export declare class TimelineItem extends LitElement {
     replies(): Promise<void>;
     shareStatus(tweet: Post | null): Promise<void>;
     openPost(): Promise<void>;
+    openParentPost(): Promise<void>;
     deleteStatus(): Promise<void>;
     initEditStatus(): Promise<void>;
     viewSensitive(): void;

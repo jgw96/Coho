@@ -631,10 +631,6 @@ export class AppHome extends LitElement {
   async firstUpdated() {
     const urlParams = new URLSearchParams(window.location.search);
 
-    if ((navigator as any).virtualKeyboard) {
-      (navigator as any).virtualKeyboard.overlaysContent = true;
-    }
-
     setTimeout(async () => {
       if (urlParams.has('name')) {
         const name = urlParams.get('name');

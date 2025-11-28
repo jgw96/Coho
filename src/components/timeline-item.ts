@@ -343,7 +343,13 @@ export class TimelineItem extends LitElement {
       // Combine ancestors and descendants, removing the current post
       const ancestors = context.ancestors || [];
       const descendants = context.descendants || [];
-      this.threadPosts = [...ancestors, ...descendants];
+
+      // Filter out the immediate parent post if it's already shown via reply_to
+      // to avoid displaying the same post twice
+      const replyToId = this.tweet.reply_to?.id || this.tweet.in_reply_to_id;
+      const filteredAncestors = ancestors.filter((post: Post) => post.id !== replyToId);
+
+      this.threadPosts = [...filteredAncestors, ...descendants];
       this.threadExpanded = true;
     } catch (error) {
       console.error('Failed to load thread:', error);
@@ -541,6 +547,43 @@ export class TimelineItem extends LitElement {
     }
   }
 
+  async openParentPost() {
+    const parentPost = this.tweet?.reply_to;
+    if (!parentPost) return;
+
+    if (this.device === 'mobile') {
+      if ('startViewTransition' in document) {
+        this.style.viewTransitionName = 'card';
+        await document.startViewTransition();
+
+        const serialized = new URLSearchParams(
+          JSON.stringify(parentPost)
+        ).toString();
+
+        await router.navigate(`/home/post?${serialized}`);
+
+        setTimeout(() => {
+          this.style.viewTransitionName = '';
+        }, 800);
+      } else {
+        const serialized = new URLSearchParams(
+          JSON.stringify(parentPost)
+        ).toString();
+
+        await router.navigate(`/home/post?${serialized}`);
+      }
+    } else {
+      // emit custom event with parent post
+      this.dispatchEvent(
+        new CustomEvent('open', {
+          detail: {
+            tweet: parentPost,
+          },
+        })
+      );
+    }
+  }
+
   async deleteStatus() {
     if (this.tweet) {
       const { deletePost } = await import('../services/posts');
@@ -728,6 +771,7 @@ export class TimelineItem extends LitElement {
       deleteStatus: () => this.deleteStatus(),
       initEditStatus: () => this.initEditStatus(),
       openPost: () => this.openPost(),
+      openParentPost: () => this.openParentPost(),
       openLinkCard: (url: string) => this.openLinkCard(url),
       showThread: () => this.showThread(),
       muteUser: (accountId: string) => this.muteUser(accountId),

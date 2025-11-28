@@ -1,11 +1,14 @@
 import { LitElement } from 'lit';
-import '../components/md/md-text-field';
+import '../components/md/md-autocomplete';
 import '../components/md/md-button';
 import '../components/md/md-card';
+import type { AutocompleteOption } from '../components/md/md-autocomplete';
 export declare class AppLogin extends LitElement {
     loadIntro: boolean;
-    instances: any[];
+    instances: AutocompleteOption[];
     chosenServer: string;
+    loadingInstances: boolean;
+    private _searchDebounceTimer;
     static styles: import("lit").CSSResult[];
     firstUpdated(): Promise<void>;
     login(): Promise<void>;
@@ -14,6 +17,8 @@ export declare class AppLogin extends LitElement {
     next(): void;
     getStarted(): Promise<void>;
     handleServerInput(event: any): void;
+    searchInstances(query: string): Promise<void>;
+    handleServerSelect(event: CustomEvent): void;
     joinMastodon(): Promise<void>;
     explore(): Promise<void>;
     render(): import("lit-html").TemplateResult<1>;
