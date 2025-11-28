@@ -196,7 +196,11 @@ export class MdTab extends LitElement {
 
     /* Vertical active state - use background highlight instead of indicator */
     :host([active][data-orientation='vertical']) button {
-      background: color-mix(in srgb, var(--md-sys-color-primary, var(--sl-color-primary-600)) 12%, transparent);
+      background: color-mix(
+        in srgb,
+        var(--md-sys-color-primary, var(--sl-color-primary-600)) 12%,
+        transparent
+      );
     }
 
     :host([active]) .indicator {

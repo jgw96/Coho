@@ -2,10 +2,10 @@ import { LitElement, html, css } from 'lit';
 import { customElement, property, state, query } from 'lit/decorators.js';
 
 export interface AutocompleteOption {
-    value: string;
-    label: string;
-    description?: string;
-    icon?: string;
+  value: string;
+  label: string;
+  description?: string;
+  icon?: string;
 }
 
 /**
@@ -14,29 +14,33 @@ export interface AutocompleteOption {
  */
 @customElement('md-autocomplete')
 export class MdAutocomplete extends LitElement {
-    @property({ type: String }) value = '';
-    @property({ type: String }) placeholder = '';
-    @property({ type: Boolean }) disabled = false;
-    @property({ type: Boolean }) autofocus = false;
-    @property({ type: String }) variant: 'filled' | 'outlined' = 'filled';
-    @property({ type: Boolean }) pill = false;
-    @property({ type: Array }) options: AutocompleteOption[] = [];
-    @property({ type: Boolean }) loading = false;
+  @property({ type: String }) value = '';
+  @property({ type: String }) placeholder = '';
+  @property({ type: Boolean }) disabled = false;
+  @property({ type: Boolean }) autofocus = false;
+  @property({ type: String }) variant: 'filled' | 'outlined' = 'filled';
+  @property({ type: Boolean }) pill = false;
+  @property({ type: Array }) options: AutocompleteOption[] = [];
+  @property({ type: Boolean }) loading = false;
 
-    @state() private _showDropdown = false;
-    @state() private _highlightedIndex = -1;
-    @state() private _isFocused = false;
+  @state() private _showDropdown = false;
+  @state() private _highlightedIndex = -1;
+  @state() private _isFocused = false;
 
-    @query('input') private _input!: HTMLInputElement;
+  @query('input') private _input!: HTMLInputElement;
 
-    // When options change and input is focused, show the dropdown
-    updated(changedProperties: Map<string, unknown>) {
-        if (changedProperties.has('options') && this._isFocused && this.options.length > 0) {
-            this._showDropdown = true;
-        }
+  // When options change and input is focused, show the dropdown
+  updated(changedProperties: Map<string, unknown>) {
+    if (
+      changedProperties.has('options') &&
+      this._isFocused &&
+      this.options.length > 0
+    ) {
+      this._showDropdown = true;
     }
+  }
 
-    static styles = css`
+  static styles = css`
     :host {
       display: block;
       width: 100%;
@@ -55,7 +59,11 @@ export class MdAutocomplete extends LitElement {
       border: none;
       border-radius: 4px 4px 0 0;
       background-color: var(--md-sys-color-surface-container-highest, #e6e0e9);
-      font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+      font-family:
+        'Roboto',
+        system-ui,
+        -apple-system,
+        sans-serif;
       font-size: var(--md-sys-typescale-body-large-font-size);
       font-weight: 400;
       line-height: 24px;
@@ -230,7 +238,10 @@ export class MdAutocomplete extends LitElement {
     /* Dark mode support */
     @media (prefers-color-scheme: dark) {
       input {
-        background-color: var(--md-sys-color-surface-container-highest, #49454f);
+        background-color: var(
+          --md-sys-color-surface-container-highest,
+          #49454f
+        );
         color: var(--md-sys-color-on-surface, #e6e0e9);
         border-bottom-color: var(--md-sys-color-outline, #938f99);
       }
@@ -257,7 +268,10 @@ export class MdAutocomplete extends LitElement {
       }
 
       input:disabled {
-        background-color: var(--md-sys-color-surface-container-highest, #49454f);
+        background-color: var(
+          --md-sys-color-surface-container-highest,
+          #49454f
+        );
       }
 
       input.outlined {
@@ -309,126 +323,130 @@ export class MdAutocomplete extends LitElement {
     }
   `;
 
-    connectedCallback() {
-        super.connectedCallback();
-        // Close dropdown when clicking outside
-        document.addEventListener('click', this._handleOutsideClick);
+  connectedCallback() {
+    super.connectedCallback();
+    // Close dropdown when clicking outside
+    document.addEventListener('click', this._handleOutsideClick);
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    document.removeEventListener('click', this._handleOutsideClick);
+  }
+
+  firstUpdated() {
+    if (this.autofocus && this._input) {
+      this._input.focus();
     }
+  }
 
-    disconnectedCallback() {
-        super.disconnectedCallback();
-        document.removeEventListener('click', this._handleOutsideClick);
+  private _handleOutsideClick = (e: Event) => {
+    // Use composedPath to properly handle Shadow DOM
+    const path = e.composedPath();
+    if (!path.includes(this)) {
+      this._showDropdown = false;
+      this._highlightedIndex = -1;
     }
+  };
 
-    firstUpdated() {
-        if (this.autofocus && this._input) {
-            this._input.focus();
-        }
+  private _handleInput(e: Event) {
+    const input = e.target as HTMLInputElement;
+    this.value = input.value;
+    this._showDropdown = true;
+    this._highlightedIndex = -1;
+
+    this.dispatchEvent(
+      new CustomEvent('input', {
+        detail: { value: this.value },
+        bubbles: true,
+        composed: true,
+      })
+    );
+  }
+
+  private _handleFocus() {
+    this._isFocused = true;
+    // Always show dropdown on focus if there are options available
+    if (this.options.length > 0) {
+      this._showDropdown = true;
     }
+    // Emit focus event so parent can load initial options if needed
+    this.dispatchEvent(
+      new CustomEvent('focus', {
+        bubbles: true,
+        composed: true,
+      })
+    );
+  }
 
-    private _handleOutsideClick = (e: Event) => {
-        // Use composedPath to properly handle Shadow DOM
-        const path = e.composedPath();
-        if (!path.includes(this)) {
-            this._showDropdown = false;
-            this._highlightedIndex = -1;
-        }
-    };
+  private _handleBlur() {
+    this._isFocused = false;
+  }
 
-    private _handleInput(e: Event) {
-        const input = e.target as HTMLInputElement;
-        this.value = input.value;
+  private _handleKeyDown(e: KeyboardEvent) {
+    if (!this._showDropdown) {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
         this._showDropdown = true;
-        this._highlightedIndex = -1;
+        e.preventDefault();
+      }
+      return;
+    }
 
-        this.dispatchEvent(
-            new CustomEvent('input', {
-                detail: { value: this.value },
-                bubbles: true,
-                composed: true,
-            })
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        this._highlightedIndex = Math.min(
+          this._highlightedIndex + 1,
+          this.options.length - 1
         );
-    }
-
-    private _handleFocus() {
-        this._isFocused = true;
-        // Always show dropdown on focus if there are options available
-        if (this.options.length > 0) {
-            this._showDropdown = true;
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        this._highlightedIndex = Math.max(this._highlightedIndex - 1, 0);
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (
+          this._highlightedIndex >= 0 &&
+          this.options[this._highlightedIndex]
+        ) {
+          this._selectOption(this.options[this._highlightedIndex]);
         }
-        // Emit focus event so parent can load initial options if needed
-        this.dispatchEvent(
-            new CustomEvent('focus', {
-                bubbles: true,
-                composed: true,
-            })
-        );
-    }
-
-    private _handleBlur() {
-        this._isFocused = false;
-    }
-
-    private _handleKeyDown(e: KeyboardEvent) {
-        if (!this._showDropdown) {
-            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-                this._showDropdown = true;
-                e.preventDefault();
-            }
-            return;
-        }
-
-        switch (e.key) {
-            case 'ArrowDown':
-                e.preventDefault();
-                this._highlightedIndex = Math.min(
-                    this._highlightedIndex + 1,
-                    this.options.length - 1
-                );
-                break;
-            case 'ArrowUp':
-                e.preventDefault();
-                this._highlightedIndex = Math.max(this._highlightedIndex - 1, 0);
-                break;
-            case 'Enter':
-                e.preventDefault();
-                if (this._highlightedIndex >= 0 && this.options[this._highlightedIndex]) {
-                    this._selectOption(this.options[this._highlightedIndex]);
-                }
-                break;
-            case 'Escape':
-                this._showDropdown = false;
-                this._highlightedIndex = -1;
-                break;
-        }
-    }
-
-    private _selectOption(option: AutocompleteOption) {
-        this.value = option.value;
+        break;
+      case 'Escape':
         this._showDropdown = false;
         this._highlightedIndex = -1;
-
-        this.dispatchEvent(
-            new CustomEvent('select', {
-                detail: { value: option.value, option },
-                bubbles: true,
-                composed: true,
-            })
-        );
-
-        this.dispatchEvent(
-            new CustomEvent('change', {
-                detail: { value: option.value },
-                bubbles: true,
-                composed: true,
-            })
-        );
+        break;
     }
+  }
 
-    render() {
-        const showDropdown = this._showDropdown && (this.options.length > 0 || this.loading);
+  private _selectOption(option: AutocompleteOption) {
+    this.value = option.value;
+    this._showDropdown = false;
+    this._highlightedIndex = -1;
 
-        return html`
+    this.dispatchEvent(
+      new CustomEvent('select', {
+        detail: { value: option.value, option },
+        bubbles: true,
+        composed: true,
+      })
+    );
+
+    this.dispatchEvent(
+      new CustomEvent('change', {
+        detail: { value: option.value },
+        bubbles: true,
+        composed: true,
+      })
+    );
+  }
+
+  render() {
+    const showDropdown =
+      this._showDropdown && (this.options.length > 0 || this.loading);
+
+    return html`
       <div class="autocomplete-container">
         <input
           type="text"
@@ -446,18 +464,17 @@ export class MdAutocomplete extends LitElement {
           aria-expanded="${showDropdown}"
           aria-haspopup="listbox"
         />
-        <div
-          class="dropdown ${showDropdown ? 'open' : ''}"
-          role="listbox"
-        >
+        <div class="dropdown ${showDropdown ? 'open' : ''}" role="listbox">
           ${this.loading
-                ? html`<div class="loading-indicator">Loading...</div>`
-                : this.options.length === 0
-                    ? html`<div class="no-results">No results found</div>`
-                    : this.options.map(
-                        (option, index) => html`
+            ? html`<div class="loading-indicator">Loading...</div>`
+            : this.options.length === 0
+              ? html`<div class="no-results">No results found</div>`
+              : this.options.map(
+                  (option, index) => html`
                     <div
-                      class="dropdown-item ${index === this._highlightedIndex ? 'highlighted' : ''}"
+                      class="dropdown-item ${index === this._highlightedIndex
+                        ? 'highlighted'
+                        : ''}"
                       role="option"
                       aria-selected="${index === this._highlightedIndex}"
                       @click="${() => this._selectOption(option)}"
@@ -465,32 +482,36 @@ export class MdAutocomplete extends LitElement {
                     >
                       <div class="item-content">
                         ${option.icon
-                                ? html`<img
+                          ? html`<img
                               class="item-icon"
                               src="${option.icon}"
                               alt=""
                               loading="lazy"
-                              @error="${(e: Event) => ((e.target as HTMLImageElement).style.display = 'none')}"
+                              @error="${(e: Event) =>
+                                ((e.target as HTMLImageElement).style.display =
+                                  'none')}"
                             />`
-                                : null}
+                          : null}
                         <div class="item-text">
                           <div class="item-label">${option.label}</div>
                           ${option.description
-                                ? html`<div class="item-description">${option.description}</div>`
-                                : null}
+                            ? html`<div class="item-description">
+                                ${option.description}
+                              </div>`
+                            : null}
                         </div>
                       </div>
                     </div>
                   `
-                    )}
+                )}
         </div>
       </div>
     `;
-    }
+  }
 }
 
 declare global {
-    interface HTMLElementTagNameMap {
-        'md-autocomplete': MdAutocomplete;
-    }
+  interface HTMLElementTagNameMap {
+    'md-autocomplete': MdAutocomplete;
+  }
 }

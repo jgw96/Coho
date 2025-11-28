@@ -308,10 +308,12 @@ export class Timeline extends LitElement {
     await this.updateComplete;
 
     // Additional wait to ensure virtualizer is ready
-    await new Promise(resolve => requestAnimationFrame(resolve));
+    await new Promise((resolve) => requestAnimationFrame(resolve));
 
     // lit-virtualizer with scroller attribute is itself the scroll container
-    const scrollContainer = this.shadowRoot?.querySelector('lit-virtualizer') as HTMLElement;
+    const scrollContainer = this.shadowRoot?.querySelector(
+      'lit-virtualizer'
+    ) as HTMLElement;
 
     if (scrollContainer) {
       scrollContainer.addEventListener(
@@ -526,7 +528,11 @@ export class Timeline extends LitElement {
   private async _handleVisibilityChanged(e: VisibilityChangedEvent) {
     const { last } = e;
     // Load more when we're close to the end
-    if (last >= this.timeline.length - 5 && !this.loadingData && this.timeline.length > 0) {
+    if (
+      last >= this.timeline.length - 5 &&
+      !this.loadingData &&
+      this.timeline.length > 0
+    ) {
       this.loadingData = true;
       await this.loadMore();
       this.loadingData = false;
@@ -833,11 +839,11 @@ export class Timeline extends LitElement {
         label="Image Preview"
       >
         ${this.imgPreview
-        ? html`<img
+          ? html`<img
               src="${this.imgPreview}"
               style="width:100%;border-radius:6px;"
             />`
-        : null}
+          : null}
       </md-dialog>
 
       <div id="timeline-header">
@@ -845,7 +851,7 @@ export class Timeline extends LitElement {
           pill
           .value="${this.timelineType}"
           @change="${($event: any) =>
-        this.changeTimelineType($event.detail.value)}"
+            this.changeTimelineType($event.detail.value)}"
           placeholder="Home"
         >
           <md-option value="for you">for you</md-option>
@@ -860,9 +866,9 @@ export class Timeline extends LitElement {
           id="refresh-manual-button"
           circle
           @click="${() => {
-        clearTimelineCache(this.timelineType);
-        this.refreshTimeline(true);
-      }}"
+            clearTimelineCache(this.timelineType);
+            this.refreshTimeline(true);
+          }}"
         >
           <md-icon src="/assets/refresh-circle-outline.svg"></md-icon>
         </md-icon-button>
@@ -875,42 +881,43 @@ export class Timeline extends LitElement {
       ${this.loadingData && this.timeline.length === 0
         ? html`<md-skeleton-card count="5"></md-skeleton-card>`
         : html`
-              <lit-virtualizer
-                id="mainList"
-                part="list"
-                class="scrollbar-hidden"
-                scroller
-                .items=${this.timeline as Post[]}
-                .renderItem=${((tweet: Post) =>
-            html`<div class="timeline-list-item">
-                    <timeline-item
-                      @open="${($event: CustomEvent) =>
-                this.handleOpen($event.detail.tweet)}"
-                      @summarize="${($event: any) =>
-                this.handleSummary($event)}"
-                      @translating="${($event: any) =>
-                this.handleTranslating($event)}"
-                      tweetID="${tweet.id}"
-                      @delete="${() => this.refreshTimeline()}"
-                      @analyze="${($event: any) =>
-                this.showAnalyze(
-                  $event.detail.data,
-                  $event.detail.imageData,
-                  $event.detail.tweet
-                )}"
-                      @openimage="${($event: any) =>
-                this.showImage($event.detail.imageURL)}"
-                      ?show="${true}"
-                      @replies="${($event: any) =>
-                this.handleReplies($event.detail.data)}"
-                      .tweet="${tweet}"
-                    ></timeline-item>
-                    <md-divider style="margin-top: 12px; margin-bottom: 12px;"></md-divider>
-                  </div>`) as any}
-                @visibilityChanged=${this._handleVisibilityChanged}
-              >
-              </lit-virtualizer>
-            `}
+            <lit-virtualizer
+              id="mainList"
+              part="list"
+              class="scrollbar-hidden"
+              scroller
+              .items=${this.timeline as Post[]}
+              .renderItem=${((tweet: Post) =>
+                html`<div class="timeline-list-item">
+                  <timeline-item
+                    @open="${($event: CustomEvent) =>
+                      this.handleOpen($event.detail.tweet)}"
+                    @summarize="${($event: any) => this.handleSummary($event)}"
+                    @translating="${($event: any) =>
+                      this.handleTranslating($event)}"
+                    tweetID="${tweet.id}"
+                    @delete="${() => this.refreshTimeline()}"
+                    @analyze="${($event: any) =>
+                      this.showAnalyze(
+                        $event.detail.data,
+                        $event.detail.imageData,
+                        $event.detail.tweet
+                      )}"
+                    @openimage="${($event: any) =>
+                      this.showImage($event.detail.imageURL)}"
+                    ?show="${true}"
+                    @replies="${($event: any) =>
+                      this.handleReplies($event.detail.data)}"
+                    .tweet="${tweet}"
+                  ></timeline-item>
+                  <md-divider
+                    style="margin-top: 12px; margin-bottom: 12px;"
+                  ></md-divider>
+                </div>`) as any}
+              @visibilityChanged=${this._handleVisibilityChanged}
+            >
+            </lit-virtualizer>
+          `}
     `;
   }
 }

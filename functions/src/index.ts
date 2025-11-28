@@ -915,7 +915,7 @@ export const authenticate = onRequest(async (request, response) => {
         clientId: clientID,
         clientSecret: clientSecret,
         server: serverURL,
-        redirectUri: redirectUri,  // Store the exact redirect_uri used
+        redirectUri: redirectUri, // Store the exact redirect_uri used
       })
     ).toString('base64');
 
@@ -949,7 +949,12 @@ export const getClient = onRequest(async (request, response) => {
   try {
     // Decode the state parameter to get client credentials
     const decodedState = JSON.parse(Buffer.from(state, 'base64').toString());
-    const { clientId, clientSecret, server, redirectUri: storedRedirectUri } = decodedState;
+    const {
+      clientId,
+      clientSecret,
+      server,
+      redirectUri: storedRedirectUri,
+    } = decodedState;
 
     if (!clientId || !clientSecret || !server) {
       response.status(400).json({ error: 'Invalid state parameter' });
@@ -958,9 +963,17 @@ export const getClient = onRequest(async (request, response) => {
 
     // Use the stored redirect_uri from state (which matches what was used in authenticate)
     // Fall back to the provided redirect_uri (normalized) if not in state
-    const redirectUri = storedRedirectUri || (rawRedirectUri ? rawRedirectUri.replace(/\/$/, '') : 'https://wonderful-glacier-07b022d1e.2.azurestaticapps.net');
+    const redirectUri =
+      storedRedirectUri ||
+      (rawRedirectUri
+        ? rawRedirectUri.replace(/\/$/, '')
+        : 'https://wonderful-glacier-07b022d1e.2.azurestaticapps.net');
 
-    logger.info('Token exchange attempt', { server, redirectUri, hasCode: !!code });
+    logger.info('Token exchange attempt', {
+      server,
+      redirectUri,
+      hasCode: !!code,
+    });
 
     const apiResponse = await fetch(`https://${server}/oauth/token`, {
       method: 'POST',

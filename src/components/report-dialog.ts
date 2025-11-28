@@ -9,11 +9,11 @@ import './md/md-checkbox';
 import './md/md-button';
 
 export interface ReportSubmitDetail {
-    accountId: string;
-    statusId?: string;
-    category: 'spam' | 'legal' | 'violation' | 'other';
-    comment: string;
-    forward: boolean;
+  accountId: string;
+  statusId?: string;
+  category: 'spam' | 'legal' | 'violation' | 'other';
+  comment: string;
+  forward: boolean;
 }
 
 /**
@@ -23,17 +23,18 @@ export interface ReportSubmitDetail {
  */
 @customElement('report-dialog')
 export class ReportDialog extends LitElement {
-    @property({ type: String }) accountId = '';
-    @property({ type: String }) statusId?: string;
-    @property({ type: String }) accountAcct = '';
-    @property({ type: Boolean }) open = false;
+  @property({ type: String }) accountId = '';
+  @property({ type: String }) statusId?: string;
+  @property({ type: String }) accountAcct = '';
+  @property({ type: Boolean }) open = false;
 
-    @state() private _category: 'spam' | 'legal' | 'violation' | 'other' = 'other';
-    @state() private _comment = '';
-    @state() private _forward = false;
-    @state() private _submitting = false;
+  @state() private _category: 'spam' | 'legal' | 'violation' | 'other' =
+    'other';
+  @state() private _comment = '';
+  @state() private _forward = false;
+  @state() private _submitting = false;
 
-    static styles = css`
+  static styles = css`
     :host {
       display: contents;
     }
@@ -102,75 +103,77 @@ export class ReportDialog extends LitElement {
     }
   `;
 
-    private get _isRemoteAccount(): boolean {
-        return this.accountAcct.includes('@');
-    }
+  private get _isRemoteAccount(): boolean {
+    return this.accountAcct.includes('@');
+  }
 
-    private _handleCategoryChange(e: CustomEvent) {
-        this._category = e.detail.value;
-    }
+  private _handleCategoryChange(e: CustomEvent) {
+    this._category = e.detail.value;
+  }
 
-    private _handleCommentInput(e: Event) {
-        const target = e.target as HTMLTextAreaElement;
-        this._comment = target.value;
-    }
+  private _handleCommentInput(e: Event) {
+    const target = e.target as HTMLTextAreaElement;
+    this._comment = target.value;
+  }
 
-    private _handleForwardChange() {
-        this._forward = !this._forward;
-    }
+  private _handleForwardChange() {
+    this._forward = !this._forward;
+  }
 
-    private _handleCancel() {
-        this._resetForm();
-        this.open = false;
-        this.dispatchEvent(new CustomEvent('report-cancel', { bubbles: true, composed: true }));
-    }
+  private _handleCancel() {
+    this._resetForm();
+    this.open = false;
+    this.dispatchEvent(
+      new CustomEvent('report-cancel', { bubbles: true, composed: true })
+    );
+  }
 
-    private async _handleSubmit() {
-        if (!this.accountId) return;
+  private async _handleSubmit() {
+    if (!this.accountId) return;
 
-        this._submitting = true;
+    this._submitting = true;
 
-        const detail: ReportSubmitDetail = {
-            accountId: this.accountId,
-            statusId: this.statusId,
-            category: this._category,
-            comment: this._comment,
-            forward: this._forward,
-        };
+    const detail: ReportSubmitDetail = {
+      accountId: this.accountId,
+      statusId: this.statusId,
+      category: this._category,
+      comment: this._comment,
+      forward: this._forward,
+    };
 
-        this.dispatchEvent(
-            new CustomEvent('report-submit', {
-                detail,
-                bubbles: true,
-                composed: true,
-            })
-        );
+    this.dispatchEvent(
+      new CustomEvent('report-submit', {
+        detail,
+        bubbles: true,
+        composed: true,
+      })
+    );
 
-        // Parent component will handle the actual API call and close the dialog
-    }
+    // Parent component will handle the actual API call and close the dialog
+  }
 
-    private _resetForm() {
-        this._category = 'other';
-        this._comment = '';
-        this._forward = false;
-        this._submitting = false;
-    }
+  private _resetForm() {
+    this._category = 'other';
+    this._comment = '';
+    this._forward = false;
+    this._submitting = false;
+  }
 
-    public show() {
-        this.open = true;
-    }
+  public show() {
+    this.open = true;
+  }
 
-    public hide() {
-        this._resetForm();
-        this.open = false;
-    }
+  public hide() {
+    this._resetForm();
+    this.open = false;
+  }
 
-    public setSubmitting(value: boolean) {
-        this._submitting = value;
-    }
+  public setSubmitting(value: boolean) {
+    this._submitting = value;
+  }
 
-    render() {
-        return html`
+  render() {
+    return html`
       <md-dialog
         label="Report @${this.accountAcct}"
         .open=${this.open}
@@ -178,8 +181,9 @@ export class ReportDialog extends LitElement {
       >
         <div class="report-form">
           <p class="report-info">
-            Reports are sent to your server's moderators. If this user is from another server,
-            a copy of the report can be forwarded to their server's moderators as well.
+            Reports are sent to your server's moderators. If this user is from
+            another server, a copy of the report can be forwarded to their
+            server's moderators as well.
           </p>
 
           <div class="form-field">
@@ -207,7 +211,7 @@ export class ReportDialog extends LitElement {
           </div>
 
           ${this._isRemoteAccount
-                ? html`
+            ? html`
                 <div class="forward-option">
                   <md-checkbox
                     .checked=${this._forward}
@@ -215,28 +219,39 @@ export class ReportDialog extends LitElement {
                   ></md-checkbox>
                   <div class="forward-label">
                     <span>Forward to remote server</span>
-                    <small>This user is from another server. Forward a copy of this report to their moderators.</small>
+                    <small
+                      >This user is from another server. Forward a copy of this
+                      report to their moderators.</small
+                    >
                   </div>
                 </div>
               `
-                : null}
+            : null}
         </div>
 
         <div slot="footer" class="footer-actions">
-          <md-button variant="text" @click=${this._handleCancel} ?disabled=${this._submitting}>
+          <md-button
+            variant="text"
+            @click=${this._handleCancel}
+            ?disabled=${this._submitting}
+          >
             Cancel
           </md-button>
-          <md-button variant="filled" @click=${this._handleSubmit} ?disabled=${this._submitting}>
+          <md-button
+            variant="filled"
+            @click=${this._handleSubmit}
+            ?disabled=${this._submitting}
+          >
             ${this._submitting ? 'Submitting...' : 'Submit Report'}
           </md-button>
         </div>
       </md-dialog>
     `;
-    }
+  }
 }
 
 declare global {
-    interface HTMLElementTagNameMap {
-        'report-dialog': ReportDialog;
-    }
+  interface HTMLElementTagNameMap {
+    'report-dialog': ReportDialog;
+  }
 }

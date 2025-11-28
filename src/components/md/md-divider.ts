@@ -48,7 +48,10 @@ export class MdDivider extends LitElement {
 
     @media (prefers-color-scheme: dark) {
       .divider {
-        background: var(--md-sys-color-outline-variant, rgba(255, 255, 255, 0.12));
+        background: var(
+          --md-sys-color-outline-variant,
+          rgba(255, 255, 255, 0.12)
+        );
       }
     }
   `;
@@ -57,10 +60,12 @@ export class MdDivider extends LitElement {
   @property({ type: Boolean, reflect: true }) inset = false;
 
   /** Whether to inset the divider on the start side only */
-  @property({ type: Boolean, reflect: true, attribute: 'inset-start' }) insetStart = false;
+  @property({ type: Boolean, reflect: true, attribute: 'inset-start' })
+  insetStart = false;
 
   /** Whether to inset the divider on the end side only */
-  @property({ type: Boolean, reflect: true, attribute: 'inset-end' }) insetEnd = false;
+  @property({ type: Boolean, reflect: true, attribute: 'inset-end' }) insetEnd =
+    false;
 
   /** Whether the divider is vertical */
   @property({ type: Boolean, reflect: true }) vertical = false;

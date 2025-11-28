@@ -347,7 +347,9 @@ export class TimelineItem extends LitElement {
       // Filter out the immediate parent post if it's already shown via reply_to
       // to avoid displaying the same post twice
       const replyToId = this.tweet.reply_to?.id || this.tweet.in_reply_to_id;
-      const filteredAncestors = ancestors.filter((post: Post) => post.id !== replyToId);
+      const filteredAncestors = ancestors.filter(
+        (post: Post) => post.id !== replyToId
+      );
 
       this.threadPosts = [...filteredAncestors, ...descendants];
       this.threadExpanded = true;
@@ -776,7 +778,8 @@ export class TimelineItem extends LitElement {
       showThread: () => this.showThread(),
       muteUser: (accountId: string) => this.muteUser(accountId),
       blockUser: (accountId: string) => this.blockUser(accountId),
-      reportUser: (accountId: string, accountAcct: string, statusId?: string) => this.reportUser(accountId, accountAcct, statusId),
+      reportUser: (accountId: string, accountAcct: string, statusId?: string) =>
+        this.reportUser(accountId, accountAcct, statusId),
     };
   }
 

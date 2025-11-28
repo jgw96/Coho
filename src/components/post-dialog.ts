@@ -19,7 +19,12 @@ import {
   uploadMediaFile,
 } from '../services/posts';
 import { getInstanceInfo } from '../services/account';
-import { createAPost, createImage, proofread, isProofreaderAvailable } from '../services/ai';
+import {
+  createAPost,
+  createImage,
+  proofread,
+  isProofreaderAvailable,
+} from '../services/ai';
 
 import MarkdownWorker from '../utils/markdown-worker?worker';
 
@@ -509,11 +514,11 @@ export class PostDialog extends LitElement {
       this.attachments = this.attachments.map((a) =>
         a.id === tempId
           ? {
-            ...a,
-            id: data.id,
-            preview_url: data.preview_url, // Use remote URL
-            pending: false,
-          }
+              ...a,
+              id: data.id,
+              preview_url: data.preview_url, // Use remote URL
+              pending: false,
+            }
           : a
       );
 
@@ -795,19 +800,22 @@ export class PostDialog extends LitElement {
         ></md-text-area>
 
         ${this.proofreaderAvailable
-        ? html`
+          ? html`
               <div id="proofread-action">
                 ${this.proofreadResult
-            ? this.proofreadResult.corrections.length === 0
-              ? html`
-                        <span class="proofread-result no-issues">✓ Looks good!</span>
+                  ? this.proofreadResult.corrections.length === 0
+                    ? html`
+                        <span class="proofread-result no-issues"
+                          >✓ Looks good!</span
+                        >
                         <md-button
                           size="small"
                           variant="text"
                           @click="${() => this.dismissProofread()}"
-                        >Dismiss</md-button>
+                          >Dismiss</md-button
+                        >
                       `
-              : html`
+                    : html`
                         <md-button
                           size="small"
                           variant="text"
@@ -818,7 +826,7 @@ export class PostDialog extends LitElement {
                           Re-check
                         </md-button>
                       `
-            : html`
+                  : html`
                       <md-button
                         size="small"
                         variant="text"
@@ -826,16 +834,22 @@ export class PostDialog extends LitElement {
                         @click="${() => this.doProofread()}"
                       >
                         <md-icon src="/assets/sparkles-outline.svg"></md-icon>
-                        ${this.proofreading ? 'Checking...' : 'Proofread with AI'}
+                        ${this.proofreading
+                          ? 'Checking...'
+                          : 'Proofread with AI'}
                       </md-button>
                     `}
-
-                ${this.proofreadResult && this.proofreadResult.corrections.length > 0
-            ? html`
+                ${this.proofreadResult &&
+                this.proofreadResult.corrections.length > 0
+                  ? html`
                       <div class="proofread-dropdown">
                         <div class="proofread-dropdown-header">
                           <span class="proofread-dropdown-label">
-                            Suggested revision (${this.proofreadResult.corrections.length} change${this.proofreadResult.corrections.length > 1 ? 's' : ''})
+                            Suggested revision
+                            (${this.proofreadResult.corrections.length}
+                            change${this.proofreadResult.corrections.length > 1
+                              ? 's'
+                              : ''})
                           </span>
                           <div class="proofread-dropdown-actions">
                             <md-button
@@ -843,12 +857,14 @@ export class PostDialog extends LitElement {
                               variant="filled"
                               pill
                               @click="${() => this.applyCorrections()}"
-                            >Apply</md-button>
+                              >Apply</md-button
+                            >
                             <md-button
                               size="small"
                               variant="text"
                               @click="${() => this.dismissProofread()}"
-                            >Dismiss</md-button>
+                              >Dismiss</md-button
+                            >
                           </div>
                         </div>
                         <div class="proofread-dropdown-content">
@@ -856,39 +872,38 @@ export class PostDialog extends LitElement {
                         </div>
                       </div>
                     `
-            : null}
+                  : null}
               </div>
             `
-        : null}
-
+          : null}
         ${this.sensitive
-        ? html`<div id="sensitive-warning">
+          ? html`<div id="sensitive-warning">
               <md-text-field
                 id="sensitive-input"
                 placeholder="Write your warning here"
               ></md-text-field>
             </div>`
-        : null}
+          : null}
 
         <div slot="footer" class="dialog-footer-actions">
           ${this.showPrompt
-        ? html`<div id="ai-image">
+            ? html`<div id="ai-image">
                 ${this.showPrompt && this.generatedImage
-            ? html` <img src="${this.generatedImage}" /> `
-            : this.showPrompt && this.generatingImage === false
-              ? html`<div id="ai-preview-block">
+                  ? html` <img src="${this.generatedImage}" /> `
+                  : this.showPrompt && this.generatingImage === false
+                    ? html`<div id="ai-preview-block">
                         <p>Enter a prompt to generate an image with AI!</p>
                       </div>`
-              : html`<div id="ai-preview-block">
+                    : html`<div id="ai-preview-block">
                         <sl-skeleton effect="sheen"></sl-skeleton>
                       </div>`}
                 ${this.showPrompt
-            ? html`
+                  ? html`
                       <div id="ai-input-block">
                         <sl-input
                           placeholder="A picture of an orange cat"
                           @sl-change="${(e: any) =>
-                this.doAIImage(e.target.value)}"
+                            this.doAIImage(e.target.value)}"
                         ></sl-input>
 
                         <md-button
@@ -900,9 +915,9 @@ export class PostDialog extends LitElement {
                         >
                       </div>
                     `
-            : null}
+                  : null}
               </div>`
-        : null}
+            : null}
 
           <div>
             <!-- Desktop buttons with text -->
@@ -964,10 +979,10 @@ export class PostDialog extends LitElement {
         </div>
 
         ${this.attaching === false
-        ? html`
+          ? html`
               <ul>
                 ${this.attachments.map((attachment) => {
-          return html`
+                  return html`
                     <div class="img-preview">
                       <div class="preview-actions">
                         <md-icon-button
@@ -989,10 +1004,10 @@ export class PostDialog extends LitElement {
                       />
                     </div>
                   `;
-        })}
+                })}
               </ul>
             `
-        : html`<div id="attachment-loading">
+          : html`<div id="attachment-loading">
               <sl-skeleton effect="sheen"></sl-skeleton>
             </div>`}
       </md-dialog>
@@ -1003,9 +1018,9 @@ export class PostDialog extends LitElement {
         .description="${this.activeAttachment?.description || ''}"
         .mediaId="${this.activeAttachment?.id || ''}"
         @close="${() => {
-        this.editDialogOpen = false;
-        this.activeAttachment = null;
-      }}"
+          this.editDialogOpen = false;
+          this.activeAttachment = null;
+        }}"
         @save="${this.handleMediaSave}"
       ></media-edit-dialog>
     `;

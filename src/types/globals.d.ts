@@ -1,4 +1,4 @@
-export { };
+export {};
 
 declare global {
   interface Window {
@@ -104,7 +104,10 @@ declare global {
 
   // Extend ServiceWorkerRegistration.showNotification to accept extended options
   interface ServiceWorkerRegistration {
-    showNotification(title: string, options?: ServiceWorkerNotificationOptions): Promise<void>;
+    showNotification(
+      title: string,
+      options?: ServiceWorkerNotificationOptions
+    ): Promise<void>;
   }
 }
 

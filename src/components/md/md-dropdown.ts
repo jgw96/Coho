@@ -97,7 +97,7 @@ export class MdDropdown extends LitElement {
     if (this.contentSlot) {
       const elements = this.contentSlot.assignedElements();
       this._movedElements = [...elements];
-      elements.forEach(el => {
+      elements.forEach((el) => {
         this._popupContainer!.appendChild(el);
       });
     }
@@ -133,7 +133,7 @@ export class MdDropdown extends LitElement {
     if (this._movedElements.length > 0) {
       const holder = this.shadowRoot?.querySelector('.content-holder');
       if (holder) {
-        this._movedElements.forEach(el => {
+        this._movedElements.forEach((el) => {
           this.appendChild(el);
         });
       }

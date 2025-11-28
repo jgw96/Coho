@@ -104,7 +104,11 @@ export class MediaTimeline extends LitElement {
   private async _handleVisibilityChanged(e: VisibilityChangedEvent) {
     const { last } = e;
     // Load more when we're close to the end
-    if (last >= this.timeline.length - 5 && !this.loadingData && this.timeline.length > 0) {
+    if (
+      last >= this.timeline.length - 5 &&
+      !this.loadingData &&
+      this.timeline.length > 0
+    ) {
       this.loadingData = true;
       await this.loadMore();
       this.loadingData = false;
@@ -156,7 +160,7 @@ export class MediaTimeline extends LitElement {
           <timeline-item
             ?show="${true}"
             @replies="${($event: any) =>
-          this.handleReplies($event.detail.data)}"
+              this.handleReplies($event.detail.data)}"
             .tweet="${tweet}"
           ></timeline-item>
         `) as any}"

@@ -237,7 +237,11 @@ export const authToClient = async (code: string, state: string) => {
     // Make sure we actually have a string token, not an error object
     if (!data.access_token || typeof data.access_token !== 'string') {
       console.error('Invalid token response:', data);
-      throw new Error(data.error || data.details?.error_description || 'Failed to get access token');
+      throw new Error(
+        data.error ||
+          data.details?.error_description ||
+          'Failed to get access token'
+      );
     }
 
     const tokenData = data.access_token;
@@ -321,16 +325,13 @@ export const isFollowingMe = async (id: string) => {
 export const muteUser = async (id: string) => {
   const accessToken = getAccessToken();
   const server = getServer();
-  const response = await fetch(
-    `https://${server}/api/v1/accounts/${id}/mute`,
-    {
-      method: 'POST',
-      headers: new Headers({
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-      }),
-    }
-  );
+  const response = await fetch(`https://${server}/api/v1/accounts/${id}/mute`, {
+    method: 'POST',
+    headers: new Headers({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken}`,
+    }),
+  });
 
   const data = await response.json();
   return data;
@@ -397,14 +398,17 @@ export interface ReportOptions {
   forward?: boolean;
 }
 
-export const reportUser = async (accountId: string, options: ReportOptions = {}) => {
+export const reportUser = async (
+  accountId: string,
+  options: ReportOptions = {}
+) => {
   const accessToken = getAccessToken();
   const server = getServer();
   const formData = new FormData();
   formData.append('account_id', accountId);
 
   if (options.statusIds && options.statusIds.length > 0) {
-    options.statusIds.forEach(id => formData.append('status_ids[]', id));
+    options.statusIds.forEach((id) => formData.append('status_ids[]', id));
   }
   if (options.comment) {
     formData.append('comment', options.comment);
@@ -416,16 +420,13 @@ export const reportUser = async (accountId: string, options: ReportOptions = {})
     formData.append('forward', options.forward.toString());
   }
 
-  const response = await fetch(
-    `https://${server}/api/v1/reports`,
-    {
-      method: 'POST',
-      headers: new Headers({
-        'Authorization': `Bearer ${accessToken}`,
-      }),
-      body: formData,
-    }
-  );
+  const response = await fetch(`https://${server}/api/v1/reports`, {
+    method: 'POST',
+    headers: new Headers({
+      Authorization: `Bearer ${accessToken}`,
+    }),
+    body: formData,
+  });
 
   const data = await response.json();
   return data;

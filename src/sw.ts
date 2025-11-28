@@ -41,7 +41,15 @@ interface WidgetInstallEvent extends ExtendableEvent {
 }
 
 interface NotificationData {
-  type: 'mention' | 'reblog' | 'favourite' | 'follow' | 'poll' | 'follow_request' | 'status' | 'update';
+  type:
+    | 'mention'
+    | 'reblog'
+    | 'favourite'
+    | 'follow'
+    | 'poll'
+    | 'follow_request'
+    | 'status'
+    | 'update';
   account: {
     id: string;
     display_name: string;
@@ -57,7 +65,15 @@ interface MastodonPushPayload {
   access_token: string;
   preferred_locale: string;
   notification_id: string;
-  notification_type: 'mention' | 'reblog' | 'favourite' | 'follow' | 'poll' | 'follow_request' | 'status' | 'update';
+  notification_type:
+    | 'mention'
+    | 'reblog'
+    | 'favourite'
+    | 'follow'
+    | 'poll'
+    | 'follow_request'
+    | 'status'
+    | 'update';
   icon: string;
   title: string;
   body: string;
@@ -232,7 +248,11 @@ self.addEventListener('notificationclick', (event: NotificationEvent) => {
   const notificationData = event.notification.data;
 
   // Handle follow action - need to fetch notification to get account ID
-  if (event.action === 'follow' && notificationData?.notification_id && notificationData?.access_token) {
+  if (
+    event.action === 'follow' &&
+    notificationData?.notification_id &&
+    notificationData?.access_token
+  ) {
     event.waitUntil(
       (async () => {
         try {
