@@ -1,5 +1,6 @@
-const server = localStorage.getItem('server') || '';
-const accessToken = localStorage.getItem('accessToken') || '';
+// Helper functions to always get fresh values from localStorage
+const getServer = () => localStorage.getItem('server') || '';
+const getAccessToken = () => localStorage.getItem('accessToken') || '';
 
 export const getNotifications = async () => {
   // const notifyResponse = await fetch(`http://localhost:8000/notifications?code=${accessToken}&server=${server}`);
@@ -7,6 +8,8 @@ export const getNotifications = async () => {
   // return data;
 
   // get notifications from mastodon api
+  const accessToken = getAccessToken();
+  const server = getServer();
   const notifyResponse = await fetch(`https://${server}/api/v1/notifications`, {
     method: 'GET',
     headers: new Headers({
@@ -26,6 +29,8 @@ export const clearNotifications = async () => {
   // return data;
 
   // clear notifications from mastodon api
+  const accessToken = getAccessToken();
+  const server = getServer();
   const response = await fetch(`https://${server}/api/v1/notifications/clear`, {
     method: 'POST',
     headers: new Headers({
@@ -55,6 +60,9 @@ export const subToPush = async () => {
 
   let vapidKey: string | undefined;
   let subscription: PushSubscription | null | undefined;
+
+  const accessToken = getAccessToken();
+  const server = getServer();
 
   // First, try to get VAPID key from app credentials
   // This is the correct way according to Mastodon docs
@@ -220,6 +228,9 @@ export const modifyPush = async (flags?: string[]) => {
     };
   }
 
+  const accessToken = getAccessToken();
+  const server = getServer();
+
   const response = await fetch(`https://${server}/api/v1/push/subscription`, {
     method: 'PUT',
     headers: new Headers({
@@ -242,6 +253,9 @@ export const unsubToPush = async () => {
   if (!subscription) {
     return;
   }
+
+  const accessToken = getAccessToken();
+  const server = getServer();
 
   const response = await fetch(`https://${server}/api/v1/push/subscription`, {
     method: 'DELETE',

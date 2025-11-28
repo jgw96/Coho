@@ -878,9 +878,12 @@ export const authenticate = onRequest(async (request, response) => {
   applyCors(request, response);
 
   const serverURL = request.query.server as string;
-  const redirectUri =
+  const rawRedirectUri =
     (request.query.redirect_uri as string) ||
-    'https://wonderful-glacier-07b022d1e.2.azurestaticapps.net/';
+    'https://wonderful-glacier-07b022d1e.2.azurestaticapps.net';
+
+  // Normalize redirect_uri - remove trailing slash for consistency
+  const redirectUri = rawRedirectUri.replace(/\/$/, '');
 
   if (!serverURL) {
     response.status(400).json({ error: 'Server is required' });
@@ -894,7 +897,7 @@ export const authenticate = onRequest(async (request, response) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        client_name: 'Otter',
+        client_name: 'Coho',
         redirect_uris: redirectUri,
         scopes: 'read write follow push',
         website: redirectUri,
@@ -912,10 +915,11 @@ export const authenticate = onRequest(async (request, response) => {
         clientId: clientID,
         clientSecret: clientSecret,
         server: serverURL,
+        redirectUri: redirectUri,  // Store the exact redirect_uri used
       })
     ).toString('base64');
 
-    const authResponseURL = `https://${serverURL}/oauth/authorize?client_id=${clientID}&redirect_uri=${redirectUri}/&response_type=code&scope=read+write+follow+push&state=${encodedState}`;
+    const authResponseURL = `https://${serverURL}/oauth/authorize?client_id=${clientID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=read+write+follow+push&state=${encodedState}`;
 
     response.json({ url: authResponseURL });
   } catch (error) {
@@ -935,9 +939,7 @@ export const getClient = onRequest(async (request, response) => {
 
   const code = request.query.code as string;
   const state = request.query.state as string;
-  const redirectUri =
-    (request.query.redirect_uri as string) ||
-    'https://wonderful-glacier-07b022d1e.2.azurestaticapps.net/';
+  const rawRedirectUri = request.query.redirect_uri as string;
 
   if (!code || !state) {
     response.status(400).json({ error: 'Missing code or state parameter' });
@@ -947,15 +949,18 @@ export const getClient = onRequest(async (request, response) => {
   try {
     // Decode the state parameter to get client credentials
     const decodedState = JSON.parse(Buffer.from(state, 'base64').toString());
-    const { clientId, clientSecret, server } = decodedState;
+    const { clientId, clientSecret, server, redirectUri: storedRedirectUri } = decodedState;
 
     if (!clientId || !clientSecret || !server) {
       response.status(400).json({ error: 'Invalid state parameter' });
       return;
     }
 
-    // Ensure redirect_uri has trailing slash to match what was used in authenticate
-    const normalizedRedirectUri = redirectUri.endsWith('/') ? redirectUri : `${redirectUri}/`;
+    // Use the stored redirect_uri from state (which matches what was used in authenticate)
+    // Fall back to the provided redirect_uri (normalized) if not in state
+    const redirectUri = storedRedirectUri || (rawRedirectUri ? rawRedirectUri.replace(/\/$/, '') : 'https://wonderful-glacier-07b022d1e.2.azurestaticapps.net');
+
+    logger.info('Token exchange attempt', { server, redirectUri, hasCode: !!code });
 
     const apiResponse = await fetch(`https://${server}/oauth/token`, {
       method: 'POST',
@@ -966,7 +971,7 @@ export const getClient = onRequest(async (request, response) => {
         client_id: clientId,
         client_secret: clientSecret,
         code: code,
-        redirect_uri: normalizedRedirectUri,
+        redirect_uri: redirectUri,
         grant_type: 'authorization_code',
         scope: 'read write follow push',
       }),
@@ -977,7 +982,7 @@ export const getClient = onRequest(async (request, response) => {
     if (data.access_token) {
       response.json({ access_token: data.access_token });
     } else {
-      logger.error('No access token in response', { data });
+      logger.error('No access token in response', { data, redirectUri });
       response
         .status(500)
         .json({ error: 'Failed to get access token', details: data });

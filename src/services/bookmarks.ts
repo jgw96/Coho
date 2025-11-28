@@ -1,9 +1,12 @@
 import { FIREBASE_FUNCTIONS_BASE_URL } from '../config/firebase';
 
-const server = localStorage.getItem('server') || '';
-const accessToken = localStorage.getItem('accessToken') || '';
+// Helper functions to always get fresh values from localStorage
+const getServer = () => localStorage.getItem('server') || '';
+const getAccessToken = () => localStorage.getItem('accessToken') || '';
 
 export const getBookmarks = async () => {
+  const accessToken = getAccessToken();
+  const server = getServer();
   const response = await fetch(
     `${FIREBASE_FUNCTIONS_BASE_URL}/getBookmarks?code=${accessToken}&server=${server}`
   );
@@ -12,6 +15,8 @@ export const getBookmarks = async () => {
 };
 
 export const addBookmark = async (id: string) => {
+  const accessToken = getAccessToken();
+  const server = getServer();
   const response = await fetch(
     `${FIREBASE_FUNCTIONS_BASE_URL}/bookmark?id=${id}&code=${accessToken}&server=${server}`,
     {

@@ -54,6 +54,9 @@ export class AppIndex extends LitElement {
   async connectedCallback() {
     super.connectedCallback();
 
+    // Sync localStorage credentials to IndexedDB for service worker access
+    await this.syncCredentialsToIndexedDB();
+
     const settings = await getSettings();
     console.log('settings', settings);
 
@@ -71,6 +74,22 @@ export class AppIndex extends LitElement {
 
     // Warm cache on app boot if conditions are good
     this.warmCacheIfAppropriate(settings);
+  }
+
+  /**
+   * Sync credentials from localStorage to IndexedDB
+   * This ensures the service worker has access to the latest tokens
+   */
+  private async syncCredentialsToIndexedDB() {
+    const accessToken = localStorage.getItem('accessToken');
+    const server = localStorage.getItem('server');
+
+    if (accessToken && server) {
+      const { set } = await import('idb-keyval');
+      await set('accessToken', accessToken);
+      await set('server', server);
+      console.log('[App] Synced credentials to IndexedDB');
+    }
   }
 
   /**
