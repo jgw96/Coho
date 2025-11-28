@@ -1,1 +1,1 @@
-export declare const getFavorites: () => Promise<any>;
+export { getFavorites } from '../mastodon';
