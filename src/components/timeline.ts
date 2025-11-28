@@ -99,8 +99,6 @@ export class Timeline extends LitElement {
         align-items: center;
         margin-bottom: 12px;
         gap: 12px;
-        padding-left: 10px;
-        padding-right: 10px;
       }
 
       #timeline-header md-select {
@@ -150,10 +148,7 @@ export class Timeline extends LitElement {
 
       .timeline-list-item {
         margin-bottom: 30px;
-      }
-
-      .timeline-list-item {
-        margin-bottom: 30px;
+        width: 100%;
       }
 
       #load-more {

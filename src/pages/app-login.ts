@@ -1,20 +1,38 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
-import '../components/md/md-text-field';
+import '../components/md/md-autocomplete';
 import '../components/md/md-button';
 import '../components/md/md-card';
+import type { AutocompleteOption } from '../components/md/md-autocomplete';
 
 // Dynamic import to avoid loading router during SSR
 const getRouter = () => import('../utils/router').then(m => m.router);
+
+// Popular Mastodon instances for fallback/initial suggestions
+const POPULAR_INSTANCES: AutocompleteOption[] = [
+  { value: 'mastodon.social', label: 'mastodon.social', description: 'The original Mastodon server' },
+  { value: 'mastodon.online', label: 'mastodon.online', description: 'A newer official Mastodon server' },
+  { value: 'mstdn.social', label: 'mstdn.social', description: 'A general-purpose server' },
+  { value: 'fosstodon.org', label: 'fosstodon.org', description: 'For Free & Open Source Software enthusiasts' },
+  { value: 'hachyderm.io', label: 'hachyderm.io', description: 'For tech industry professionals' },
+  { value: 'infosec.exchange', label: 'infosec.exchange', description: 'For the infosec community' },
+  { value: 'tech.lgbt', label: 'tech.lgbt', description: 'For LGBTQ+ people in tech' },
+  { value: 'universeodon.com', label: 'universeodon.com', description: 'A general-purpose server' },
+  { value: 'mas.to', label: 'mas.to', description: 'A general-purpose server' },
+  { value: 'social.vivaldi.net', label: 'social.vivaldi.net', description: 'Vivaldi browser community' },
+];
 
 let scrollWidth: number = 0;
 
 @customElement('app-login')
 export class AppLogin extends LitElement {
   @state() loadIntro: boolean = false;
-  @state() instances: any[] = [];
+  @state() instances: AutocompleteOption[] = POPULAR_INSTANCES;
   @state() chosenServer: string = '';
+  @state() loadingInstances: boolean = false;
+
+  private _searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
   static styles = [
     css`
@@ -264,9 +282,91 @@ export class AppLogin extends LitElement {
   }
 
   handleServerInput(event: any) {
-    console.log(event.target.value);
+    const value = event.detail?.value || event.target?.value || '';
+    this.chosenServer = value;
 
-    this.chosenServer = event.target.value;
+    // Debounce the search
+    if (this._searchDebounceTimer) {
+      clearTimeout(this._searchDebounceTimer);
+    }
+
+    if (value.length < 2) {
+      // Show popular instances when input is short
+      this.instances = POPULAR_INSTANCES;
+      return;
+    }
+
+    this._searchDebounceTimer = setTimeout(() => {
+      this.searchInstances(value);
+    }, 300);
+  }
+
+  async searchInstances(query: string) {
+    this.loadingInstances = true;
+
+    try {
+      // First, filter popular instances that match
+      const matchingPopular = POPULAR_INSTANCES.filter(
+        inst => inst.value.toLowerCase().includes(query.toLowerCase())
+      );
+
+      // Try to fetch from instances.social API
+      const instancesToken = import.meta.env.VITE_INSTANCES_SOCIAL_TOKEN;
+      if (!instancesToken) {
+        console.warn('VITE_INSTANCES_SOCIAL_TOKEN not set, using local filtering only');
+        this.instances = matchingPopular.length > 0 ? matchingPopular : POPULAR_INSTANCES;
+        this.loadingInstances = false;
+        return;
+      }
+
+      const response = await fetch(
+        `https://instances.social/api/1.0/instances/search?q=${encodeURIComponent(query)}&count=10&name=true`,
+        {
+          headers: {
+            'Authorization': `Bearer ${instancesToken}`
+          }
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        const apiInstances: AutocompleteOption[] = (data.instances || []).map((inst: any) => ({
+          value: inst.name,
+          label: inst.name,
+          description: inst.info?.short_description || inst.info?.full_description?.substring(0, 100) || `${inst.users || '?'} users`,
+          icon: inst.thumbnail
+        }));
+
+        // Combine popular matches with API results, removing duplicates
+        const seenValues = new Set<string>();
+        const combined: AutocompleteOption[] = [];
+
+        for (const inst of [...matchingPopular, ...apiInstances]) {
+          if (!seenValues.has(inst.value)) {
+            seenValues.add(inst.value);
+            combined.push(inst);
+          }
+        }
+
+        this.instances = combined.length > 0 ? combined : matchingPopular;
+      } else {
+        // Fallback to filtering popular instances
+        this.instances = matchingPopular.length > 0 ? matchingPopular : POPULAR_INSTANCES;
+      }
+    } catch (error) {
+      console.error('Failed to search instances:', error);
+      // Fallback to filtering popular instances
+      const matchingPopular = POPULAR_INSTANCES.filter(
+        inst => inst.value.toLowerCase().includes(query.toLowerCase())
+      );
+      this.instances = matchingPopular.length > 0 ? matchingPopular : POPULAR_INSTANCES;
+    } finally {
+      this.loadingInstances = false;
+    }
+  }
+
+  handleServerSelect(event: CustomEvent) {
+    this.chosenServer = event.detail.value;
   }
 
   async joinMastodon() {
@@ -399,14 +499,15 @@ export class AppLogin extends LitElement {
           </div>
 
           <div class="login-form">
-            <md-text-field
-              placeholder="mastodon.social"
+            <md-autocomplete
+              placeholder="Search for your server (e.g. mastodon.social)"
               .value="${this.chosenServer}"
+              .options="${this.instances}"
+              .loading="${this.loadingInstances}"
               @input="${this.handleServerInput}"
-              @change="${this.handleServerInput}"
-              type="url"
+              @select="${this.handleServerSelect}"
             >
-            </md-text-field>
+            </md-autocomplete>
 
             <md-button
               @click="${() => this.login()}"

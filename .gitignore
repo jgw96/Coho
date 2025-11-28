@@ -10,6 +10,11 @@ build
 /playwright-report/
 /playwright/.cache/
 
+# Environment variables
+.env
+.env.local
+.env.*.local
+
 # Firebase
 firebase-debug.log
 .firebase/

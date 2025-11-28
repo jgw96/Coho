@@ -107,3 +107,12 @@ declare global {
     showNotification(title: string, options?: ServiceWorkerNotificationOptions): Promise<void>;
   }
 }
+
+// Vite environment variables
+interface ImportMetaEnv {
+  readonly VITE_INSTANCES_SOCIAL_TOKEN?: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}

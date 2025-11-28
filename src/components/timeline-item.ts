@@ -62,8 +62,8 @@ export class TimelineItem extends LitElement {
       }
 
       md-card::part(header) {
-        padding: 12px;
-        padding-bottom: 0;
+        padding: 0;
+        padding-top: 12px;
       }
 
       md-card::part(body) {
@@ -136,12 +136,6 @@ export class TimelineItem extends LitElement {
         width: -webkit-fill-available;
         padding-left: 12px;
         padding-right: 12px;
-      }
-
-      .link-card-content p {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
       }
 
       @media (prefers-color-scheme: light) {
