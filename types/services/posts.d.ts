@@ -1,15 +1,12 @@
-import { Account } from '../types/interfaces/Account';
-import { Post } from '../interfaces/Post';
-import { MediaAttachment } from '../types/interfaces/MediaAttachment';
-export declare function whoBoostedAndFavorited(id: string): Promise<Account[]>;
-export declare function editPost(id: string, newContent: string): Promise<Post>;
-export declare function deletePost(id: string): Promise<Post>;
-export declare function getPostDetail(id: string): Promise<Post>;
-export declare function publishPost(post: string, ids?: Array<string>, sensitive?: boolean, spoilerText?: string, visibility?: string): Promise<Post>;
-export declare function replyToPost(id: string, content: string): Promise<Post>;
-export declare function uploadImageFromURL(url: string): Promise<MediaAttachment>;
-export declare function uploadImageFromBlob(blob: Blob): Promise<MediaAttachment>;
-export declare function pickMedia(): Promise<File[]>;
+import type { MediaAttachment } from '../mastodon';
+export { whoBoostedAndFavorited, editPost, deletePost, getPostDetail, publishPost, replyToPost, uploadImageFromURL, uploadImageFromBlob, pickMedia, updateMedia, } from '../mastodon';
+/**
+ * Upload a media file and save it to local media storage
+ * This wraps the mastodon library function to add local caching
+ */
 export declare function uploadMediaFile(file: File): Promise<MediaAttachment>;
+/**
+ * Upload multiple media files using file picker dialog and save to local storage
+ * This wraps the mastodon library function to add local caching
+ */
 export declare function uploadImageAsFormData(): Promise<MediaAttachment[]>;
-export declare function updateMedia(id: string, description: string): Promise<MediaAttachment>;
