@@ -38,7 +38,7 @@ async function listFiles(dir, files = []) {
   let entries;
   try {
     entries = await fs.readdir(dir, { withFileTypes: true });
-  } catch (_e) {
+  } catch {
     return files; // Ignore missing dirs
   }
   for (const entry of entries) {

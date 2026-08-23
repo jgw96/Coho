@@ -7,7 +7,7 @@
  * authenticated with `gcloud auth application-default login`.
  */
 
-import { initializeApp, cert, getApps } from 'firebase-admin/app';
+import { initializeApp, getApps } from 'firebase-admin/app';
 import { getMessaging } from 'firebase-admin/messaging';
 
 // ── Config ──────────────────────────────────────────────────────
