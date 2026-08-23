@@ -1,10 +1,8 @@
 import { defineConfig, build } from 'vite';
 import checker from 'vite-plugin-checker';
-import copy from 'rollup-plugin-copy';
 import wasm from 'vite-plugin-wasm';
 import { visualizer } from 'rollup-plugin-visualizer';
-import typescript from '@rollup/plugin-typescript';
-import { compileLitTemplates } from '@lit-labs/compiler';
+
 import { readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -71,17 +69,6 @@ customPlugins.push({
             // Inline all imports - critical for service workers
             inlineDynamicImports: true,
           },
-          plugins: [
-            typescript({
-              compilerOptions: {
-                declaration: false,
-                declarationMap: false,
-              },
-              transformers: {
-                before: [compileLitTemplates()],
-              },
-            }),
-          ],
         },
         minify: 'terser',
         terserOptions: {
@@ -308,17 +295,7 @@ export default defineConfig({
       input: {
         main: 'index.html',
       },
-      plugins: [
-        typescript({
-          compilerOptions: {
-            declaration: false,
-            declarationMap: false,
-          },
-          transformers: {
-            before: [compileLitTemplates()],
-          },
-        }),
-      ],
+      plugins: [],
       output: {
         manualChunks(id) {
           if (id.includes('src/utils/perf-observer')) {
@@ -364,9 +341,6 @@ export default defineConfig({
     wasm(),
     checker({
       typescript: true,
-    }),
-    copy({
-      targets: [{ src: 'dark.css', dest: 'dist/' }],
     }),
     ...(process.env.ANALYZE_BUNDLE ? [visualizer({ open: true })] : []),
   ],

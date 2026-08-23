@@ -41,8 +41,7 @@ declare global {
   interface Navigator {
     share?(data?: ShareData): Promise<void>;
     canShare?(data?: ShareData): boolean;
-    setAppBadge?(count?: number): Promise<void>;
-    clearAppBadge?(): Promise<void>;
+
     connection?: NetworkInformation;
   }
 

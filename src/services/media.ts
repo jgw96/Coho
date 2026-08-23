@@ -4,7 +4,6 @@ const mediaDir = await root.getDirectoryHandle('media', { create: true });
 export async function getAllMedia() {
   // get all files from mediaDir
   const promises = [];
-  // @ts-expect-error - FileSystemDirectoryHandle.values() async iterator types
   for await (const entry of mediaDir.values()) {
     if (entry.kind !== 'file') {
       continue;
